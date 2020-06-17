@@ -1,0 +1,10 @@
+rema_webform.sum:
+  version: VERSION
+  css:
+    theme:
+      css/total-sum.css: {}
+  js:
+    js/total-sum.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
