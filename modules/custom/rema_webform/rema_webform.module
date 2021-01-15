@@ -173,7 +173,7 @@ function rema_webform_node_presave(NodeInterface $node)
                   $elements[$bundle_id][] = [
                     $product_title => [
                       '#type' => 'flexbox',
-                      'size_range_' . $product_id => [
+                      'size_' . $product_id => [
                         '#type' => 'select',
                         '#title' => 'Maat',
                         '#options' => $sizes
@@ -186,7 +186,11 @@ function rema_webform_node_presave(NodeInterface $node)
                       'calculation_' . $product_id => [
                         '#type' => 'computed_twig',
                         '#title' => 'Berekening',
-                        '#template' => '',
+                        '#template' => '|
+                          {% if data.size_' . $product_id . ' %}
+                          {% set total= data.size_' . $product_id . '*data.amount_'. $product_id .' %}
+                          {% endif %}
+                          {{total}}',
                         '#ajax' => true
                       ]
                     ];
