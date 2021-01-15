@@ -125,19 +125,20 @@ function rema_webform_node_presave(NodeInterface $node)
     $webform = $node->get('webform')->getValue();
 
     if (empty($webform)) {
+      $bundles = $node->get('field_webform_bundles')->getValue();
+
       // Build a render array of elements.
       $elements = [
-        'name' => [
-          '#type' => 'textfield',
-          '#title' => 'Name',
+        'bundle_select' => [
+          '#type' => 'select',
+          '#title' => 'Pakketten',
+          '#options' => $bundles
         ],
       ];
 
       $settings = [
         // Define settings.
       ];
-
-      $bundles = $node->get('field_webform_bundles')->getValue();
 
       if (!empty($bundles)) {
         foreach ($bundles as $id => $value) {
@@ -166,22 +167,29 @@ function rema_webform_node_presave(NodeInterface $node)
 
                 if ($product instanceof NodeInterface) {
                   $product_title = $bundle->getTitle();
+                  $sizes = $bundle->get('field_product_sizes')->getValue();
                   $product_id = $bundle->id();
 
                   $elements[$bundle_id][] = [
-                    $product_id => [
+                    $product_title => [
                       '#type' => 'flexbox',
                       'size_range_' . $product_id => [
-
+                        '#type' => 'select',
+                        '#title' => 'Maat',
+                        '#options' => $sizes
+                        ]
                       ],
                       'amount_' . $product_id => [
-
+                        '#type'=> 'number',
+                        '#title' => 'Aantal'
                       ],
                       'calculation_' . $product_id => [
-
+                        '#type' => 'computed_twig',
+                        '#title' => 'Berekening',
+                        '#template' => '',
+                        '#ajax' => true
                       ]
-                    ]
-                  ];
+                    ];
                 }
               }
             }
