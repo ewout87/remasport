@@ -7,6 +7,7 @@
 
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
 use Drupal\webform\Entity\WebformSubmission;
 
 /**
@@ -110,3 +111,99 @@ function MYMODULE_finish_callback(Payment $payment) {
   }
 }
 
+
+use Drupal\Component\Serialization\Yaml;
+use Drupal\node\NodeInterface;
+use Drupal\webform\Entity\Webform;
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for node entities.
+ */
+function rema_webform_node_presave(NodeInterface $node)
+{
+  if ($node->bundle() == 'webform') {
+    $webform = $node->get('webform')->getValue();
+
+    if (empty($webform)) {
+      // Build a render array of elements.
+      $elements = [
+        'name' => [
+          '#type' => 'textfield',
+          '#title' => 'Name',
+        ],
+      ];
+
+      $settings = [
+        // Define settings.
+      ];
+
+      $bundles = $node->get('field_webform_bundles')->getValue();
+
+      if (!empty($bundles)) {
+        foreach ($bundles as $id => $value) {
+          $bundle_id = $value[0]['target_id'];
+
+          $bundle = Node::load($bundle_id);
+
+          if ($bundle instanceof NodeInterface) {
+            $bundle_title = $bundle->getTitle();
+            $bundle_id = $bundle->id();
+
+            $elements[] = [
+              $bundle_id => [
+                '#type' => 'wizard_page',
+                '#title' => $bundle_title
+              ]
+            ];
+
+
+            $products = $bundle->get('field_bundle_products')->getValue();
+            if (!empty($products)) {
+              foreach ($products as $id => $value) {
+                $product_id = $value[0]['target_id'];
+
+                $product = Node::load($product_id);
+
+                if ($product instanceof NodeInterface) {
+                  $product_title = $bundle->getTitle();
+                  $product_id = $bundle->id();
+
+                  $elements[$bundle_id][] = [
+                    $product_id => [
+                      '#type' => 'flexbox',
+                      'size_range_' . $product_id => [
+
+                      ],
+                      'amount_' . $product_id => [
+
+                      ],
+                      'calculation_' . $product_id => [
+
+                      ]
+                    ]
+                  ];
+                }
+              }
+            }
+          }
+        }
+      }
+
+
+      // Append default settings.
+      $settings += Webform::getDefaultSettings();
+
+      // Create a webform.
+      $webform = Webform::create([
+        'id' => 'webform_' . $node->id(),
+        'title' => $node->getTitle(),
+        'elements' => Yaml::encode($elements),
+        'settings' => $settings,
+      ]);
+
+      $webform->save();
+
+      $node->set('webform', $webform->id());
+    }
+  }
+}
