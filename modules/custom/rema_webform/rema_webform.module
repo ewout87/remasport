@@ -124,25 +124,26 @@ function rema_webform_node_presave(NodeInterface $node)
   if ($node->bundle() == 'webform') {
     $webform = $node->get('webform')->getValue();
 
+    // Build a render array of elements.
+    $elements= [];
+
     if (empty($webform)) {
       $bundles = $node->get('field_webform_bundles')->getValue();
-
-      // Build a render array of elements.
-      $elements = [
-        'bundle_select' => [
-          '#type' => 'select',
-          '#title' => 'Pakketten',
-          '#options' => $bundles
-        ],
-      ];
 
       $settings = [
         // Define settings.
       ];
 
       if (!empty($bundles)) {
-        foreach ($bundles as $id => $value) {
-          $bundle_id = $value[0]['target_id'];
+
+        $elements['bundle_select'] = [
+          '#type' => 'select',
+          '#title' => 'Pakketten',
+          '#options' => []
+        ];
+
+        foreach ($bundles as $bundle) {
+          $bundle_id = $bundle['target_id'];
 
           $bundle = Node::load($bundle_id);
 
@@ -150,34 +151,33 @@ function rema_webform_node_presave(NodeInterface $node)
             $bundle_title = $bundle->getTitle();
             $bundle_id = $bundle->id();
 
-            $elements[] = [
-              $bundle_id => [
-                '#type' => 'wizard_page',
-                '#title' => $bundle_title
-              ]
-            ];
+            $elements['bundle_select']['#options'][] = $bundle_title;
 
+            $elements[$bundle_id] = [
+              '#type' => 'wizard_page',
+              '#title' => $bundle_title
+            ];
 
             $products = $bundle->get('field_bundle_products')->getValue();
             if (!empty($products)) {
-              foreach ($products as $id => $value) {
-                $product_id = $value[0]['target_id'];
+              foreach ($products as $product) {
+                $product_id = $product['target_id'];
 
                 $product = Node::load($product_id);
 
                 if ($product instanceof NodeInterface) {
                   $product_title = $bundle->getTitle();
                   $sizes = $bundle->get('field_product_sizes')->getValue();
+                  $size_options = get_size_options($sizes);
+
                   $product_id = $bundle->id();
 
-                  $elements[$bundle_id][] = [
-                    $product_title => [
+                  $elements[$bundle_id][$product_title] = [
                       '#type' => 'flexbox',
                       'size_' . $product_id => [
                         '#type' => 'select',
                         '#title' => 'Maat',
-                        '#options' => $sizes
-                        ]
+                        '#options' => $size_options
                       ],
                       'amount_' . $product_id => [
                         '#type'=> 'number',
@@ -218,4 +218,47 @@ function rema_webform_node_presave(NodeInterface $node)
       $node->set('webform', $webform->id());
     }
   }
+}
+
+/**
+ * @param $sizes
+ */
+function get_size_options($sizes){
+  $size_options= [];
+
+  foreach($sizes as $size) {
+    $size = Node::load($size['target_id']);
+
+    $size_keys = [];
+    $size_values = [];
+
+    if($size instanceof NodeInterface){
+      $size_title = $size->getTitle();
+      $size_price = $size->get('field_size_price')->getValue();
+
+      $size_keys[] = $size_price[0]['value'];
+      $size_values[] = $size_title;
+    }
+  }
+
+  $size_options = unique_size_keys($size_keys, $size_values);
+
+  return $size_options;
+}
+
+/**
+ * @param $keys
+ * @param $values
+ */
+function unique_size_keys($keys, $values) {
+  $size_options = [];
+  $unique_keys = array_unique($keys);
+
+  for($i = 0; $i < count($keys); $i++){
+    if(in_array($keys[$i], $keys)){
+      $size_options[$keys[$i] . str_repeat(' ', $i)] = $values[$i];
+    }
+  }
+
+  return $size_options;
 }
