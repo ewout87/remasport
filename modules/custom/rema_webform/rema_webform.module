@@ -1,14 +1,16 @@
 <?php
 
+use Drupal\Component\Serialization\Yaml;
+use Drupal\node\NodeInterface;
+use Drupal\webform\Entity\Webform;
+use Drupal\node\Entity\Node;
+
 /**
  * @file
  * Primary module hooks for Webform Summation Field module.
  */
 
 
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\Node;
-use Drupal\webform\Entity\WebformSubmission;
 
 /**
  * Implements hook_webform_submission_presave().
@@ -112,9 +114,7 @@ function MYMODULE_finish_callback(Payment $payment) {
 }
 
 
-use Drupal\Component\Serialization\Yaml;
-use Drupal\node\NodeInterface;
-use Drupal\webform\Entity\Webform;
+
 
 /**
  * Implements hook_ENTITY_TYPE_presave() for node entities.
@@ -124,26 +124,36 @@ function rema_webform_node_presave(NodeInterface $node)
   if ($node->bundle() == 'webform') {
     $webform = $node->get('webform')->getValue();
 
-    // Build a render array of elements.
-    $elements= [];
+   
 
     if (empty($webform)) {
       $bundles = $node->get('field_webform_bundles')->getValue();
 
+      // Build a render array of elements.
+      $elements= [];
+      
       $settings = [
         // Define settings.
       ];
 
       if (!empty($bundles)) {
 
-        $elements['bundle_select'] = [
-          '#type' => 'select',
-          '#title' => 'Pakketten',
-          '#options' => []
+        $elements['selection'] = [
+          '#type' => 'webform_wizard_page',
+          '#title' => 'Selectie',
+          'bundle_select' => [
+            '#type' => 'radios',
+            '#title' => 'Pakketten',
+            '#options' => [],
+            '#options_display' => 'buttons',
+            '#required' => true,
+            '#states_clear' => false,
+            '#options__properties' => ''
+          ]
         ];
 
-        foreach ($bundles as $bundle) {
-          $bundle_id = $bundle['target_id'];
+        foreach ($bundles as $key => $value) {
+          $bundle_id = $value['target_id'];
 
           $bundle = Node::load($bundle_id);
 
@@ -151,11 +161,18 @@ function rema_webform_node_presave(NodeInterface $node)
             $bundle_title = $bundle->getTitle();
             $bundle_id = $bundle->id();
 
-            $elements['bundle_select']['#options'][] = $bundle_title;
+            $elements['selection']['bundle_select']['#options'][] = $bundle_title;
 
-            $elements[$bundle_id] = [
-              '#type' => 'wizard_page',
-              '#title' => $bundle_title
+            $elements['bundle_'.$bundle_id] = [
+              '#type' => 'webform_wizard_page',
+              '#title' => $bundle_title,
+              '#states' => [
+                visible => [
+                  ':input[name="bundle_select"]' => [
+                    value => $key
+                    ]
+                  ]
+                ]
             ];
 
             $products = $bundle->get('field_bundle_products')->getValue();
@@ -166,38 +183,54 @@ function rema_webform_node_presave(NodeInterface $node)
                 $product = Node::load($product_id);
 
                 if ($product instanceof NodeInterface) {
-                  $product_title = $bundle->getTitle();
-                  $sizes = $bundle->get('field_product_sizes')->getValue();
-                  $size_options = get_size_options($sizes);
+                  $product_title = $product->getTitle();
+                  $sizes = $product->get('field_product_size_range')->getValue();
 
-                  $product_id = $bundle->id();
+                  if (!empty($sizes)) {
+                  $size_range = get_size_options($sizes);
 
-                  $elements[$bundle_id][$product_title] = [
-                      '#type' => 'flexbox',
-                      'size_' . $product_id => [
+                  $product_id = $product->id();
+                  $webform_key = 'bundle_'.$bundle_id.'_product_'.$product_id;
+
+                  $elements['bundle_'.$bundle_id][$webform_key] = [
+                      '#type' => 'webform_flexbox',
+                      $webform_key.'_size' => [
                         '#type' => 'select',
                         '#title' => 'Maat',
-                        '#options' => $size_options
+                        '#options' => $size_range,
+                        '#required' => true
                       ],
-                      'amount_' . $product_id => [
+                      $webform_key.'_amount' => [
                         '#type'=> 'number',
-                        '#title' => 'Aantal'
+                        '#title' => 'Aantal',
+                        '#min' => 1,
+                        '#default_value' => 1
                       ],
-                      'calculation_' . $product_id => [
-                        '#type' => 'computed_twig',
+                      $webform_key.'_calculation' => [
+                        '#type' => 'webform_computed_twig',
                         '#title' => 'Berekening',
-                        '#template' => '|
-                          {% if data.size_' . $product_id . ' %}
-                          {% set total= data.size_' . $product_id . '*data.amount_'. $product_id .' %}
+                        '#template' => '
+                          {% if data.' . $webform_key . '_size %}
+                          {% set total= data.' . $webform_key . '_size*data.'. $webform_key .'_amount %}
                           {% endif %}
                           {{total}}',
                         '#ajax' => true
                       ]
                     ];
+                  }
                 }
               }
             }
           }
+        }
+
+        $elements['extra'] = [
+          '#type' => 'webform_wizard_page',
+          '#title' => 'Vrije keuze',
+        ];
+
+        foreach($elements as $wizard_page){
+          array_push($elements['extra'], array_values($wizard_page))
         }
       }
 
@@ -225,12 +258,11 @@ function rema_webform_node_presave(NodeInterface $node)
  */
 function get_size_options($sizes){
   $size_options= [];
+  $size_keys = [];
+  $size_values = [];
 
   foreach($sizes as $size) {
     $size = Node::load($size['target_id']);
-
-    $size_keys = [];
-    $size_values = [];
 
     if($size instanceof NodeInterface){
       $size_title = $size->getTitle();
@@ -255,9 +287,7 @@ function unique_size_keys($keys, $values) {
   $unique_keys = array_unique($keys);
 
   for($i = 0; $i < count($keys); $i++){
-    if(in_array($keys[$i], $keys)){
-      $size_options[$keys[$i] . str_repeat(' ', $i)] = $values[$i];
-    }
+    $size_options[$keys[$i] . str_repeat(' ', $i)] = $values[$i];
   }
 
   return $size_options;
