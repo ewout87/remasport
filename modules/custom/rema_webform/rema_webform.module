@@ -1,6 +1,8 @@
 <?php
 
 use Drupal\Component\Serialization\Yaml;
+use Drupal\file\Entity\File;
+use Drupal\media\Entity\Media;
 use Drupal\node\NodeInterface;
 use Drupal\webform\Entity\Webform;
 use Drupal\node\Entity\Node;
@@ -124,20 +126,18 @@ function rema_webform_node_presave(NodeInterface $node)
   if ($node->bundle() == 'webform') {
     $webform = $node->get('webform')->getValue();
 
-   
-
     if (empty($webform)) {
       $bundles = $node->get('field_webform_bundles')->getValue();
 
       // Build a render array of elements.
       $elements= [];
-      
+
       $settings = [
         // Define settings.
       ];
 
       if (!empty($bundles)) {
-
+        // Bundle selection page
         $elements['selection'] = [
           '#type' => 'webform_wizard_page',
           '#title' => 'Selectie',
@@ -152,6 +152,8 @@ function rema_webform_node_presave(NodeInterface $node)
           ]
         ];
 
+        $unique_products = [];
+
         foreach ($bundles as $key => $value) {
           $bundle_id = $value['target_id'];
 
@@ -160,80 +162,116 @@ function rema_webform_node_presave(NodeInterface $node)
           if ($bundle instanceof NodeInterface) {
             $bundle_title = $bundle->getTitle();
             $bundle_id = $bundle->id();
+            $bundle_key = 'bundle_' . $bundle_id;
 
             $elements['selection']['bundle_select']['#options'][] = $bundle_title;
 
-            $elements['bundle_'.$bundle_id] = [
+            // Bundle page
+            $elements['bundle_' . $bundle_id] = [
               '#type' => 'webform_wizard_page',
               '#title' => $bundle_title,
               '#states' => [
-                visible => [
+                'visible' => [
                   ':input[name="bundle_select"]' => [
-                    value => $key
-                    ]
+                    'value' => $key
                   ]
                 ]
+              ]
             ];
 
+            // Add price
+            $price = $bundle->get('field_bundle_price')->getValue();
+
+            if (!empty($price)) {
+              $elements[$bundle_key][$bundle_id .'_price'] = [
+                '#type' => 'webform_computed_twig',
+                '#title' => 'Berekening',
+                '#template' => '
+                          {% set total=' . $price[0]['value'] . '%}
+                          {{total}}',
+                '#ajax' => true
+              ];
+            }
+
+            $elements[$bundle_key][$bundle_id .'_total'] = [
+              '#type' => 'total_sum',
+              '#title' => 'Totaal'
+            ];
+
+            // Add products
             $products = $bundle->get('field_bundle_products')->getValue();
             if (!empty($products)) {
-              foreach ($products as $product) {
-                $product_id = $product['target_id'];
+              $unique_products = array_unique(array_values($products));;
 
-                $product = Node::load($product_id);
-
-                if ($product instanceof NodeInterface) {
-                  $product_title = $product->getTitle();
-                  $sizes = $product->get('field_product_size_range')->getValue();
-
-                  if (!empty($sizes)) {
-                  $size_range = get_size_options($sizes);
-
-                  $product_id = $product->id();
-                  $webform_key = 'bundle_'.$bundle_id.'_product_'.$product_id;
-
-                  $elements['bundle_'.$bundle_id][$webform_key] = [
-                      '#type' => 'webform_flexbox',
-                      $webform_key.'_size' => [
-                        '#type' => 'select',
-                        '#title' => 'Maat',
-                        '#options' => $size_range,
-                        '#required' => true
-                      ],
-                      $webform_key.'_amount' => [
-                        '#type'=> 'number',
-                        '#title' => 'Aantal',
-                        '#min' => 1,
-                        '#default_value' => 1
-                      ],
-                      $webform_key.'_calculation' => [
-                        '#type' => 'webform_computed_twig',
-                        '#title' => 'Berekening',
-                        '#template' => '
-                          {% if data.' . $webform_key . '_size %}
-                          {% set total= data.' . $webform_key . '_size*data.'. $webform_key .'_amount %}
-                          {% endif %}
-                          {{total}}',
-                        '#ajax' => true
-                      ]
-                    ];
-                  }
-                }
-              }
+              create_products($products, $bundle_key, $elements, $price);
             }
           }
         }
-
-        $elements['extra'] = [
-          '#type' => 'webform_wizard_page',
-          '#title' => 'Vrije keuze',
-        ];
-
-        foreach($elements as $wizard_page){
-          array_push($elements['extra'], array_values($wizard_page))
-        }
       }
 
+      // Free choice page
+      $elements['extra'] = [
+        '#type' => 'webform_wizard_page',
+        '#title' => 'Vrije keuze',
+        'extra_total' => [
+          '#type' => 'total_sum',
+          '#title' => 'Totaal'
+        ]
+      ];
+
+      create_products($unique_products, 'extra', $elements, null);
+
+      // Personal page
+      $elements['personal_data'] = [
+        '#type' => 'webform_wizard_page',
+        '#title' => 'Persoonsgegevens',
+        'name' => [
+          '#type' => 'textfield',
+          '#title' => 'Naam speler/keeper',
+          '#required' => true
+        ],
+        'first_name' => [
+          '#type' => 'textfield',
+          '#title' => 'Voornaam speler/keeper',
+          '#required' => true
+        ],
+        'name_parent' => [
+          '#type' => 'textfield',
+          '#title' => 'Naam ouder/voogd',
+          '#required' => true
+        ],
+        'mobile' => [
+          '#type' => 'tel',
+          '#title' => 'GSM-nummer ouder/voogd',
+          '#required' => true
+        ],
+        'e_mail' => [
+          '#type' => 'textfield',
+          '#title' => 'E-mailadres ouder/voogd',
+          '#required' => true
+        ],
+        'privacy' => [
+          '#type' => 'checkbox',
+          '#title' => 'Ik ga akkoord met de <a href="https://www.remasport.be/privacy" target="_blank">privacyvoorwaarden</a>',
+          '#required' => true,
+          '#required_error' => 'Je moet akkoord gaan met de privacyvoorwaarden'
+        ]
+      ];
+
+      // Confirmation page
+      $elements['confirmation'] = [
+        '#type' => 'webform_wizard_page',
+        '#title' => 'Bevestiging',
+        'confirmation_products' => [
+          '#type' => 'webform_computed_token',
+          '#title' => 'bevestiging producten',
+          '#title_display' => 'invisible',
+          '#display_on' => 'form',
+          '#mode' => 'html',
+          '#template' => '[webform_submission:values]',
+          '#ajax' => true
+        ]
+      ];
 
       // Append default settings.
       $settings += Webform::getDefaultSettings();
@@ -249,6 +287,89 @@ function rema_webform_node_presave(NodeInterface $node)
       $webform->save();
 
       $node->set('webform', $webform->id());
+    }
+  }
+}
+
+
+/**
+ * @param $products
+ * @param $bundle_key
+ * @param $elements
+ */
+function create_products($products, $bundle_key, $elements, $price){
+  foreach ($products as $product) {
+    $product_id = $product['target_id'];
+
+    $product = Node::load($product_id);
+
+    if ($product instanceof NodeInterface) {
+      $product_title = $product->getTitle();
+      $product_id = $product->id();
+      $product_key = $bundle_key.'_product_'.$product_id;
+
+      // Product flexbox
+      $elements[$bundle_key][$product_key] = [
+        '#type' => 'webform_flexbox'
+      ];
+
+      // Add product image
+      $image = $product->get('field_product_image')->getValue();
+
+      if(!empty($image)){
+        $media = Media::load($image[0]['value']);
+
+        if($media instanceof \Drupal\media\MediaInterface){
+          $fid = $media->getSource()->getSourceFieldValue($media);
+          $file = File::load($fid);
+
+          $url = $file->url();
+
+          $elements[$bundle_key][$product_key][$product_key.'_image'] = [
+            '#type' => 'processed_text',
+            '#text' => '<p><img alt="' . $product_key .'" data-align="center" data-entity-type="file" src="' . $url . '" /></p>',
+            '#format' => 'basic_html'
+          ];
+        }
+      }
+
+      // Add product sizes
+      $sizes = $product->get('field_product_size_range')->getValue();
+
+      if (!empty($sizes)) {
+        $size_range = get_size_options($sizes);
+
+        $elements[$bundle_key][$product_key][$product_key.'_size'] = [
+          '#type' => 'select',
+          '#title' => 'Maat',
+          '#options' => $size_range,
+          '#required' => true
+        ];
+      }
+
+      // Add amount
+      $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
+        '#type'=> 'number',
+        '#title' => 'Aantal',
+        '#min' => 0,
+        '#default_value' => 1
+      ];
+
+      // Add calculation
+      if(empty($price)){
+        $elements[$bundle_key][$product_key][$product_key.'_calculation'] = [
+          '#type' => 'webform_computed_twig',
+          '#title' => 'Berekening',
+          '#template' => '
+                          {% if data.' . $product_key . '_size %}
+                          {% set total= data.' . $product_key . '_size*data.'. $product_key .'_amount %}
+                          {% endif %}
+                          {{total}}',
+          '#display_on' => 'form',
+          '#hide_empty' => true,
+          '#ajax' => true
+        ];
+      }
     }
   }
 }
