@@ -138,7 +138,8 @@ function rema_webform_node_presave(NodeInterface $node)
 
       if (!empty($bundles)) {
         // Bundle selection page
-        $elements['selection'] = [
+        if(count($bundles) > 1) {
+          $elements['selection'] = [
           '#type' => 'webform_wizard_page',
           '#title' => 'Selectie',
           'bundle_select' => [
@@ -151,8 +152,10 @@ function rema_webform_node_presave(NodeInterface $node)
             '#options__properties' => ''
           ]
         ];
+        }
+        
 
-        $unique_products = [];
+        $extra_products = [];
 
         foreach ($bundles as $key => $value) {
           $bundle_id = $value['target_id'];
@@ -164,20 +167,25 @@ function rema_webform_node_presave(NodeInterface $node)
             $bundle_id = $bundle->id();
             $bundle_key = 'bundle_' . $bundle_id;
 
-            $elements['selection']['bundle_select']['#options'][] = $bundle_title;
+            if(count($bundles) > 1){
+               $elements['selection']['bundle_select']['#options'][] = $bundle_title;
+            }
 
             // Bundle page
-            $elements['bundle_' . $bundle_id] = [
+            $elements[$bundle_key] = [
               '#type' => 'webform_wizard_page',
               '#title' => $bundle_title,
-              '#states' => [
+            ];
+
+            if(count($bundles) > 1) {
+              $elements[$bundle_key]['#states'] = [
                 'visible' => [
                   ':input[name="bundle_select"]' => [
                     'value' => $key
                   ]
                 ]
               ]
-            ];
+            }
 
             // Add price
             $price = $bundle->get('field_bundle_price')->getValue();
@@ -187,9 +195,16 @@ function rema_webform_node_presave(NodeInterface $node)
                 '#type' => 'webform_computed_twig',
                 '#title' => 'Berekening',
                 '#template' => '
-                          {% set total=' . $price[0]['value'] . '%}
-                          {{total}}',
+                  {% set total=' . $price[0]['value'] . '%}
+                  {{total}}',
                 '#ajax' => true
+                '#states'=> [
+                  'invisible' => [
+                     ':input[name="bundle_select"]' => [
+                        'value' => $key
+                     ]
+                  ] 
+                ]
               ];
             }
 
@@ -201,9 +216,9 @@ function rema_webform_node_presave(NodeInterface $node)
             // Add products
             $products = $bundle->get('field_bundle_products')->getValue();
             if (!empty($products)) {
-              $unique_products = array_unique(array_values($products));;
+              $extra_products = array_merge(array_values($extra_products), array_values($products));
 
-              create_products($products, $bundle_key, $elements, $price);
+              $elements = create_products($products, $bundle_key, $elements, $price);
             }
           }
         }
@@ -219,7 +234,7 @@ function rema_webform_node_presave(NodeInterface $node)
         ]
       ];
 
-      create_products($unique_products, 'extra', $elements, null);
+      $elements = create_products($extra_products, 'extra', $elements, []);
 
       // Personal page
       $elements['personal_data'] = [
@@ -317,18 +332,15 @@ function create_products($products, $bundle_key, $elements, $price){
       $image = $product->get('field_product_image')->getValue();
 
       if(!empty($image)){
-        $media = Media::load($image[0]['value']);
+        $media = Media::load($image[0]['target_id']);
 
         if($media instanceof \Drupal\media\MediaInterface){
-          $fid = $media->getSource()->getSourceFieldValue($media);
-          $file = File::load($fid);
-
-          $url = $file->url();
+          $uuid = $media->uuid();
 
           $elements[$bundle_key][$product_key][$product_key.'_image'] = [
             '#type' => 'processed_text',
-            '#text' => '<p><img alt="' . $product_key .'" data-align="center" data-entity-type="file" src="' . $url . '" /></p>',
-            '#format' => 'basic_html'
+            '#text' => '<drupal-media data-entity-type="media" data-entity-uuid="'. $uuid .'" data-view-mode="product"></drupal-media>',
+            '#format' => 'full_html'
           ];
         }
       }
@@ -343,7 +355,6 @@ function create_products($products, $bundle_key, $elements, $price){
           '#type' => 'select',
           '#title' => 'Maat',
           '#options' => $size_range,
-          '#required' => true
         ];
       }
 
@@ -352,7 +363,6 @@ function create_products($products, $bundle_key, $elements, $price){
         '#type'=> 'number',
         '#title' => 'Aantal',
         '#min' => 0,
-        '#default_value' => 1
       ];
 
       // Add calculation
@@ -361,17 +371,24 @@ function create_products($products, $bundle_key, $elements, $price){
           '#type' => 'webform_computed_twig',
           '#title' => 'Berekening',
           '#template' => '
-                          {% if data.' . $product_key . '_size %}
-                          {% set total= data.' . $product_key . '_size*data.'. $product_key .'_amount %}
-                          {% endif %}
-                          {{total}}',
+            {% set total= 0 %}
+            {% if data.' . $product_key . '_size %}
+            {% set total= data.' . $product_key . '_size*data.'. $product_key .'_amount %}
+            {% endif %}
+            {{total}}',
           '#display_on' => 'form',
           '#hide_empty' => true,
           '#ajax' => true
         ];
       }
+      else {
+        $elements[$bundle_key][$product_key][$product_key.'_amount']['#default_value'] = 1;
+        $elements[$bundle_key][$product_key][$product_key.'_size']['#required'] = true;
+      }
     }
   }
+
+  return $elements;
 }
 
 /**
