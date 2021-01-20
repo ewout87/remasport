@@ -6,6 +6,7 @@ use Drupal\media\Entity\Media;
 use Drupal\node\NodeInterface;
 use Drupal\webform\Entity\Webform;
 use Drupal\node\Entity\Node;
+use Drupal\webform\WebformInterface;
 
 /**
  * @file
@@ -124,172 +125,25 @@ function MYMODULE_finish_callback(Payment $payment) {
 function rema_webform_node_presave(NodeInterface $node)
 {
   if ($node->bundle() == 'webform') {
-    $webform = $node->get('webform')->getValue();
+    $webform = Webform::load('webform_' . $node->id());
 
-    if (empty($webform)) {
-      $bundles = $node->get('field_webform_bundles')->getValue();
+    // Update webform
+    if ($webform instanceof WebformInterface) {
+      $settings = create_settings($node);
 
-      // Build a render array of elements.
-      $elements= [];
+      $elements = create_webform($node);
 
-      $settings = [
-        // Define settings.
-      ];
+      $webform->set('elements', $elements);
+      $webform->set('settings', $settings);
 
-      if (!empty($bundles)) {
-        // Bundle selection page
-        if(count($bundles) > 1) {
-          $elements['selection'] = [
-          '#type' => 'webform_wizard_page',
-          '#title' => 'Selectie',
-          'bundle_select' => [
-            '#type' => 'radios',
-            '#title' => 'Pakketten',
-            '#options' => [],
-            '#options_display' => 'buttons',
-            '#required' => true,
-            '#states_clear' => false,
-            '#options__properties' => ''
-          ]
-        ];
-        }
-        
+      $webform->save();
+    }
 
-        $extra_products = [];
+    // Create webform
+    else {
+      $settings = create_settings($node);
 
-        foreach ($bundles as $key => $value) {
-          $bundle_id = $value['target_id'];
-
-          $bundle = Node::load($bundle_id);
-
-          if ($bundle instanceof NodeInterface) {
-            $bundle_title = $bundle->getTitle();
-            $bundle_id = $bundle->id();
-            $bundle_key = 'bundle_' . $bundle_id;
-
-            if(count($bundles) > 1){
-               $elements['selection']['bundle_select']['#options'][] = $bundle_title;
-            }
-
-            // Bundle page
-            $elements[$bundle_key] = [
-              '#type' => 'webform_wizard_page',
-              '#title' => $bundle_title,
-            ];
-
-            if(count($bundles) > 1) {
-              $elements[$bundle_key]['#states'] = [
-                'visible' => [
-                  ':input[name="bundle_select"]' => [
-                    'value' => $key
-                  ]
-                ]
-              ]
-            }
-
-            // Add price
-            $price = $bundle->get('field_bundle_price')->getValue();
-
-            if (!empty($price)) {
-              $elements[$bundle_key][$bundle_id .'_price'] = [
-                '#type' => 'webform_computed_twig',
-                '#title' => 'Berekening',
-                '#template' => '
-                  {% set total=' . $price[0]['value'] . '%}
-                  {{total}}',
-                '#ajax' => true
-                '#states'=> [
-                  'invisible' => [
-                     ':input[name="bundle_select"]' => [
-                        'value' => $key
-                     ]
-                  ] 
-                ]
-              ];
-            }
-
-            $elements[$bundle_key][$bundle_id .'_total'] = [
-              '#type' => 'total_sum',
-              '#title' => 'Totaal'
-            ];
-
-            // Add products
-            $products = $bundle->get('field_bundle_products')->getValue();
-            if (!empty($products)) {
-              $extra_products = array_merge(array_values($extra_products), array_values($products));
-
-              $elements = create_products($products, $bundle_key, $elements, $price);
-            }
-          }
-        }
-      }
-
-      // Free choice page
-      $elements['extra'] = [
-        '#type' => 'webform_wizard_page',
-        '#title' => 'Vrije keuze',
-        'extra_total' => [
-          '#type' => 'total_sum',
-          '#title' => 'Totaal'
-        ]
-      ];
-
-      $elements = create_products($extra_products, 'extra', $elements, []);
-
-      // Personal page
-      $elements['personal_data'] = [
-        '#type' => 'webform_wizard_page',
-        '#title' => 'Persoonsgegevens',
-        'name' => [
-          '#type' => 'textfield',
-          '#title' => 'Naam speler/keeper',
-          '#required' => true
-        ],
-        'first_name' => [
-          '#type' => 'textfield',
-          '#title' => 'Voornaam speler/keeper',
-          '#required' => true
-        ],
-        'name_parent' => [
-          '#type' => 'textfield',
-          '#title' => 'Naam ouder/voogd',
-          '#required' => true
-        ],
-        'mobile' => [
-          '#type' => 'tel',
-          '#title' => 'GSM-nummer ouder/voogd',
-          '#required' => true
-        ],
-        'e_mail' => [
-          '#type' => 'textfield',
-          '#title' => 'E-mailadres ouder/voogd',
-          '#required' => true
-        ],
-        'privacy' => [
-          '#type' => 'checkbox',
-          '#title' => 'Ik ga akkoord met de <a href="https://www.remasport.be/privacy" target="_blank">privacyvoorwaarden</a>',
-          '#required' => true,
-          '#required_error' => 'Je moet akkoord gaan met de privacyvoorwaarden'
-        ]
-      ];
-
-      // Confirmation page
-      $elements['confirmation'] = [
-        '#type' => 'webform_wizard_page',
-        '#title' => 'Bevestiging',
-        'confirmation_products' => [
-          '#type' => 'webform_computed_token',
-          '#title' => 'bevestiging producten',
-          '#title_display' => 'invisible',
-          '#display_on' => 'form',
-          '#mode' => 'html',
-          '#template' => '[webform_submission:values]',
-          '#ajax' => true
-        ]
-      ];
-
-      // Append default settings.
-      $settings += Webform::getDefaultSettings();
+      $elements = create_webform($node);
 
       // Create a webform.
       $webform = Webform::create([
@@ -300,12 +154,254 @@ function rema_webform_node_presave(NodeInterface $node)
       ]);
 
       $webform->save();
-
-      $node->set('webform', $webform->id());
     }
+
+    $node->set('webform', $webform->id());
   }
 }
 
+/**
+ * @param $node
+ * @return array
+ */
+function create_settings($node){
+  $settings = [
+    // Define settings.
+  ];
+
+  $confirmation_message = $node->get('field_confirmation_message')->getValue()[0]['value'];
+
+  $confirmation_mail = $node->get('field_confirmation_mail')->getValue()[0]['value'];
+
+  // Append default settings.
+  $settings += Webform::getDefaultSettings();
+
+  return $settings;
+}
+
+/**
+ * @param $node
+ */
+function create_webform($node){
+  $bundles = $node->get('field_webform_bundles')->getValue();
+
+  // Build a render array of elements.
+  $elements= [];
+
+  if (!empty($bundles)) {
+    $elements = create_bundles($bundles);
+  }
+
+  // Personal page
+  $elements['personal_data'] = [
+    '#type' => 'webform_wizard_page',
+    '#title' => 'Persoonsgegevens',
+    'name' => [
+      '#type' => 'textfield',
+      '#title' => 'Naam speler/keeper',
+      '#required' => true
+    ],
+    'first_name' => [
+      '#type' => 'textfield',
+      '#title' => 'Voornaam speler/keeper',
+      '#required' => true
+    ],
+    'name_parent' => [
+      '#type' => 'textfield',
+      '#title' => 'Naam ouder/voogd',
+      '#required' => true
+    ],
+    'mobile' => [
+      '#type' => 'tel',
+      '#title' => 'GSM-nummer ouder/voogd',
+      '#required' => true
+    ],
+    'e_mail' => [
+      '#type' => 'textfield',
+      '#title' => 'E-mailadres ouder/voogd',
+      '#required' => true
+    ],
+    'privacy' => [
+      '#type' => 'checkbox',
+      '#title' => 'Ik ga akkoord met de <a href="https://www.remasport.be/privacy" target="_blank">privacyvoorwaarden</a>',
+      '#required' => true,
+      '#required_error' => 'Je moet akkoord gaan met de privacyvoorwaarden'
+    ]
+  ];
+
+  // Confirmation page
+  $elements['confirmation'] = [
+    '#type' => 'webform_wizard_page',
+    '#title' => 'Bevestiging',
+    'confirmation_products' => [
+      '#type' => 'webform_computed_token',
+      '#title' => 'bevestiging producten',
+      '#title_display' => 'invisible',
+      '#display_on' => 'form',
+      '#mode' => 'html',
+      '#template' => '[webform_submission:values]',
+      '#ajax' => true
+    ]
+  ];
+
+  return $elements;
+}
+
+/**
+ * @param $webform
+ */
+function update_webform($webform, $node){
+  $elements = $webform->getElementsDecoded();
+
+  // Update bundles
+  $old = [];
+
+  foreach($elements as $key => $value){
+    $exp_key = explode('_', $key);
+    if($exp_key[0] == 'bundle'){
+      $old[] = $key;
+    }
+  }
+
+  $new = $node->get('field_webform_bundles')->getValue();
+
+  // Create new bundles
+  $create = array_diff(array_values($new), $old);
+
+  $elements = create_bundles($create);
+
+  // Update old bundles
+  $update =array_intersect(array_values($new), $old);
+
+  $elements = update_bundles($update);
+
+  // Delete bundles
+  $delete = array_diff(array_keys($old), $new);
+
+  $elements = delete_bundles($delete);
+
+  // Update settings
+
+  return $webform;
+}
+
+/**
+ * @param $bundles
+ */
+function create_bundles($bundles){
+    // Bundle selection page
+    if(count($bundles) > 1) {
+      $elements['selection'] = [
+        '#type' => 'webform_wizard_page',
+        '#title' => 'Selectie',
+        'bundle_select' => [
+          '#type' => 'radios',
+          '#title' => 'Pakketten',
+          '#options' => [],
+          '#options_display' => 'buttons',
+          '#required' => true,
+          '#states_clear' => false,
+          '#options__properties' => ''
+        ]
+      ];
+    }
+
+    $extra_products = [];
+
+    foreach ($bundles as $key => $value) {
+      $bundle_id = $value['target_id'];
+
+      $bundle = Node::load($bundle_id);
+
+      if ($bundle instanceof NodeInterface) {
+        $bundle_title = $bundle->getTitle();
+        $bundle_id = $bundle->id();
+        $bundle_key = 'bundle_' . $bundle_id;
+
+        if(count($bundles) > 1){
+          $elements['selection']['bundle_select']['#options'][] = $bundle_title;
+        }
+
+        // Bundle page
+        $elements[$bundle_key] = [
+          '#type' => 'webform_wizard_page',
+          '#title' => $bundle_title,
+        ];
+
+        if(count($bundles) > 1) {
+          $elements[$bundle_key]['#states'] = [
+            'visible' => [
+              ':input[name="bundle_select"]' => [
+                'value' => $key
+              ]
+            ]
+          ];
+        }
+
+        // Add price
+        $price = $bundle->get('field_bundle_price')->getValue();
+
+        if (!empty($price)) {
+          $elements[$bundle_key][$bundle_id .'_price'] = [
+            '#type' => 'webform_computed_twig',
+            '#title' => 'Berekening',
+            '#template' => '
+                  {% set total=' . $price[0]['value'] . '%}
+                  {{total}}',
+            '#ajax' => true,
+            '#states'=> [
+              'invisible' => [
+                ':input[name="bundle_select"]' => [
+                  'value' => $key
+                ]
+              ]
+            ]
+          ];
+        }
+
+        $elements[$bundle_key][$bundle_id .'_total'] = [
+          '#type' => 'total_sum',
+          '#title' => 'Totaal'
+        ];
+
+        // Add products
+        $products = $bundle->get('field_bundle_products')->getValue();
+        if (!empty($products)) {
+          $extra_products = array_merge(array_values($extra_products), array_values($products));
+
+          $elements = create_products($products, $bundle_key, $elements, $price);
+        }
+      }
+    }
+
+  // Free choice page
+  $elements['extra'] = [
+    '#type' => 'webform_wizard_page',
+    '#title' => 'Vrije keuze',
+    'extra_total' => [
+      '#type' => 'total_sum',
+      '#title' => 'Totaal'
+    ]
+  ];
+
+  $elements = create_products($extra_products, 'extra', $elements, []);
+
+  return $elements;
+}
+
+/**
+ * @param $bundles
+ */
+function delete_bundles($bundles, $elements){
+
+}
+
+/**
+ * @param $bundles
+ */
+function update_bundles($bundles, $elements){
+
+}
 
 /**
  * @param $products
