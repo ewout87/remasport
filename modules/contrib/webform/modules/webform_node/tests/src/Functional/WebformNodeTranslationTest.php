@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform_node\Functional;
 /**
  * Tests for webform node translation.
  *
- * @group webform_node
+ * @group WebformNode
  */
 class WebformNodeTranslationTest extends WebformNodeBrowserTestBase {
 

@@ -23,7 +23,7 @@
         var $tabs = $form.find('.webform-tabs');
 
         // Get only the main details elements and ignore all nested details.
-        var selector = ($tabs.length) ? '.webform-tab' : '.js-webform-details-toggle, .webform-elements';
+        var selector = ($tabs.length) ? '.webform-tab' : '.js-webform-details-toggle';
         var $details = $form.find('details').filter(function () {
           var $parents = $(this).parentsUntil(selector);
           return ($parents.find('details').length === 0);
@@ -42,15 +42,13 @@
         var $toggle = $(options.button)
           .attr('title', Drupal.t('Toggle details widget state.'))
           .on('click', function (e) {
-            // Get details that are not vertical tabs pane.
-            var $details = $form.find('details:not(.vertical-tabs__pane)');
             var open;
             if (Drupal.webform.detailsToggle.isFormDetailsOpen($form)) {
-              $details.removeAttr('open');
+              $form.find('details').removeAttr('open');
               open = 0;
             }
             else {
-              $details.attr('open', 'open');
+              $form.find('details').attr('open', 'open');
               open = 1;
             }
             Drupal.webform.detailsToggle.setDetailsToggleLabel($form);
@@ -58,10 +56,7 @@
             // Set the saved states for all the details elements.
             // @see webform.element.details.save.js
             if (Drupal.webformDetailsSaveGetName) {
-              $details.each(function () {
-                // Note: Drupal.webformDetailsSaveGetName checks if localStorage
-                // exists and is enabled.
-                // @see webform.element.details.save.js
+              $form.find('details').each(function () {
                 var name = Drupal.webformDetailsSaveGetName($(this));
                 if (name) {
                   localStorage.setItem(name, open);

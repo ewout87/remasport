@@ -7,7 +7,7 @@ use Drupal\node\Entity\Node;
 /**
  * Tests the normalization of webform entity reference items.
  *
- * @group webform
+ * @group Webform
  */
 class WebformEntityReferenceItemNormalizerTest extends WebformBrowserTestBase {
 

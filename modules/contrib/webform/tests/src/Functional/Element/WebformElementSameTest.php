@@ -8,7 +8,7 @@ use Drupal\webform\Entity\WebformSubmission;
 /**
  * Tests for same element.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementSameTest extends WebformElementBrowserTestBase {
 

@@ -1,4 +1,3 @@
-uuid: null
 langcode: en
 status: open
 dependencies:
@@ -26,7 +25,6 @@ elements: |
       - B
       - C
     '#options':
-      none: None
       A: A
       B: B
       C: C
@@ -34,7 +32,6 @@ elements: |
     '#type': checkboxes
     '#title': options_limit_messages
     '#options':
-      none: None
       D: D
       E: E
       F: F
@@ -114,7 +111,6 @@ elements: |
       Y: Y
       Z: Z
     '#default_value': X
-
 css: ''
 javascript: ''
 settings:
@@ -126,7 +122,7 @@ settings:
   page: true
   page_submit_path: ''
   page_confirm_path: ''
-  page_theme_name: ''
+  page_admin_theme: false
   form_title: source_entity_webform
   form_submit_once: false
   form_exception_message: ''
@@ -156,11 +152,6 @@ settings:
   form_access_denied_message: ''
   form_access_denied_attributes: {  }
   form_file_limit: ''
-  share: false
-  share_node: false
-  share_theme_name: ''
-  share_title: true
-  share_page_body_attributes: {  }
   submission_label: ''
   submission_log: true
   submission_views: {  }
@@ -186,19 +177,11 @@ settings:
   wizard_progress_percentage: false
   wizard_progress_link: false
   wizard_progress_states: false
-  wizard_auto_forward: true
-  wizard_auto_forward_hide_next_button: false
-  wizard_keyboard: true
   wizard_start_label: ''
   wizard_preview_link: false
   wizard_confirmation: true
   wizard_confirmation_label: ''
   wizard_track: ''
-  wizard_prev_button_label: ''
-  wizard_next_button_label: ''
-  wizard_toggle: false
-  wizard_toggle_show_label: ''
-  wizard_toggle_hide_label: ''
   preview: 0
   preview_label: ''
   preview_title: ''
@@ -244,8 +227,6 @@ settings:
   results_customize: false
   token_view: false
   token_update: false
-  token_delete: false
-  serial_disabled: false
 access:
   create:
     roles:
@@ -297,7 +278,6 @@ handlers:
   options_limit_default:
     id: options_limit
     label: options_limit_default
-    notes: ''
     handler_id: options_limit_default
     status: true
     conditions: {  }
@@ -305,7 +285,6 @@ handlers:
     settings:
       element_key: options_limit_default
       limits:
-        none: 0
         A: 1
         B: 2
         _default_: 3
@@ -323,7 +302,6 @@ handlers:
   options_limit_messages:
     id: options_limit
     label: options_limit_messages
-    notes: ''
     handler_id: options_limit_messages
     status: true
     conditions: {  }
@@ -331,7 +309,6 @@ handlers:
     settings:
       element_key: options_limit_messages
       limits:
-        none: 0
         D: 1
         E: 2
       limit_reached_message: '@name is not available.'
@@ -348,7 +325,6 @@ handlers:
   options_limit_select_disable:
     id: options_limit
     label: options_limit_select_disable
-    notes: ''
     handler_id: options_limit_select_disable
     status: true
     conditions: {  }
@@ -372,7 +348,6 @@ handlers:
   options_limit_select_remove:
     id: options_limit
     label: options_limit_select_remove
-    notes: ''
     handler_id: options_limit_select_remove
     status: true
     conditions: {  }
@@ -396,7 +371,6 @@ handlers:
   options_limit_select_none:
     id: options_limit
     label: options_limit_select_none
-    notes: ''
     handler_id: options_limit_select_none
     status: true
     conditions: {  }
@@ -420,7 +394,6 @@ handlers:
   options_limit_select_other:
     id: options_limit
     label: options_limit_select_other
-    notes: ''
     handler_id: options_limit_select_other
     status: true
     conditions: {  }
@@ -444,7 +417,6 @@ handlers:
   options_limit_tableselect_multiple:
     id: options_limit
     label: options_limit_tableselect_multiple
-    notes: ''
     handler_id: options_limit_tableselect_multiple
     status: true
     conditions: {  }
@@ -468,7 +440,6 @@ handlers:
   options_limit_tableselect_single:
     id: options_limit
     label: options_limit_tableselect_single
-    notes: ''
     handler_id: options_limit_tableselect_single
     status: true
     conditions: {  }
@@ -477,7 +448,7 @@ handlers:
       element_key: options_limit_tableselect_single
       limits:
         X: 1
-        'Y': 2
+        Y: 2
       limit_reached_message: '@name is not available.'
       limit_source_entity: true
       limit_user: false
@@ -488,5 +459,5 @@ handlers:
       option_none_message: '[@remaining remaining]'
       option_unlimited_message: '[Unlimited]'
       option_error_message: '@name: @label is unavailable.'
-      tableselect_header: Limits
+      tableselect_header: 'Limits'
 variants: {  }

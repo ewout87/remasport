@@ -7,20 +7,6 @@
 
   'use strict';
 
-  // Determine if local storage exists and is enabled.
-  // This approach is copied from Modernizr.
-  // @see https://github.com/Modernizr/Modernizr/blob/c56fb8b09515f629806ca44742932902ac145302/modernizr.js#L696-731
-  var hasLocalStorage = (function () {
-    try {
-      localStorage.setItem('webform', 'webform');
-      localStorage.removeItem('webform');
-      return true;
-    }
-    catch (e) {
-      return false;
-    }
-  }());
-
   /**
    * Attach handler to save details open/close state.
    *
@@ -28,13 +14,14 @@
    */
   Drupal.behaviors.webformDetailsSave = {
     attach: function (context) {
-      if (!hasLocalStorage) {
+      if (!window.localStorage) {
         return;
       }
 
       // Summary click event handler.
-      $('details > summary', context).once('webform-details-summary-save').on('click', function () {
+      $('details > summary', context).once('webform-details-summary-save').click(function () {
         var $details = $(this).parent();
+
 
         // @see https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
         if ($details[0].hasAttribute('data-webform-details-nosave')) {
@@ -85,12 +72,7 @@
    *   The name used to store the state of details element.
    */
   Drupal.webformDetailsSaveGetName = function ($details) {
-    if (!hasLocalStorage) {
-      return '';
-    }
-
-    // Ignore details that are vertical tabs pane.
-    if ($details.hasClass('vertical-tabs__pane')) {
+    if (!window.localStorage) {
       return '';
     }
 

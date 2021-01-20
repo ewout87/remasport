@@ -8,7 +8,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for the webform exporter options.
  *
- * @group webform
+ * @group Webform
  */
 class WebformExporterOptionsTest extends WebformBrowserTestBase {
 

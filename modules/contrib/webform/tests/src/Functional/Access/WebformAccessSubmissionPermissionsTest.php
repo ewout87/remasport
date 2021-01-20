@@ -9,7 +9,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for webform submission permissions.
  *
- * @group webform
+ * @group Webform
  */
 class WebformAccessSubmissionPermissionsTest extends WebformBrowserTestBase {
 
@@ -233,6 +233,7 @@ class WebformAccessSubmissionPermissionsTest extends WebformBrowserTestBase {
     // Check user can the submissions when they are the webform owner.
     $this->drupalGet("admin/structure/webform/manage/{$webform_id}/submission/{$sid_4}");
     $this->assertResponse(200);
+
   }
 
 }

@@ -9,7 +9,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for webform example composite.
  *
- * @group webform_example_composite
+ * @group Webform
  */
 class WebformExampleCompositeTest extends WebformBrowserTestBase {
 

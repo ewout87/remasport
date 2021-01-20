@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform\Functional\Element;
 /**
  * Tests for excluded elements element.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementExcludedElementsTest extends WebformElementBrowserTestBase {
 

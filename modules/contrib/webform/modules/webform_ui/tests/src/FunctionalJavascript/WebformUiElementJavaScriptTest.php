@@ -7,7 +7,7 @@ use Drupal\Tests\webform\FunctionalJavascript\WebformWebDriverTestBase;
 /**
  * Tests webform UI element JavasScript.
  *
- * @group webform_ui
+ * @group webform_javascript
  */
 class WebformUiElementJavaScriptTest extends WebformWebDriverTestBase {
 

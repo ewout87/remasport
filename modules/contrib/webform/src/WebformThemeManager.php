@@ -110,14 +110,13 @@ class WebformThemeManager implements WebformThemeManagerInterface {
    *   An associative array containing theme name.
    */
   public function getThemeNames() {
-    $themes = [];
+    $themes = ['' => $this->t('Default')];
     foreach ($this->themeHandler->listInfo() as $name => $theme) {
       if ($theme->status === 1) {
         $themes[$name] = $theme->info['name'];
       }
     }
-    asort($themes);
-    return ['' => $this->t('Default')] + $themes;
+    return $themes;
   }
 
   /**

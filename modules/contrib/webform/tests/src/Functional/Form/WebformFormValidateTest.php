@@ -8,7 +8,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for webform form validation.
  *
- * @group webform
+ * @group Webform
  */
 class WebformFormValidateTest extends WebformBrowserTestBase {
 

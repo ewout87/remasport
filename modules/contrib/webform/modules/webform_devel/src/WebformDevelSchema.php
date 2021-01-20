@@ -25,14 +25,14 @@ class WebformDevelSchema implements WebformDevelSchemaInterface {
   use StringTranslationTrait;
 
   /**
-   * The element info manager.
+   * A element info manager.
    *
    * @var \Drupal\Core\Render\ElementInfoManagerInterface
    */
   protected $elementInfo;
 
   /**
-   * The webform element manager.
+   * Webform element manager.
    *
    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */

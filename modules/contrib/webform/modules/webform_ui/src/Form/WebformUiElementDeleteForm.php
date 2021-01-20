@@ -8,7 +8,6 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\webform\Form\WebformDeleteFormBase;
 use Drupal\webform\Plugin\WebformElementManagerInterface;
 use Drupal\webform\Plugin\WebformElementVariantInterface;
-use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\WebformEntityElementsValidatorInterface;
 use Drupal\webform\WebformInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -27,14 +26,14 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
   protected $renderer;
 
   /**
-   * The webform element manager.
+   * Webform element manager.
    *
    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
   protected $elementManager;
 
   /**
-   * The webform element validator.
+   * Webform element validator.
    *
    * @var \Drupal\webform\WebformEntityElementsValidatorInterface
    */
@@ -274,7 +273,7 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
    *   The webform element's title or key,
    */
   protected function getElementTitle() {
-    return WebformElementHelper::getAdminTitle($this->element);
+    return (!empty($this->element['#title'])) ? $this->element['#title'] : $this->key;
   }
 
   /**

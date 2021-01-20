@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform\Functional\Element;
 /**
  * Tests for select element.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementSelectTest extends WebformElementBrowserTestBase {
 

@@ -28,14 +28,7 @@ class WebformBreadcrumbBuilderTest extends UnitTestCase {
   protected $moduleHandler;
 
   /**
-   * The config factory.
-   *
-   * @var \Drupal\Core\Config\ConfigFactory
-   */
-  protected $configFactory;
-
-  /**
-   * The webform request handler.
+   * The Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */
@@ -49,7 +42,7 @@ class WebformBreadcrumbBuilderTest extends UnitTestCase {
   protected $translationManager;
 
   /**
-   * The webform breadcrumb builder.
+   * The Webform breadcrumb builder.
    *
    * @var \Drupal\webform\Breadcrumb\WebformBreadcrumbBuilder
    */
@@ -114,15 +107,12 @@ class WebformBreadcrumbBuilderTest extends UnitTestCase {
 
     // Make some test doubles.
     $this->moduleHandler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
-    $this->configFactory = $this->getConfigFactoryStub([
-      'webform.settings' => ['ui' => ['toolbar_item' => FALSE]],
-    ]);
     $this->requestHandler = $this->createMock('Drupal\webform\WebformRequestInterface');
     $this->translationManager = $this->createMock('Drupal\Core\StringTranslation\TranslationInterface');
 
     // Make an object to test.
     $this->breadcrumbBuilder = $this->getMockBuilder('Drupal\webform\Breadcrumb\WebformBreadcrumbBuilder')
-      ->setConstructorArgs([$this->moduleHandler, $this->requestHandler, $this->translationManager, $this->configFactory])
+      ->setConstructorArgs([$this->moduleHandler, $this->requestHandler, $this->translationManager])
       ->setMethods(NULL)
       ->getMock();
 
@@ -154,6 +144,25 @@ class WebformBreadcrumbBuilderTest extends UnitTestCase {
   /****************************************************************************/
   // Below test is passing locally but failing on Drupal.org.
   /****************************************************************************/
+
+  /**
+   * Tests WebformBreadcrumbBuilder::__construct().
+   *
+   * @covers ::__construct
+   */
+  /*
+  public function testConstructor() {
+    // Reflect upon our properties, except for config which is a special case.
+    $property_names = [
+      'moduleHandler' => $this->moduleHandler,
+      'requestHandler' => $this->requestHandler,
+      'stringTranslation' => $this->translationManager,
+    ];
+    foreach ($property_names as $property_name => $property_value) {
+      $this->assertAttributeEquals($property_value, $property_name, $this->breadcrumbBuilder);
+    }
+  }
+  */
 
   /**
    * Tests WebformBreadcrumbBuilder::applies().
@@ -223,7 +232,7 @@ class WebformBreadcrumbBuilderTest extends UnitTestCase {
   public function testType($expected, $route_name = NULL, array $parameter_map = []) {
     $route_match = $this->getMockRouteMatch($route_name, $parameter_map);
     $this->breadcrumbBuilder->applies($route_match);
-    $this->assertEquals($expected, $this->breadcrumbBuilder->getType());
+    $this->assertAttributeEquals($expected, 'type', $this->breadcrumbBuilder);
   }
 
   /**
@@ -326,7 +335,7 @@ class WebformBreadcrumbBuilderTest extends UnitTestCase {
     $webform_submission_access->expects($this->any())
       ->method('access')
       ->will($this->returnCallback(function ($operation) {
-        return ($operation === 'view_own');
+        return ($operation == 'view_own');
       }));
     $route_match = $this->getMockRouteMatch('entity.node.webform_submission.canonical', [
       ['webform_submission', $webform_submission_access],

@@ -177,7 +177,7 @@ class WebformNodeAccess {
    * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
    */
-  public static function checkAccess($operation, $entity_access, NodeInterface $node, WebformSubmissionInterface $webform_submission = NULL, AccountInterface $account = NULL) {
+  protected static function checkAccess($operation, $entity_access, NodeInterface $node, WebformSubmissionInterface $webform_submission = NULL, AccountInterface $account = NULL) {
     /** @var \Drupal\webform\WebformEntityReferenceManagerInterface $entity_reference_manager */
     $entity_reference_manager = \Drupal::service('webform.entity_reference_manager');
 
@@ -195,39 +195,26 @@ class WebformNodeAccess {
       }
     }
 
-    // Determine if this is a group node.
-    $is_group_node = \Drupal::moduleHandler()->moduleExists('webform_group')
-      && \Drupal::entityTypeManager()->getStorage('group_content')->loadByEntity($node);
-
     // Check the node operation.
-    if (!$operation) {
-      $result = AccessResult::neutral();
-    }
-    elseif ($is_group_node && strpos($operation, 'webform_submission_') === 0) {
-      // For group nodes, we need to bypass node access checking for
-      // 'webform_submission_*' operations which trigger access forbidden.
-      // @see group_entity_access()
-      // @see https://www.drupal.org/project/webform/issues/3132204
-      // @todo Add Webform node group permission provider w/ submission perms.
-      $result = webform_node_node_access($node, $operation, $account);
-    }
-    else {
-      $result = $node->access($operation, $account, TRUE);
+    if ($operation && $node->access($operation, $account)) {
+      return AccessResult::allowed();
     }
 
     // Check entity access.
     if ($entity_access) {
       // Check entity access for the webform.
-      if (strpos($entity_access, 'webform.') === 0) {
-        $result = $result->orIf($webform->access(str_replace('webform.', '', $entity_access), $account, TRUE));
+      if (strpos($entity_access, 'webform.') === 0
+        && $webform->access(str_replace('webform.', '', $entity_access), $account)) {
+        return AccessResult::allowed();
       }
       // Check entity access for the webform submission.
-      if (strpos($entity_access, 'webform_submission.') === 0) {
-        $result = $result->orIf($webform_submission->access(str_replace('webform_submission.', '', $entity_access), $account, TRUE));
+      if (strpos($entity_access, 'webform_submission.') === 0
+        && $webform_submission->access(str_replace('webform_submission.', '', $entity_access), $account)) {
+        return AccessResult::allowed();
       }
     }
 
-    return $result;
+    return AccessResult::forbidden();
   }
 
 }

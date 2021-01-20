@@ -136,12 +136,12 @@
               });
               if (event.which === 37 || event.which === 38) {
                 if ($prev) {
-                  $prev.trigger('focus');
+                  $prev.focus();
                 }
               }
               else if (event.which === 39 || event.which === 40) {
                 if ($next) {
-                  $next.trigger('focus');
+                  $next.focus();
                 }
               }
               event.preventDefault();
@@ -253,10 +253,10 @@
               .find('[data-option-value="' + value + '"]')
               .not('text')
               .first()
-              .trigger('focus');
+              .focus();
           }
 
-          $select.trigger('change');
+          $select.change();
         }
 
         /* ****************************************************************** */
@@ -336,7 +336,7 @@
             content += '<div class="webform-options-custom-tooltip--description">' + option.description + '</div>';
           }
 
-          if (typeof $.ui.tooltip !== 'undefined') {
+          if (typeof $.ui.tooltip != 'undefined') {
             // jQuery UI tooltip support.
             var tooltipOptions = $.extend({
               content: content,
@@ -353,7 +353,7 @@
 
             $templateOption.tooltip(tooltipOptions);
           }
-          else if ((typeof $.fn.tooltip) !== 'undefined') {
+          else if ((typeof $.fn.tooltip) != 'undefined') {
             // Bootstrap tooltip support.
             var options = $.extend({
               html: true,
@@ -378,8 +378,8 @@
           var options = $.extend({
           }, Drupal.webformOptionsCustom.panAndZoom.options);
           var panZoom = window.svgPanZoom($svg[0], options);
-          $(window).on('resize', function () {
-            panZoom.trigger('resize');
+          $(window).resize(function () {
+            panZoom.resize();
             panZoom.fit();
             panZoom.center();
           });

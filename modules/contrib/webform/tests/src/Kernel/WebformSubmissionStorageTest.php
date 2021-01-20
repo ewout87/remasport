@@ -19,14 +19,17 @@ class WebformSubmissionStorageTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'user', 'path', 'path_alias', 'field', 'webform'];
+  public static $modules = ['system', 'user', 'path', 'field', 'webform'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  public function setUp() {
     parent::setUp();
-    $this->installEntitySchema('path_alias');
+    // @todo Remove once Drupal 8.8.x is only supported.
+    if (floatval(\Drupal::VERSION) >= 8.8) {
+      $this->installEntitySchema('path_alias');
+    }
     $this->installSchema('webform', ['webform']);
     $this->installConfig('webform');
     $this->installEntitySchema('webform_submission');
@@ -104,7 +107,7 @@ class WebformSubmissionStorageTest extends KernelTestBase {
       $result[$submission->serial()] = $submission;
     }
     foreach ($purged as $sequence_id) {
-      $this->assertArrayNotHasKey($sequence_id, $result, 'Webform submission with sequence ' . $sequence_id . ' is purged.');
+      $this->assertFalse(isset($result[$sequence_id]), 'Webform submission with sequence ' . $sequence_id . ' is purged.');
     }
     $this->assertEquals(count($webform_submissions_definition) - count($purged), count($result), 'Remaining webform submissions are not purged.');
   }

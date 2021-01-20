@@ -8,7 +8,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for webform entity JSON API access.
  *
- * @group webform
+ * @group Webform
  */
 class WebformAccessEntityJsonApiTest extends WebformBrowserTestBase {
 

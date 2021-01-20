@@ -36,7 +36,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
   protected $configFactory;
 
   /**
-   * The webform submission storage.
+   * Webform submission storage.
    *
    * @var \Drupal\webform\WebformSubmissionStorageInterface
    */
@@ -50,7 +50,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
   protected $token;
 
   /**
-   * The logger service.
+   * Logger service.
    *
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
@@ -64,7 +64,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
   protected $renderer;
 
   /**
-   * The webform request handler.
+   * Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */

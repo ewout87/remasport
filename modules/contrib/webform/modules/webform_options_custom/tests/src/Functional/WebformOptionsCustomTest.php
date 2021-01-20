@@ -9,7 +9,7 @@ use Drupal\webform_options_custom\Entity\WebformOptionsCustom;
 /**
  * Webform options custom test.
  *
- * @group webform_options_custom
+ * @group webform_browser
  */
 class WebformOptionsCustomTest extends WebformBrowserTestBase {
 

@@ -7,7 +7,7 @@ use Drupal\webform\Entity\WebformSubmission;
 /**
  * Tests for webform node variants.
  *
- * @group webform_node
+ * @group WebformNode
  */
 class WebformNodeVariantTest extends WebformNodeBrowserTestBase {
 

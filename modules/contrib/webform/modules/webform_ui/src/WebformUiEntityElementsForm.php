@@ -18,7 +18,6 @@ use Drupal\webform\Plugin\WebformElement\WebformElement;
 use Drupal\webform\Plugin\WebformElement\WebformTable;
 use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\Plugin\WebformElementManagerInterface;
-use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\WebformEntityElementsValidatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -49,21 +48,21 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
   protected $renderer;
 
   /**
-   * The element info manager.
+   * Element info manager.
    *
    * @var \Drupal\Core\Render\ElementInfoManagerInterface
    */
   protected $elementInfo;
 
   /**
-   * The webform element manager.
+   * Webform element manager.
    *
    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
   protected $elementManager;
 
   /**
-   * The webform element validator.
+   * Webform element validator.
    *
    * @var \Drupal\webform\WebformEntityElementsValidatorInterface
    */
@@ -242,7 +241,7 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
     // Preserve the original elements root properties.
     $elements_original = Yaml::decode($webform->get('elements')) ?: [];
     foreach ($elements_original as $key => $value) {
-      if (WebformElementHelper::property($key)) {
+      if (Element::property($key)) {
         $elements_updated[$key] = $value;
       }
     }
@@ -462,21 +461,19 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
     $row = [];
 
     $element_state_options = OptGroup::flattenOptions(WebformElementStates::getStateOptions());
+    $element_dialog_attributes = WebformDialogHelper::getOffCanvasDialogAttributes();
     $key = $element['#webform_key'];
     $title = $element['#admin_title'] ?: $element['#title'];
     $title = (is_array($title)) ? $this->renderer->render($title) : $title;
-
     $plugin_id = $this->elementManager->getElementPluginId($element);
 
     /** @var \Drupal\webform\Plugin\WebformElementInterface $webform_element */
     $webform_element = $this->elementManager->createInstance($plugin_id);
 
-    $offcanvas_dialog_attributes = WebformDialogHelper::getOffCanvasDialogAttributes($webform_element->getOffCanvasWidth());
-
     $is_container = $webform_element->isContainer($element);
     $is_root = $webform_element->isRoot();
     $is_element_disabled = $webform_element->isDisabled();
-    $is_access_disabled = !Element::isVisibleElement($element);
+    $is_access_disabled = (isset($element['#access']) && $element['#access'] === FALSE);
 
     // If disabled, display warning.
     if ($is_element_disabled) {
@@ -505,9 +502,8 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
       $row_class[] = 'webform-ui-element-disabled';
     }
 
-    // Add element key and type.
+    // Add element key.
     $row['#attributes']['data-webform-key'] = $element['#webform_key'];
-    $row['#attributes']['data-webform-type'] = (isset($element['#type'])) ? $element['#type'] : '';
 
     $row['#attributes']['class'] = $row_class;
 
@@ -520,25 +516,15 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
     }
 
     $row['title'] = [
-      'link' => [
-        '#type' => 'link',
-        '#title' => $element['#admin_title'] ?: $element['#title'],
-        '#url' => new Url('entity.webform_ui.element.edit_form', [
-          'webform' => $webform->id(),
-          'key' => $key,
-        ]),
-        '#attributes' => $offcanvas_dialog_attributes,
-        '#prefix' => !empty($indentation) ? $this->renderer->renderPlain($indentation) : '',
-      ],
+      '#type' => 'link',
+      '#title' => $element['#admin_title'] ?: $element['#title'],
+      '#url' => new Url('entity.webform_ui.element.edit_form', [
+        'webform' => $webform->id(),
+        'key' => $key,
+      ]),
+      '#attributes' => $element_dialog_attributes,
+      '#prefix' => !empty($indentation) ? $this->renderer->renderPlain($indentation) : '',
     ];
-    if (!empty($element['#admin_notes'])) {
-      $row['title']['notes'] = [
-        '#type' => 'webform_help',
-        '#help_title' => $element['#admin_title'] ?: $element['#title'],
-        '#help' => $element['#admin_notes'],
-        '#weight' => 100,
-      ];
-    }
 
     if ($webform->hasContainer()) {
       if ($is_container) {
@@ -603,7 +589,7 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
           'entity.webform_ui.element.edit_form',
           ['webform' => $webform->id(), 'key' => $key]
         ),
-        '#attributes' => $offcanvas_dialog_attributes + [
+        '#attributes' => $element_dialog_attributes + [
           // Add custom hash to current page's location.
           // @see Drupal.behaviors.webformAjaxLink
           'data-hash' => 'webform-tab--conditions',
@@ -691,13 +677,13 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
           'key' => $key,
         ]
       ),
-      'attributes' => $offcanvas_dialog_attributes,
+      'attributes' => $element_dialog_attributes,
     ];
     // Issue #2741877 Nested modals don't work: when using CKEditor in a
     // modal, then clicking the image button opens another modal,
     // which closes the original modal.
     // @todo Remove the below workaround once this issue is resolved.
-    if ($webform_element->getPluginId() === 'processed_text' && !WebformDialogHelper::useOffCanvas()) {
+    if ($webform_element->getPluginId() == 'processed_text' && !WebformDialogHelper::useOffCanvas()) {
       unset($row['operations']['#links']['edit']['attributes']);
     }
     if (!$is_container) {
@@ -710,7 +696,7 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
             'key' => $key,
           ]
         ),
-        'attributes' => $offcanvas_dialog_attributes,
+        'attributes' => $element_dialog_attributes,
       ];
     }
     $row['operations']['#links']['delete'] = [

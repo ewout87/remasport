@@ -135,21 +135,6 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
   const ACCESS_DENIED_LOGIN = 'login';
 
   /**
-   * Wizard start page.
-   */
-  const PAGE_START = 'webform_start';
-
-  /**
-   * Wizard preview page.
-   */
-  const PAGE_PREVIEW = 'webform_preview';
-
-  /**
-   * Wizard confirmation page.
-   */
-  const PAGE_CONFIRMATION = 'webform_confirmation';
-
-  /**
    * Returns the webform's (original) langcode.
    *
    * @return string
@@ -1008,7 +993,7 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @param string $variant_id
    *   The webform variant ID.
    *
-   * @return bool
+   * @return boolean
    *   TRUE if a specific webform variant exists.
    */
   public function hasVariant($variant_id);
@@ -1086,7 +1071,7 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @throws \Exception
    *   Throws exception if submission was not created using this webform.
    */
-  public function applyVariants(WebformSubmissionInterface $webform_submission = NULL, array $variants = [], $force = FALSE);
+  public function applyVariants(WebformSubmissionInterface $webform_submission = NULL, $variants = [], $force = FALSE);
 
   /**
    * Get variants data from a webform submission.
@@ -1211,17 +1196,5 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    *   TRUE if the stored value for a given key exists.
    */
   public function hasUserData($key);
-
-  /****************************************************************************/
-  // Third party settings.
-  /****************************************************************************/
-
-  /**
-   * Unsets all third-party settings of a given module.
-   *
-   * @param string $module
-   *   The module providing the third-party settings.
-   */
-  public function unsetThirdPartySettings($module);
 
 }

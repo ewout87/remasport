@@ -7,7 +7,7 @@ use Drupal\Tests\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drupal\webform_node\WebformNodeUninstallValidator
- * @group webform_node
+ * @group webform
  */
 class WebformNodeUninstallValidatorTest extends UnitTestCase {
 

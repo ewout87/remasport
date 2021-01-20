@@ -8,7 +8,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for email webform handler #options mapping functionality.
  *
- * @group webform
+ * @group Webform
  */
 class WebformHandlerEmailMappingTest extends WebformBrowserTestBase {
 

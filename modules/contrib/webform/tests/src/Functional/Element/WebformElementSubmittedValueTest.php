@@ -7,7 +7,7 @@ use Drupal\webform\Entity\Webform;
 /**
  * Tests for webform submission value.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementSubmittedValueTest extends WebformElementBrowserTestBase {
 

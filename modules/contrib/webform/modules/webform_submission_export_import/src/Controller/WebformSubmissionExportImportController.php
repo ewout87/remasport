@@ -32,7 +32,7 @@ class WebformSubmissionExportImportController extends ControllerBase implements 
   protected $webformSubmissionStorage;
 
   /**
-   * The webform request handler.
+   * Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */

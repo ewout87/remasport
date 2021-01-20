@@ -97,7 +97,7 @@ class Schema extends DatabaseSchema {
     // Provide defaults if needed.
     $table += [
       'mysql_engine' => 'InnoDB',
-      'mysql_character_set' => 'utf8',
+      'mysql_character_set' => 'utf8mb4',
     ];
 
     $sql = "CREATE TABLE {" . $name . "} (\n";
@@ -121,8 +121,8 @@ class Schema extends DatabaseSchema {
 
     $sql .= 'ENGINE = ' . $table['mysql_engine'] . ' DEFAULT CHARACTER SET ' . $table['mysql_character_set'];
     // By default, MySQL uses the default collation for new tables, which is
-    // 'utf8_general_ci' (MySQL 5) or 'utf8_0900_ai_ci' (MySQL 8) for
-    // utf8. If an alternate collation has been set, it needs to be
+    // 'utf8mb4_general_ci' (MySQL 5) or 'utf8mb4_0900_ai_ci' (MySQL 8) for
+    // utf8mb4. If an alternate collation has been set, it needs to be
     // explicitly specified.
     // @see \Drupal\Core\Database\Driver\mysql\Schema
     if (!empty($info['collation'])) {
@@ -303,7 +303,7 @@ class Schema extends DatabaseSchema {
   /**
    * Gets normalized indexes from a table specification.
    *
-   * Shortens indexes to 191 characters if they apply to utf8-encoded
+   * Shortens indexes to 191 characters if they apply to utf8mb4-encoded
    * fields, in order to comply with the InnoDB index limitation of 756 bytes.
    *
    * @param array $spec

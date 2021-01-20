@@ -7,7 +7,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for webform token suffixes.
  *
- * @group webform
+ * @group Webform
  */
 class WebformTokenSuffixesTest extends WebformBrowserTestBase {
 

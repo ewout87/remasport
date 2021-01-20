@@ -19,6 +19,27 @@ use Drupal\webform\WebformSubmissionInterface;
 abstract class WebformComputedBase extends FormElement implements WebformComputedInterface {
 
   /**
+   * Denotes HTML.
+   *
+   * @var string
+   */
+  const MODE_HTML = 'html';
+
+  /**
+   * Denotes plain text.
+   *
+   * @var string
+   */
+  const MODE_TEXT = 'text';
+
+  /**
+   * Denotes markup whose content type should be detected.
+   *
+   * @var string
+   */
+  const MODE_AUTO = 'auto';
+
+  /**
    * Cache of submissions being processed.
    *
    * @var array
@@ -67,7 +88,7 @@ abstract class WebformComputedBase extends FormElement implements WebformCompute
       $element['#tree'] = TRUE;
 
       // Set #type to item to trigger #states behavior.
-      // @see \Drupal\Core\Form\FormHelper::processStates;
+      // @see drupal_process_states;
       $element['#type'] = 'item';
 
       $value = static::computeValue($element, $webform_submission);
@@ -275,11 +296,19 @@ abstract class WebformComputedBase extends FormElement implements WebformCompute
       'data-webform-announce' => t('@title is @value', $t_args),
     ];
     $element['#prefix'] = '<div' . new Attribute($attributes) . '>';
+
     $element['#suffix'] = '</div>';
 
-    // Disable states and flexbox wrapper.
+    // Remove flexbox wrapper because it already been render outside this
+    // computed element's ajax wrapper.
+    // @see \Drupal\webform\Plugin\WebformElementBase::prepareWrapper
     // @see \Drupal\webform\Plugin\WebformElementBase::preRenderFixFlexboxWrapper
-    $element['#webform_wrapper'] = FALSE;
+    $preRenderFixFlexWrapper = ['Drupal\webform\Plugin\WebformElement\WebformComputedTwig', 'preRenderFixFlexboxWrapper'];
+    foreach ($element['#pre_render'] as $index => $pre_render) {
+      if (is_array($pre_render) && $pre_render === $preRenderFixFlexWrapper) {
+        unset($element['#pre_render'][$index]);
+      }
+    }
 
     return $element;
   }
@@ -298,8 +327,8 @@ abstract class WebformComputedBase extends FormElement implements WebformCompute
    *   The markup type (html or text).
    */
   public static function getMode(array $element) {
-    if (empty($element['#mode']) || $element['#mode'] === WebformComputedInterface::MODE_AUTO) {
-      return (WebformHtmlHelper::containsHtml($element['#template'])) ? WebformComputedInterface::MODE_HTML : WebformComputedInterface::MODE_TEXT;
+    if (empty($element['#mode']) || $element['#mode'] === static::MODE_AUTO) {
+      return (WebformHtmlHelper::containsHtml($element['#template'])) ? static::MODE_HTML : static::MODE_TEXT;
     }
     else {
       return $element['#mode'];

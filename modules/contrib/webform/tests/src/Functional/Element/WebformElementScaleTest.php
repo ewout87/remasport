@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform\Functional\Element;
 /**
  * Tests for scale element.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementScaleTest extends WebformElementBrowserTestBase {
 
@@ -36,7 +36,7 @@ class WebformElementScaleTest extends WebformElementBrowserTestBase {
       'scale' => 1,
       'scale_text' => 2,
     ];
-    $this->drupalPostForm('/webform/test_element_scale', $edit, 'Submit');
+    $this->drupalPostForm('/webform/test_element_scale', $edit, t('Submit'));
     $this->assertRaw("scale: '1'
 scale_text: '2'
 scale_text_above: null

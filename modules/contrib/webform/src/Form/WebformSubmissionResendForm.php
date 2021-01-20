@@ -40,7 +40,7 @@ class WebformSubmissionResendForm extends FormBase {
   }
 
   /**
-   * The webform request handler.
+   * Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */

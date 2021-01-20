@@ -7,7 +7,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for the webform handler excluded.
  *
- * @group webform
+ * @group Webform
  */
 class WebformHandlerExcludedTest extends WebformBrowserTestBase {
 
@@ -21,7 +21,7 @@ class WebformHandlerExcludedTest extends WebformBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  public function setUp() {
     parent::setUp();
     $this->drupalPlaceBlock('local_actions_block');
   }

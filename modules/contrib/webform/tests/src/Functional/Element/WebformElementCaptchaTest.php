@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform\Functional\Element;
 /**
  * Tests for CAPTCHA element.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementCaptchaTest extends WebformElementBrowserTestBase {
 

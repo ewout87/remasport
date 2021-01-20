@@ -8,7 +8,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Webform options entity reference limit test.
  *
- * @group webform_options_limit
+ * @group webform_browser
  */
 class WebformOptionsLimitEntityReferenceTest extends WebformBrowserTestBase {
 

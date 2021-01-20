@@ -32,7 +32,7 @@ class WebformPluginElementController extends ControllerBase implements Container
   protected $elementInfo;
 
   /**
-   * The webform element plugin manager.
+   * A webform element plugin manager.
    *
    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */

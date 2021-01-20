@@ -26,7 +26,7 @@ class WebformSubmissionViewController extends EntityViewController {
   protected $currentUser;
 
   /**
-   * The webform request handler.
+   * Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */

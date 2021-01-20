@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\webform\Element\WebformMessage;
 use Drupal\webform\Entity\WebformSubmission;
-use Drupal\webform\Plugin\WebformSourceEntity\QueryStringWebformSourceEntity;
 use Drupal\webform\WebformMessageManagerInterface;
 use Drupal\webform\WebformTokenManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -157,7 +156,7 @@ class WebformEntityReferenceLinkFormatter extends WebformEntityReferenceFormatte
       $form['dialog'] = [
         '#title' => $this->t('Dialog'),
         '#type' => 'select',
-        '#empty_option' => $this->t('- Select dialog -'),
+        '#empty_option' => t('- Select dialog -'),
         '#default_value' => $this->getSetting('dialog'),
         '#options' => $options,
       ];
@@ -202,7 +201,12 @@ class WebformEntityReferenceLinkFormatter extends WebformEntityReferenceFormatte
         else {
           $link_entity = $entity;
         }
-        $link_options = QueryStringWebformSourceEntity::getRouteOptionsQuery($source_entity);
+        $link_options = [
+          'query' => [
+            'source_entity_type' => $source_entity->getEntityTypeId(),
+            'source_entity_id' => $source_entity->id(),
+          ],
+        ];
         $link = [
           '#type' => 'link',
           '#title' => ['#markup' => $this->tokenManager->replace($link_label, $link_entity)],

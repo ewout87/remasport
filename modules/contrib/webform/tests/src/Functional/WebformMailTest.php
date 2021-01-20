@@ -2,12 +2,14 @@
 
 namespace Drupal\Tests\webform\Functional;
 
+use Drupal\Tests\BrowserTestBase;
+
 /**
  * Performs tests on the pluggable mailing framework.
  *
  * @group webform_browser
  */
-class WebformMailTest extends WebformBrowserTestBase {
+class WebformMailTest extends BrowserTestBase {
 
   /**
    * Modules to enable.

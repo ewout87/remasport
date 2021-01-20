@@ -84,7 +84,7 @@ class WebformResultsCustomForm extends FormBase {
   protected $submissionStorage;
 
   /**
-   * The webform request handler.
+   * Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */
@@ -511,7 +511,7 @@ class WebformResultsCustomForm extends FormBase {
   /**
    * Get the full key for the custom data.
    *
-   * @param string $name
+   * @param $name
    *   The name for the custom data.
    *
    * @return string

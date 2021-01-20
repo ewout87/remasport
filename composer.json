@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer/installers": "^1.2",
+        "dompdf/dompdf": "0.8.0",
         "drupal/bootstrap_barrio": "^4.27",
         "drupal/businessplus_lite": "^1.0",
         "drupal/core-composer-scaffold": "^8.8",

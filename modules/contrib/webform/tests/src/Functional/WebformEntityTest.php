@@ -7,7 +7,7 @@ use Drupal\webform\Entity\Webform;
 /**
  * Tests for webform entity.
  *
- * @group webform
+ * @group Webform
  */
 class WebformEntityTest extends WebformBrowserTestBase {
 
@@ -26,7 +26,7 @@ class WebformEntityTest extends WebformBrowserTestBase {
   protected static $testWebforms = ['test_submissions'];
 
   /**
-   * The webform submission storage.
+   * Webform submission storage.
    *
    * @var \Drupal\webform\WebformSubmissionStorageInterface
    */
@@ -35,7 +35,7 @@ class WebformEntityTest extends WebformBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  public function setUp() {
     parent::setUp();
 
     // Storage.
@@ -68,7 +68,7 @@ class WebformEntityTest extends WebformBrowserTestBase {
     $webform_test_submissions->set('elements', "not\nvalid\nyaml")->save();
 
     // Check invalid elements.
-    $this->assertEqual($webform_test_submissions->getElementsInitialized(), []);
+    $this->assertFalse($webform_test_submissions->getElementsInitialized());
 
     // Check invalid element columns.
     $this->assertEqual($webform_test_submissions->getElementsInitializedFlattenedAndHasValue(), []);

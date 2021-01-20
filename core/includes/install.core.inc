@@ -526,7 +526,7 @@ function install_begin_request($class_loader, &$install_state) {
 
     // Do not install over a configured settings.php.
     if (Database::getConnectionInfo()) {
-      //throw new AlreadyInstalledException($container->get('string_translation'));
+      throw new AlreadyInstalledException($container->get('string_translation'));
     }
   }
 
@@ -534,7 +534,7 @@ function install_begin_request($class_loader, &$install_state) {
   if ($install_state['config_verified'] && empty($task)) {
     if (count($kernel->getConfigStorage()->listAll())) {
       $task = NULL;
-      //throw new AlreadyInstalledException($container->get('string_translation'));
+      throw new AlreadyInstalledException($container->get('string_translation'));
     }
   }
 
@@ -1142,7 +1142,7 @@ function install_verify_completed_task() {
   }
   if (isset($task)) {
     if ($task == 'done') {
-      //throw new AlreadyInstalledException(\Drupal::service('string_translation'));
+      throw new AlreadyInstalledException(\Drupal::service('string_translation'));
     }
     return $task;
   }
@@ -1179,7 +1179,7 @@ function install_verify_database_ready() {
 
   if ($database = Database::getConnectionInfo()) {
     if (Database::getConnection()->schema()->tableExists($table)) {
-      //throw new AlreadyInstalledException(\Drupal::service('string_translation'));
+      throw new AlreadyInstalledException(\Drupal::service('string_translation'));
     }
   }
 }

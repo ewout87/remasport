@@ -7,7 +7,7 @@ use Drupal\webform\Entity\Webform;
 /**
  * Tests for webform validate minlength.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementValidateMinlengthTest extends WebformElementBrowserTestBase {
 

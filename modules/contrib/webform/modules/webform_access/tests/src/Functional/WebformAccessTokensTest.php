@@ -7,7 +7,7 @@ use Drupal\webform\Entity\WebformSubmission;
 /**
  * Tests for webform tokens access.
  *
- * @group webform_access
+ * @group WebformAccess
  */
 class WebformAccessTokensTest extends WebformAccessBrowserTestBase {
 

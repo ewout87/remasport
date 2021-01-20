@@ -12,7 +12,6 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
@@ -115,12 +114,6 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
    */
   protected $computedData = [];
 
-  /**
-   * The data hashed.
-   *
-   * @var string
-   */
-  protected $dataHash;
   /**
    * Flag to indicated if submission is being converted from anonymous to authenticated.
    *
@@ -251,21 +244,6 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
     /** @var \Drupal\webform\WebformTokenManagerInterface $token_manager */
     $token_manager = \Drupal::service('webform.token_manager');
     return PlainTextOutput::renderFromHtml($token_manager->replaceNoRenderContext($submission_label, $this));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getLangcode() {
-    return $this->get('langcode')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setLangcode($langcode) {
-    $this->set('langcode', $langcode);
-    return $this;
   }
 
   /**
@@ -409,7 +387,6 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
     if ($this->getWebform()->getElement($key)) {
       $this->data[$key] = $value;
       $this->computedData = NULL;
-      $this->dataHash = NULL;
     }
     return $this;
   }
@@ -461,7 +438,6 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
   public function setData(array $data) {
     $this->data = $data;
     $this->computedData = NULL;
-    $this->dataHash = NULL;
     return $this;
   }
 
@@ -485,17 +461,6 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
    */
   public function getElementOriginalData($key) {
     return (isset($this->originalData[$key])) ? $this->originalData[$key] : NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDataHash() {
-    if (isset($this->dataHash)) {
-      return $this->dataHash;
-    }
-    $this->dataHash = Crypt::hmacBase64(serialize($this->getRawData()), Settings::getHashSalt());
-    return $this->dataHash;
   }
 
   /**
@@ -569,12 +534,6 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
 
       case 'update':
         $url = $this->getSourceUrl();
-        break;
-
-      case 'delete':
-        /** @var \Drupal\webform\WebformRequestInterface $request_handler */
-        $request_handler = \Drupal::service('webform.request');
-        $url = $request_handler->getUrl($this, $this->getSourceEntity(), 'webform.user.submission.delete');
         break;
 
       default:
@@ -697,22 +656,22 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
    */
   public function getState() {
     if (!$this->id()) {
-      return WebformSubmissionInterface::STATE_UNSAVED;
+      return self::STATE_UNSAVED;
     }
     elseif ($this->isConverting()) {
-      return WebformSubmissionInterface::STATE_CONVERTED;
+      return self::STATE_CONVERTED;
     }
     elseif ($this->isDraft()) {
-      return ($this->created->value === $this->changed->value) ? WebformSubmissionInterface::STATE_DRAFT_CREATED : WebformSubmissionInterface::STATE_DRAFT_UPDATED;
+      return ($this->created->value === $this->changed->value) ? self::STATE_DRAFT_CREATED : self::STATE_DRAFT_UPDATED;
     }
     elseif ($this->isLocked()) {
-      return WebformSubmissionInterface::STATE_LOCKED;
+      return self::STATE_LOCKED;
     }
     elseif ($this->completed->value === $this->changed->value) {
-      return WebformSubmissionInterface::STATE_COMPLETED;
+      return self::STATE_COMPLETED;
     }
     else {
-      return WebformSubmissionInterface::STATE_UPDATED;
+      return self::STATE_UPDATED;
     }
   }
 
@@ -813,7 +772,7 @@ class WebformSubmission extends ContentEntityBase implements WebformSubmissionIn
       $entity_reference_manager = \Drupal::service('webform.entity_reference_manager');
 
       if ($webform_field_name = $entity_reference_manager->getFieldName($source_entity)) {
-        if ($source_entity->$webform_field_name->target_id === $webform->id() && $source_entity->$webform_field_name->default_data) {
+        if ($source_entity->$webform_field_name->target_id == $webform->id() && $source_entity->$webform_field_name->default_data) {
           $values['data'] += Yaml::decode($source_entity->$webform_field_name->default_data);
         }
       }

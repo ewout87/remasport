@@ -43,7 +43,7 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
   protected $entityTypeManager;
 
   /**
-   * The webform submission storage.
+   * Webform submission storage.
    *
    * @var \Drupal\webform\WebformSubmissionStorageInterface
    */
@@ -263,7 +263,7 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
    * {@inheritdoc}
    */
   public function getFileTempDirectory() {
-    return $this->configFactory->get('webform.settings')->get('export.temp_directory') ?: \Drupal::service('file_system')->getTempDirectory();
+    return $this->configFactory->get('webform.settings')->get('export.temp_directory') ?: file_directory_temp();
   }
 
   /**
@@ -334,17 +334,17 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
    * {@inheritdoc}
    */
   public function getArchiveType() {
-    return ($this->configuration['archive_type'] === WebformExporterInterface::ARCHIVE_ZIP
+    return ($this->configuration['archive_type'] === static::ARCHIVE_ZIP
       && class_exists('\ZipArchive'))
-      ? WebformExporterInterface::ARCHIVE_ZIP
-      : WebformExporterInterface::ARCHIVE_TAR;
+      ? static::ARCHIVE_ZIP
+      : static::ARCHIVE_TAR;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getArchiveFileExtension() {
-    return ($this->getArchiveType() === WebformExporterInterface::ARCHIVE_ZIP)
+    return ($this->getArchiveType() === static::ARCHIVE_ZIP)
       ? 'zip'
       : 'tar.gz';
   }
@@ -358,7 +358,7 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
       'close' => FALSE,
     ];
 
-    if ($this->getArchiveType() === WebformExporterInterface::ARCHIVE_ZIP) {
+    if ($this->getArchiveType() === static::ARCHIVE_ZIP) {
       $this->addToZipFile($path, $name, $options);
     }
     else {
@@ -439,7 +439,7 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
       }
       else {
         // Add file to ZIP file.
-        // Get file name from the path and remove path option.
+        // Get file name from the path and remove path option..
         $file_name = $path;
         if ($options['remove_path']) {
           $file_name = preg_replace('#^' . $options['remove_path'] . '#', '', $file_name);

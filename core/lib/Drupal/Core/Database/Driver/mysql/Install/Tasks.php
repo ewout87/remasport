@@ -20,7 +20,7 @@ class Tasks extends InstallTasks {
   /**
    * Minimum required libmysqlclient version.
    */
-  const LIBMYSQLCLIENT_MINIMUM_VERSION = '5.1';
+  const LIBMYSQLCLIENT_MINIMUM_VERSION = '5.5.3';
 
   /**
    * The PDO driver name for MySQL and equivalent databases.

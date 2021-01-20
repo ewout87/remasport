@@ -23,7 +23,7 @@ use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\Utility\WebformElementHelper;
 
 /**
- * Prepares variables for webform help templates.
+ * Prepares variables for webform help.
  *
  * Default template: webform_help.html.twig.
  *
@@ -159,13 +159,11 @@ function template_preprocess_webform_confirmation(array &$variables) {
   // Get query string parameters.
   $query = \Drupal::request()->query->all();
 
-  // Add Ajax trigger to back link except for webform with unique limits which
-  // break the ajax callback.
+  // Add Ajax trigger to back link.
   // @see \Drupal\webform\WebformSubmissionForm::getCustomForm
   // @see Drupal.behaviors.webformConfirmationBackAjax (js/webform.ajax.js)
   $is_ajax = (!empty($query['ajax_form'])) ? TRUE : FALSE;
-  $is_limit_unique = ($webform  && ($webform->getSetting('limit_total_unique') || $webform->getSetting('limit_user_unique')));
-  if (!empty($is_ajax) && !$is_limit_unique) {
+  if (!empty($is_ajax)) {
     $variables['back_attributes']->addClass('js-webform-confirmation-back-link-ajax');
   }
 
@@ -328,12 +326,14 @@ function template_preprocess_webform_submission_information(array &$variables) {
     $variables['uri'] = Link::fromTextAndUrl($source_url->setAbsolute(FALSE)->toString(), $source_url);
   }
 
-  $token_operations = ['view', 'update', 'delete'];
-  foreach ($token_operations as $token_operation) {
-    if ($webform->getSetting('token_' . $token_operation)) {
-      $token_url = $webform_submission->getTokenUrl($token_operation);
-      $variables['token_' . $token_operation] = Link::fromTextAndUrl($token_url->setAbsolute(FALSE)->toString(), $token_url);
-    }
+  if ($webform->getSetting('token_view')) {
+    $token_view_url = $webform_submission->getTokenUrl('view');
+    $variables['token_view'] = Link::fromTextAndUrl($token_view_url->setAbsolute(FALSE)->toString(), $token_view_url);
+  }
+
+  if ($webform->getSetting('token_update')) {
+    $token_update_url = $webform_submission->getTokenUrl('update');
+    $variables['token_update'] = Link::fromTextAndUrl($token_update_url->setAbsolute(FALSE)->toString(), $token_update_url);
   }
 
   if (($source_entity = $webform_submission->getSourceEntity()) && $source_entity->hasLinkTemplate('canonical')) {
@@ -351,7 +351,7 @@ function template_preprocess_webform_submission_information(array &$variables) {
     }
     elseif (\Drupal::currentUser()->hasPermission("view webform node submissions own $entity_type")
       && method_exists($source_entity, 'getOwnerId')
-      && (int) $source_entity->getOwnerId() === (int) \Drupal::currentUser()->id()
+      && $source_entity->getOwnerId() == \Drupal::currentUser()->id()
     ) {
       $variables['submissions_view'] = TRUE;
     }
@@ -360,23 +360,9 @@ function template_preprocess_webform_submission_information(array &$variables) {
   if ($webform_submission->access('delete')) {
     /** @var \Drupal\webform\WebformRequestInterface $request_handler */
     $request_handler = \Drupal::service('webform.request');
+    $base_route_name = (strpos(\Drupal::routeMatch()->getRouteName(), 'webform.user.submission') !== FALSE) ? 'webform.user.submission.delete' : 'webform_submission.delete_form';
+    $url = $request_handler->getUrl($webform_submission, $source_entity, $base_route_name);
 
-    $current_url = Url::fromRoute('<current>')->toString();
-    $source_entity_url = $webform_submission->getSourceUrl()->setAbsolute(FALSE)->toString();
-
-    $route_options = [];
-    if ($current_url === $source_entity_url) {
-      $base_route_name = 'webform.user.submission.delete';
-      $route_options = ['query' => \Drupal::destination()->getAsArray()];
-    }
-    elseif (strpos(\Drupal::routeMatch()->getRouteName(), 'webform.user.submission') !== FALSE
-      || !$webform->access('submission_view_any')) {
-      $base_route_name = 'webform.user.submission.delete';
-    }
-    else {
-      $base_route_name = 'webform_submission.delete_form';
-    }
-    $url = $request_handler->getUrl($webform_submission, $source_entity, $base_route_name, $route_options);
     $variables['delete'] = [
       '#type' => 'link',
       '#title' => t('Delete submission'),
@@ -389,7 +375,7 @@ function template_preprocess_webform_submission_information(array &$variables) {
 }
 
 /**
- * Prepares variables for webform CodeMirror templates.
+ * Prepares variables for webform CodeMirror template.
  *
  * Default template: webform-codemirror.html.twig.
  *
@@ -407,7 +393,7 @@ function template_preprocess_webform_codemirror(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element base HTML templates.
+ * Prepares variables for webform element base HTML template.
  *
  * Default template: webform-element-base-html.html.twig.
  *
@@ -460,7 +446,7 @@ function template_preprocess_webform_element_base_html(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element base text templates.
+ * Prepares variables for webform element base text template.
  *
  * Default template: webform-element-base-text.html.twig.
  *
@@ -502,11 +488,11 @@ function _template_progress_webform_set_title(array &$variables, $strip_tags = F
 }
 
 /******************************************************************************/
-// Preprocess templates.
+// Progress templates.
 /******************************************************************************/
 
 /**
- * Prepares variables for webform 'wizard' progress templates.
+ * Prepares variables for webform 'wizard' progress template.
  *
  * Default template: webform-progress.html.twig.
  *
@@ -521,21 +507,17 @@ function template_preprocess_webform_progress(array &$variables) {
 
   /** @var \Drupal\webform\WebformInterface $webform */
   $webform = $variables['webform'];
-  /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
   $webform_submission = $variables['webform_submission'];
   $current_page = $variables['current_page'];
   $operation = $variables['operation'];
 
-  $pages = $variables['pages'] ?: $webform->getPages($operation, $webform_submission);
+  $pages = $webform->getPages($operation, $webform_submission);
 
   $page_keys = array_keys($pages);
   $page_indexes = array_flip($page_keys);
   $current_index = $page_indexes[$current_page];
 
   $total = count($page_keys);
-
-  $variables['index'] = ($current_index + 1);
-  $variables['total'] = $total;
 
   if ($webform->getSetting('wizard_progress_bar')) {
     $variables['bar'] = [
@@ -544,12 +526,11 @@ function template_preprocess_webform_progress(array &$variables) {
       '#webform_submission' => $webform_submission,
       '#current_page' => $current_page,
       '#operation' => $operation,
-      '#pages' => $variables['pages'],
     ];
   }
 
   if ($webform->getSetting('wizard_progress_pages')) {
-    $variables['summary'] = t('@start of @end', ['@start' => $current_index + 1, '@end' => $total]);
+    $variables['summary'] = t('Page @start of @end', ['@start' => $current_index + 1, '@end' => $total]);
   }
 
   if ($webform->getSetting('wizard_progress_percentage')) {
@@ -558,7 +539,7 @@ function template_preprocess_webform_progress(array &$variables) {
 }
 
 /**
- * Prepares variables for webform 'wizard' progress bar templates.
+ * Prepares variables for webform 'wizard' progress bar template.
  *
  * Default template: webform-progress-bar.html.twig.
  *
@@ -572,7 +553,7 @@ function template_preprocess_webform_progress_bar(array &$variables) {
 }
 
 /**
- * Prepares variables for webform 'wizard' progress tracker templates.
+ * Prepares variables for webform 'wizard' progress tracker template.
  *
  * Default template: webform-progress-tracker.html.twig.
  *
@@ -586,7 +567,7 @@ function template_preprocess_webform_progress_tracker(array &$variables) {
 }
 
 /**
- * Prepares variables for webform 'wizard' progress bar & tracker templates.
+ * Prepares variables for webform 'wizard' progress bar & tracker template.
  *
  * @param array $variables
  *   An associative array containing the following key:
@@ -596,12 +577,11 @@ function template_preprocess_webform_progress_tracker(array &$variables) {
 function _template_preprocess_webform_progress(array &$variables) {
   /** @var \Drupal\webform\WebformInterface $webform */
   $webform = $variables['webform'];
-  /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
   $webform_submission = $variables['webform_submission'];
   $current_page = $variables['current_page'];
   $operation = $variables['operation'];
 
-  $pages = $variables['pages'] ?: $webform->getPages($operation, $webform_submission);
+  $pages = $webform->getPages($operation, $webform_submission);
 
   $page_keys = array_keys($pages);
   $page_indexes = array_flip($page_keys);
@@ -614,7 +594,6 @@ function _template_preprocess_webform_progress(array &$variables) {
     $variables['progress'][] = [
       'name' => $key,
       'title' => (isset($page['#title'])) ? $page['#title'] : '',
-      'type' => (isset($page['#type'])) ? $page['#type'] : 'page',
     ];
   }
 }
@@ -624,7 +603,7 @@ function _template_preprocess_webform_progress(array &$variables) {
 /******************************************************************************/
 
 /**
- * Prepares variables for webform message templates.
+ * Prepares variables for Webform message templates.
  *
  * Default template: webform-message.html.twig.
  *
@@ -658,7 +637,7 @@ function template_preprocess_webform_message(array &$variables) {
 }
 
 /**
- * Prepares variables for webform HTML Editor markup templates.
+ * Prepares variables for Webform HTML Editor markup templates.
  *
  * Default template: webform-html-editor-markup.html.twig.
  *
@@ -675,7 +654,7 @@ function template_preprocess_webform_html_editor_markup(array &$variables) {
 }
 
 /**
- * Prepares variables for webform horizontal rule templates.
+ * Prepares variables for Webform horizontal rule templates.
  *
  * Default template: webform-horizontal-rule.html.twig.
  *
@@ -724,7 +703,7 @@ function template_preprocess_webform_section(array &$variables) {
   }
 
   // Add 'visually-hidden' class to title attributes.
-  if ($variables['title_display'] === 'invisible') {
+  if ($variables['title_display'] == 'invisible') {
     $variables['title_attributes']['class'][] = 'visually-hidden';
   }
   $variables['title_attributes'] = new Attribute($variables['title_attributes']);
@@ -741,9 +720,6 @@ function template_preprocess_webform_section(array &$variables) {
 
   // Suppress error messages.
   $variables['errors'] = NULL;
-
-  // Setup description, help, and more.
-  _webform_preprocess_element($variables);
 }
 
 /******************************************************************************/
@@ -751,7 +727,7 @@ function template_preprocess_webform_section(array &$variables) {
 /******************************************************************************/
 
 /**
- * Prepares variables for webform composite templates.
+ * Prepares variables for composite element templates.
  *
  * @param array $variables
  *   An associative array containing:
@@ -772,9 +748,9 @@ function _template_preprocess_webform_composite(array &$variables) {
 }
 
 /**
- * Prepares variables for composite address templates.
+ * Prepares variables for address composite element templates.
  *
- * Default template: webform-composite-address.html.twig.
+ * Default template: webform-element-address.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
@@ -785,9 +761,9 @@ function template_preprocess_webform_composite_address(array &$variables) {
 }
 
 /**
- * Prepares variables for composite contact templates.
+ * Prepares variables for contact composite element templates.
  *
- * Default template: webform-composite-contact.html.twig.
+ * Default template: webform-element-contact.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
@@ -798,9 +774,9 @@ function template_preprocess_webform_composite_contact(array &$variables) {
 }
 
 /**
- * Prepares variables for composite link templates.
+ * Prepares variables for link composite element templates.
  *
- * Default template: webform-composite-link.html.twig.
+ * Default template: webform-element-link.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
@@ -811,9 +787,9 @@ function template_preprocess_webform_composite_link(array &$variables) {
 }
 
 /**
- * Prepares variables for composite location templates.
+ * Prepares variables for location composite element templates.
  *
- * Default template: webform-composite-location.html.twig.
+ * Default template: webform-element-location.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
@@ -824,9 +800,9 @@ function template_preprocess_webform_composite_location(array &$variables) {
 }
 
 /**
- * Prepares variables for composite name templates.
+ * Prepares variables for name composite element templates.
  *
- * Default template: webform-composite-name.html.twig.
+ * Default template: webform-element-name.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
@@ -837,9 +813,9 @@ function template_preprocess_webform_composite_name(array &$variables) {
 }
 
 /**
- * Prepares variables for composite telephone templates.
+ * Prepares variables for telephone composite element templates.
  *
- * Default template: webform-composite-telephone.html.twig.
+ * Default template: webform-element-telephone.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
@@ -854,7 +830,7 @@ function template_preprocess_webform_composite_telephone(array &$variables) {
 /******************************************************************************/
 
 /**
- * Prepares variables for webform element help templates.
+ * Prepares variables for element help.
  *
  * Default template: webform-element-help.html.twig.
  *
@@ -867,7 +843,6 @@ function template_preprocess_webform_composite_telephone(array &$variables) {
 function template_preprocess_webform_element_help(array &$variables) {
   $attributes = (isset($variables['attributes'])) ? $variables['attributes'] : [];
   $attributes['class'][] = 'webform-element-help';
-  $attributes['class'][] = 'js-webform-element-help';
   $attributes['role'] = 'tooltip';
   $attributes['tabindex'] = '0';
 
@@ -884,7 +859,7 @@ function template_preprocess_webform_element_help(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element more templates.
+ * Prepares variables for element more.
  *
  * Default template: webform-element-more.html.twig.
  *
@@ -918,7 +893,7 @@ function template_preprocess_webform_element_more(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element managed file templates.
+ * Prepares variables for a managed file element.
  *
  * @param array $variables
  *   An associative array containing the following key:
@@ -942,7 +917,7 @@ function template_preprocess_webform_element_managed_file(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element audio file templates.
+ * Prepares variables for an audio file element.
  *
  * Default template: webform-element-audio-file.html.twig.
  *
@@ -958,7 +933,7 @@ function template_preprocess_webform_element_audio_file(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element document file templates.
+ * Prepares variables for a document file element.
  *
  * Default template: webform-element-document-file.html.twig.
  *
@@ -974,7 +949,7 @@ function template_preprocess_webform_element_document_file(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element image file templates.
+ * Prepares variables for an image file element.
  *
  * Default template: webform-element-image-file.html.twig.
  *
@@ -1032,7 +1007,7 @@ function template_preprocess_webform_element_image_file(array &$variables) {
     }
 
     // Wrap 'image' in a link/modal.
-    if ($format && $format !== 'image') {
+    if ($format && $format != 'image') {
       $variables['image'] = [
         '#type' => 'link',
         '#title' => $variables['image'],
@@ -1056,7 +1031,7 @@ function template_preprocess_webform_element_image_file(array &$variables) {
 }
 
 /**
- * Prepares variables for webform element video file templates.
+ * Prepares variables for a video file element.
  *
  * Default template: webform-element-video-file.html.twig.
  *

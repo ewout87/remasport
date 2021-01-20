@@ -8,7 +8,7 @@ use Drupal\Tests\webform_node\Functional\WebformNodeBrowserTestBase;
 /**
  * Webform options limit source entity test.
  *
- * @group webform_options_limit
+ * @group webform_browser
  */
 class WebformOptionsLimitSourceEntityTest extends WebformNodeBrowserTestBase {
 

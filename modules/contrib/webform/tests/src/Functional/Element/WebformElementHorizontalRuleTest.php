@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform\Functional\Element;
 /**
  * Tests for horizontal rule element.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementHorizontalRuleTest extends WebformElementBrowserTestBase {
 

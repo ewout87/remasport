@@ -3,6 +3,7 @@
 namespace Drupal\Tests\webform\Functional;
 
 use Drupal\node\Entity\Node;
+use Drupal\Tests\BrowserTestBase;
 use Drupal\webform\Entity\Webform;
 
 /**
@@ -12,7 +13,7 @@ use Drupal\webform\Entity\Webform;
  *
  * @group webform_browser
  */
-class WebformBlockCacheTest extends WebformBrowserTestBase {
+class WebformBlockCacheTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
@@ -29,7 +30,7 @@ class WebformBlockCacheTest extends WebformBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     $this->authenticatedUser = $this->createUser([

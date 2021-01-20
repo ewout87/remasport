@@ -56,7 +56,7 @@ class WebformSubmissionLogController extends ControllerBase {
   protected $webformSubmissionStorage;
 
   /**
-   * The webform request handler.
+   * Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */

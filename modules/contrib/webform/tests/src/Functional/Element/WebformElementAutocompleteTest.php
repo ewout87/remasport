@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform\Functional\Element;
 /**
  * Tests for webform autocomplete element.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementAutocompleteTest extends WebformElementBrowserTestBase {
 
@@ -45,7 +45,13 @@ class WebformElementAutocompleteTest extends WebformElementBrowserTestBase {
 
     // Check #autocomplete_items just one character.
     $this->drupalGet('/webform/test_element_autocomplete/autocomplete/autocomplete_items', ['query' => ['q' => 'U']]);
-    $this->assertRaw('[{"value":"Anguilla","label":"Anguilla"},{"value":"Antigua \u0026 Barbuda","label":"Antigua \u0026 Barbuda"},{"value":"Aruba","label":"Aruba"},{"value":"Australia","label":"Australia"},{"value":"Austria","label":"Austria"}]');
+    // @todo Remove once Drupal 8.8.x is only supported.
+    if (floatval(\Drupal::VERSION) >= 8.8) {
+      $this->assertRaw('[{"value":"Anguilla","label":"Anguilla"},{"value":"Antigua \u0026 Barbuda","label":"Antigua \u0026 Barbuda"},{"value":"Aruba","label":"Aruba"},{"value":"Australia","label":"Australia"},{"value":"Austria","label":"Austria"}]');
+    }
+    else {
+      $this->assertRaw('[{"value":"Anguilla","label":"Anguilla"},{"value":"Antigua and Barbuda","label":"Antigua and Barbuda"},{"value":"Aruba","label":"Aruba"},{"value":"Australia","label":"Australia"},{"value":"Austria","label":"Austria"}]');
+    }
 
     /* Test #autocomplete_existing element property */
 
@@ -59,7 +65,7 @@ class WebformElementAutocompleteTest extends WebformElementBrowserTestBase {
     $this->assertRaw('[]');
 
     // Add #autocomplete_existing values to the submission table.
-    $this->drupalPostForm('/webform/test_element_autocomplete', ['autocomplete_existing' => 'abcdefg'], 'Submit');
+    $this->drupalPostForm('/webform/test_element_autocomplete', ['autocomplete_existing' => 'abcdefg'], t('Submit'));
 
     // Check #autocomplete_existing enabled now that there is submission.
     $this->drupalGet('/webform/test_element_autocomplete');
@@ -79,7 +85,7 @@ class WebformElementAutocompleteTest extends WebformElementBrowserTestBase {
     /* Test #autocomplete_existing and #autocomplete_items element property */
 
     // Add #autocomplete_body values to the submission table.
-    $this->drupalPostForm('/webform/test_element_autocomplete', ['autocomplete_both' => 'Existing Item'], 'Submit');
+    $this->drupalPostForm('/webform/test_element_autocomplete', ['autocomplete_both' => 'Existing Item'], t('Submit'));
 
     // Check #autocomplete_both match.
     $this->drupalGet('/webform/test_element_autocomplete/autocomplete/autocomplete_both', ['query' => ['q' => 'Item']]);

@@ -2,12 +2,10 @@
 
 namespace Drupal\Tests\webform\Functional;
 
-use Drupal\webform\Entity\Webform;
-
 /**
  * Tests for webform third party settings.
  *
- * @group webform
+ * @group Webform
  */
 class WebformThirdPartySettingsTest extends WebformBrowserTestBase {
 
@@ -22,24 +20,7 @@ class WebformThirdPartySettingsTest extends WebformBrowserTestBase {
    * Tests webform third party settings.
    */
   public function testThirdPartySettings() {
-    $webform = Webform::load('contact');
-
     $this->drupalLogin($this->rootUser);
-
-    /**************************************************************************/
-
-    // Check honeypot (custom) third party setting does not exist.
-    $this->assertNull($webform->getThirdPartySetting('honeypot', 'honeypot'));
-
-    // Add honeypot (custom) third party setting, even though the honeypot
-    // module is not installed.
-    $webform = $this->reloadWebform('contact');
-    $webform->setThirdPartySetting('honeypot', 'honeypot', TRUE);
-    $webform->save();
-
-    // Check honeypot (custom) third party setting.
-    $webform = $this->reloadWebform('contact');
-    $this->assertTrue($webform->getThirdPartySetting('honeypot', 'honeypot'));
 
     // Check 'Webform: Settings' shows no modules installed.
     $this->drupalGet('/admin/structure/webform/config');
@@ -52,7 +33,7 @@ class WebformThirdPartySettingsTest extends WebformBrowserTestBase {
     // Install test third party settings module.
     $this->drupalPostForm('admin/modules', [
       'modules[webform_test_third_party_settings][enable]' => TRUE,
-    ], 'Install');
+    ], t('Install'));
 
     // Check 'Webform: Settings' shows no modules installed.
     $this->drupalGet('/admin/structure/webform/config');
@@ -66,7 +47,7 @@ class WebformThirdPartySettingsTest extends WebformBrowserTestBase {
     $edit = [
       'third_party_settings[webform_test_third_party_settings][message]' => 'Message for all webforms',
     ];
-    $this->drupalPostForm('/admin/structure/webform/config', $edit, 'Save configuration');
+    $this->drupalPostForm('/admin/structure/webform/config', $edit, t('Save configuration'));
     $this->drupalGet('/webform/contact');
     $this->assertRaw('Message for all webforms');
 
@@ -80,36 +61,15 @@ class WebformThirdPartySettingsTest extends WebformBrowserTestBase {
     $edit = [
       'third_party_settings[webform_test_third_party_settings][message]' => 'Message for only this webform',
     ];
-    $this->drupalPostForm('/admin/structure/webform/manage/contact/settings', $edit, 'Save');
+    $this->drupalPostForm('/admin/structure/webform/manage/contact/settings', $edit, t('Save'));
     $this->drupalGet('/webform/contact');
     $this->assertRaw('Message for only this webform');
-
-    // Check honeypot (custom) third party setting still exists.
-    $webform = $this->reloadWebform('contact');
-    $this->assertTrue($webform->getThirdPartySetting('honeypot', 'honeypot'));
-
-    // Check 'Check 'Contact: Settings: Third party' is not null.
-    $this->assertNotNull(
-      $this->config('webform.webform.contact')->get('third_party_settings.webform_test_third_party_settings')
-    );
-
-    // Check clearing 'Check 'Contact: Settings: Third party' message
-    // sets the value to null.
-    $edit = [
-      'third_party_settings[webform_test_third_party_settings][message]' => '',
-    ];
-    $this->drupalPostForm('/admin/structure/webform/manage/contact/settings', $edit, 'Save');
-    $webform = $this->reloadWebform('contact');
-    $this->assertEqual([], $webform->getThirdPartySettings('webform_test_third_party_settings'));
-    $this->assertNull(
-      $this->config('webform.webform.contact')->get('third_party_settings.webform_test_third_party_settings')
-    );
 
     // Uninstall test third party settings module.
     $this->drupalPostForm('admin/modules/uninstall', [
       'uninstall[webform_test_third_party_settings]' => TRUE,
-    ], 'Uninstall');
-    $this->drupalPostForm(NULL, [], 'Uninstall');
+    ], t('Uninstall'));
+    $this->drupalPostForm(NULL, [], t('Uninstall'));
 
     // Check webform.
     $this->drupalGet('/webform/contact');

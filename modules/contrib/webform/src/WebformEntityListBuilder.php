@@ -59,21 +59,21 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
   protected $state;
 
   /**
-   * The webform submission storage.
+   * Webform submission storage.
    *
    * @var \Drupal\webform\WebformSubmissionStorageInterface
    */
   protected $submissionStorage;
 
   /**
-   * The user storage.
+   * User storage.
    *
    * @var \Drupal\user\UserStorageInterface
    */
   protected $userStorage;
 
   /**
-   * The role storage.
+   * Role storage.
    *
    * @var \Drupal\user\RoleStorageInterface
    */
@@ -291,7 +291,7 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
       $row['status']['data'] = [
         '#type' => 'html_tag',
         '#tag' => 'span',
-        '#value' => $this->t('Archived'),
+        '#markup' => $this->t('Archived'),
         '#attributes' => ['aria-label' => $this->t('@label is archived', $t_args)],
       ];
       $row['status'] = $this->t('Archived');
@@ -326,7 +326,7 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
         $row['status']['data'] = [
           '#type' => 'html_tag',
           '#tag' => 'span',
-          '#value' => $status,
+          '#markup' => $status,
           '#attributes' => ['aria-label' => $aria_label],
         ];
       }
@@ -381,35 +381,24 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
       $operations['edit'] = [
         'title' => $this->t('Build'),
         'url' => $this->ensureDestination($entity->toUrl('edit-form')),
-        'weight' => 0,
       ];
     }
     if ($entity->access('submission_page')) {
       $operations['view'] = [
         'title' => $this->t('View'),
         'url' => $entity->toUrl('canonical'),
-        'weight' => 10,
-      ];
-    }
-    if ($entity->access('test')) {
-      $operations['test'] = [
-        'title' => $this->t('Test'),
-        'url' => $entity->toUrl('canonical'),
-        'weight' => 20,
       ];
     }
     if ($entity->access('submission_view_any') && !$entity->isResultsDisabled()) {
       $operations['results'] = [
         'title' => $this->t('Results'),
         'url' => $entity->toUrl('results-submissions'),
-        'weight' => 30,
       ];
     }
     if ($entity->access('update')) {
       $operations['settings'] = [
         'title' => $this->t('Settings'),
         'url' => $entity->toUrl('settings'),
-        'weight' => 40,
       ];
     }
     if ($entity->access('duplicate')) {
@@ -417,7 +406,6 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
         'title' => $this->t('Duplicate'),
         'url' => $entity->toUrl('duplicate-form'),
         'attributes' => WebformDialogHelper::getModalDialogAttributes(WebformDialogHelper::DIALOG_NARROW),
-        'weight' => 90,
       ];
     }
     if ($entity->access('delete') && $entity->hasLinkTemplate('delete-form')) {
@@ -425,7 +413,6 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
         'title' => $this->t('Delete'),
         'url' => $this->ensureDestination($entity->toUrl('delete-form')),
         'attributes' => WebformDialogHelper::getModalDialogAttributes(WebformDialogHelper::DIALOG_NARROW),
-        'weight' => 100,
       ];
     }
     return $operations;
@@ -459,7 +446,7 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
       $total = count($entity_ids);
       $limit = $this->getLimit();
       $start = ($page * $limit);
-      \Drupal::service('pager.manager')->createPager($total, $limit);
+      pager_default_initialize($total, $limit);
       return array_slice($entity_ids, $start, $limit, TRUE);
     }
     else {
@@ -543,7 +530,7 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
           $or->condition('id', $webform_ids, 'IN');
         }
         // Also check the webform's owner.
-        if ($access_type === 'users') {
+        if ($access_type == 'users') {
           $or->condition('uid', $access_value);
         }
       }

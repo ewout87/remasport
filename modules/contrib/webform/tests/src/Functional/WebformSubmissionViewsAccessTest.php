@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\webform\Functional;
 
+use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\webform\Traits\WebformSubmissionViewAccessTrait;
 use Drupal\user\Entity\User;
 use Drupal\webform\Entity\Webform;
@@ -13,7 +14,7 @@ use Drupal\webform\WebformInterface;
  *
  * @group webform_browser
  */
-class WebformSubmissionViewsAccessTest extends WebformBrowserTestBase {
+class WebformSubmissionViewsAccessTest extends BrowserTestBase {
 
   use WebformSubmissionViewAccessTrait;
 

@@ -8,7 +8,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for webform assets settings.
  *
- * @group webform
+ * @group Webform
  */
 class WebformSettingsAssetsTest extends WebformBrowserTestBase {
 

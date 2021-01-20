@@ -5,7 +5,6 @@ namespace Drupal\webform\Form;
 use Drupal\Core\Entity\ContentEntityDeleteForm;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\webform\WebformRequestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -38,7 +37,7 @@ class WebformSubmissionDeleteForm extends ContentEntityDeleteForm implements Web
   protected $sourceEntity;
 
   /**
-   * The webform request handler.
+   * Webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */
@@ -119,7 +118,7 @@ class WebformSubmissionDeleteForm extends ContentEntityDeleteForm implements Web
    */
   public function getWarning() {
     $t_args = [
-      '@entity-type' => $this->getEntity()->getEntityType()->getSingularLabel(),
+      '@entity-type' => $this->getEntity()->getEntityType()->getLowercaseLabel(),
       '%label' => $this->getEntity()->label(),
     ];
 
@@ -175,19 +174,8 @@ class WebformSubmissionDeleteForm extends ContentEntityDeleteForm implements Web
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    if ($this->webform->access('submission_view_own') || $this->webform->access('submission_view_any')) {
-      $base_route_name = (strpos(\Drupal::routeMatch()->getRouteName(), 'webform.user.submission.delete') !== FALSE) ? 'webform.user.submissions' : 'webform.results_submissions';
-      return $this->requestHandler->getUrl($this->webform, $this->sourceEntity, $base_route_name);
-    }
-    elseif ($this->sourceEntity && $this->sourceEntity->hasLinkTemplate('canonical') && $this->sourceEntity->access('view')) {
-      return $this->sourceEntity->toUrl();
-    }
-    elseif ($this->webform->access('view')) {
-      return $this->webform->toUrl();
-    }
-    else {
-      return Url::fromRoute('<front>');
-    }
+    $base_route_name = (strpos(\Drupal::routeMatch()->getRouteName(), 'webform.user.submission.delete') !== FALSE) ? 'webform.user.submissions' : 'webform.results_submissions';
+    return $this->requestHandler->getUrl($this->webform, $this->sourceEntity, $base_route_name);
   }
 
   /**

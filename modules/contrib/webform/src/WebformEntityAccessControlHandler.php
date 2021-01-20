@@ -36,14 +36,14 @@ class WebformEntityAccessControlHandler extends EntityAccessControlHandler imple
   protected $entityTypeManager;
 
   /**
-   * The webform source entity plugin manager.
+   * Webform source entity plugin manager.
    *
    * @var \Drupal\webform\Plugin\WebformSourceEntityManagerInterface
    */
   protected $webformSourceEntityManager;
 
   /**
-   * The webform access rules manager service.
+   * Webform access rules manager service.
    *
    * @var \Drupal\webform\WebformAccessRulesManagerInterface
    */
@@ -120,7 +120,7 @@ class WebformEntityAccessControlHandler extends EntityAccessControlHandler imple
       }
     }
 
-    $is_owner = ((int) $account->id() === (int) $entity->getOwnerId());
+    $is_owner = ($account->id() == $entity->getOwnerId());
 
     // Check 'view' operation use 'submission_create' when viewing rendered
     // HTML webform or use access 'configuration' when requesting a

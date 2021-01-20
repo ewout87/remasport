@@ -5,7 +5,7 @@ namespace Drupal\Tests\webform\Functional\Element;
 /**
  * Tests for element more.
  *
- * @group webform
+ * @group Webform
  */
 class WebformElementMoreTest extends WebformElementBrowserTestBase {
 
@@ -51,12 +51,7 @@ class WebformElementMoreTest extends WebformElementBrowserTestBase {
     $this->assertRaw('<div id="edit-more-datetime--more" class="js-webform-element-more webform-element-more">');
 
     // Check fieldset more.
-    if (floatval(\Drupal::VERSION) >= 9) {
-      $this->assertRaw('<div id="edit-more-fieldset--description" data-drupal-field-elements="description" class="webform-element-description">{This is a description}</div>');
-    }
-    else {
-      $this->assertRaw('<div id="edit-more-fieldset--description" class="webform-element-description">{This is a description}</div>');
-    }
+    $this->assertRaw('<div id="edit-more-fieldset--description" class="webform-element-description">{This is a description}</div>');
     $this->assertRaw('<div id="edit-more-fieldset--more" class="js-webform-element-more webform-element-more">');
 
     // Check details more.

@@ -9,7 +9,7 @@ use Drupal\webform\WebformInterface;
 /**
  * Tests for webform access submission views.
  *
- * @group webform_access
+ * @group WebformAccess
  */
 class WebformAccessSubmissionViewsTest extends WebformAccessBrowserTestBase {
 

@@ -8,7 +8,7 @@ use Drupal\Tests\webform\Functional\WebformBrowserTestBase;
 /**
  * Tests for email webform handler Twig functionality.
  *
- * @group webform
+ * @group Webform
  */
 class WebformHandlerEmailTwigTest extends WebformBrowserTestBase {
 

@@ -7,7 +7,7 @@ use Drupal\node\Entity\Node;
 /**
  * Tests for webform node entity references.
  *
- * @group webform_node
+ * @group WebformNode
  */
 class WebformNodeEntityReferenceTest extends WebformNodeBrowserTestBase {
 

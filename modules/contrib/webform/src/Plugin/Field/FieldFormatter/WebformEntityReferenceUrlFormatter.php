@@ -3,7 +3,6 @@
 namespace Drupal\webform\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\webform\Plugin\WebformSourceEntity\QueryStringWebformSourceEntity;
 
 /**
  * Plugin implementation of the 'Webform url' formatter.
@@ -31,7 +30,12 @@ class WebformEntityReferenceUrlFormatter extends WebformEntityReferenceFormatter
     $entities = $this->getEntitiesToView($items, $langcode);
 
     foreach ($entities as $delta => $entity) {
-      $link_options = QueryStringWebformSourceEntity::getRouteOptionsQuery($source_entity);
+      $link_options = [
+        'query' => [
+          'source_entity_type' => $source_entity->getEntityTypeId(),
+          'source_entity_id' => $source_entity->id(),
+        ],
+      ];
 
       $link = [
         '#plain_text' => $entity->toUrl('canonical', $link_options)->toString(),

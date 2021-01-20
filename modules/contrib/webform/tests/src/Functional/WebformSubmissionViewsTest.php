@@ -7,16 +7,9 @@ use Drupal\webform\Entity\Webform;
 /**
  * Tests for webform submission views integration.
  *
- * @group webform
+ * @group Webform
  */
 class WebformSubmissionViewsTest extends WebformBrowserTestBase {
-
-  /**
-   * Set default theme to classy to have view specific classes.
-   *
-   * @var string
-   */
-  protected $defaultTheme = 'classy';
 
   /**
    * Modules to enable.
@@ -144,8 +137,8 @@ class WebformSubmissionViewsTest extends WebformBrowserTestBase {
     $webform = Webform::load('test_submission_views');
     $this->postSubmission($webform);
     $this->postSubmission($webform);
-    $this->postSubmission($webform, [], 'Save Draft');
-    $this->postSubmission($webform, [], 'Save Draft');
+    $this->postSubmission($webform, [], t('Save Draft'));
+    $this->postSubmission($webform, [], t('Save Draft'));
 
     // Check webform submissions views.
     $this->drupalGet('/admin/structure/webform/manage/test_submission_views/results/submissions');

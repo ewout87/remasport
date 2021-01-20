@@ -31,12 +31,10 @@ class WebformTermSelect extends Select implements WebformElementEntityReferenceI
       'breadcrumb' => FALSE,
       'breadcrumb_delimiter' => ' › ',
       'tree_delimiter' => '-',
-      'depth' => NULL,
     ] + parent::defineDefaultProperties();
     unset(
       $properties['options'],
-      $properties['options_randomize'],
-      $properties['sort_options']
+      $properties['options_randomize']
     );
     return $properties;
   }

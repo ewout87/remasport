@@ -9,7 +9,7 @@ use Drupal\webform\Entity\WebformSubmission;
 /**
  * Tests for webform node submission log.
  *
- * @group webform_submission_log
+ * @group WebformSubmissionLog
  */
 class WebformSubmissionLogNodeTest extends WebformNodeBrowserTestBase {
 
