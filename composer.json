@@ -24,6 +24,7 @@
         "drupal/core-recommended": "^8.8",
         "drupal/core-vendor-hardening": "^8.8",
         "drupal/creative_responsive_theme": "^1.2",
+        "drupal/ds": "^3.9",
         "drupal/entity_print": "^2.1",
         "drupal/maillog": "1.x-dev",
         "drupal/mailsystem": "^4.3",
