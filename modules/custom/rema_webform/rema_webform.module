@@ -248,44 +248,6 @@ function create_webform($node){
 }
 
 /**
- * @param $webform
- */
-function update_webform($webform, $node){
-  $elements = $webform->getElementsDecoded();
-
-  // Update bundles
-  $old = [];
-
-  foreach($elements as $key => $value){
-    $exp_key = explode('_', $key);
-    if($exp_key[0] == 'bundle'){
-      $old[] = $key;
-    }
-  }
-
-  $new = $node->get('field_webform_bundles')->getValue();
-
-  // Create new bundles
-  $create = array_diff(array_values($new), $old);
-
-  $elements = create_bundles($create);
-
-  // Update old bundles
-  $update =array_intersect(array_values($new), $old);
-
-  $elements = update_bundles($update);
-
-  // Delete bundles
-  $delete = array_diff(array_keys($old), $new);
-
-  $elements = delete_bundles($delete);
-
-  // Update settings
-
-  return $webform;
-}
-
-/**
  * @param $bundles
  */
 function create_bundles($bundles){
@@ -349,7 +311,7 @@ function create_bundles($bundles){
                   {% set total=' . $price[0]['value'] . '%}
                   {{total}}',
             '#ajax' => true,
-            '#states'=> [
+            '#states' => [
               'invisible' => [
                 ':input[name="bundle_select"]' => [
                   'value' => $key
@@ -387,20 +349,6 @@ function create_bundles($bundles){
   $elements = create_products($extra_products, 'extra', $elements, []);
 
   return $elements;
-}
-
-/**
- * @param $bundles
- */
-function delete_bundles($bundles, $elements){
-
-}
-
-/**
- * @param $bundles
- */
-function update_bundles($bundles, $elements){
-
 }
 
 /**
@@ -442,24 +390,65 @@ function create_products($products, $bundle_key, $elements, $price){
       }
 
       // Add product sizes
-      $sizes = $product->get('field_product_size_range')->getValue();
+      $size_range = $product->get('field_product_size_range')->getValue();
 
-      if (!empty($sizes)) {
-        $size_range = get_size_options($sizes);
+      if (!empty($size_range)) {
+        $options = [];
 
-        $elements[$bundle_key][$product_key][$product_key.'_size'] = [
+        foreach($size_range as $opt_group) {
+          $size = Node::load($opt_group['target_id']);
+
+          $sizes = [];
+
+          if($opt_group instanceof NodeInterface){
+            $values = $opt_group->get('field_size_values')->getValue();
+
+            if(!empty($values)){
+              $sizes = get_size_options($values[0]['value']);
+            }
+          }
+
+          $options[$opt_group->title()] = $sizes;
+        }
+
+         $elements[$bundle_key][$product_key][$product_key.'_size'] = [
           '#type' => 'select',
           '#title' => 'Maat',
-          '#options' => $size_range,
+          '#options' => $options,
         ];
       }
 
       // Add amount
-      $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
+      $amount = $product->get('field_product_amount')->getValue();
+
+      if($bundle_key == 'extra'){
+        $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
+          '#type'=> 'number',
+          '#title' => 'Aantal',
+          '#states' => [
+             'required' => [
+               ':input[name="' . $product_key . '_size"]' => [
+                 'filled' => true
+               ]
+             ]
+          ],
+          '#min' => 0,
+        ];
+      }
+      else {
+        $default_amount = 1;
+
+        if(!empty($amount)){
+          $default_amount = $amount[0]['value'];
+        }
+
+         $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
         '#type'=> 'number',
         '#title' => 'Aantal',
-        '#min' => 0,
-      ];
+        '#disabled' => true,
+        '#default_value' => $default_amount,
+          ];
+      }
 
       // Add calculation
       if(empty($price)){
@@ -478,7 +467,6 @@ function create_products($products, $bundle_key, $elements, $price){
         ];
       }
       else {
-        $elements[$bundle_key][$product_key][$product_key.'_amount']['#default_value'] = 1;
         $elements[$bundle_key][$product_key][$product_key.'_size']['#required'] = true;
       }
     }
@@ -490,26 +478,21 @@ function create_products($products, $bundle_key, $elements, $price){
 /**
  * @param $sizes
  */
-function get_size_options($sizes){
+function get_size_options($values, $opt_group){
   $size_options= [];
   $size_keys = [];
   $size_values = [];
 
-  foreach($sizes as $size) {
-    $size = Node::load($size['target_id']);
+  $values = explode('</br>', $values)
 
-    if($size instanceof NodeInterface){
-      $size_title = $size->getTitle();
-      $size_price = $size->get('field_size_price')->getValue();
-
-      $size_keys[] = $size_price[0]['value'];
-      $size_values[] = $size_title;
-    }
+  foreach($values as $value) {
+    $size_values[] = trim($value);
+    $size_price[] = $opt_group->get('field_size_price')->getValue();
   }
 
-  $size_options = unique_size_keys($size_keys, $size_values);
+  $sizes = unique_size_keys($size_keys, $size_values);
 
-  return $size_options;
+  return $sizes;
 }
 
 /**
