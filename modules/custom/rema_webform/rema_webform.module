@@ -390,26 +390,10 @@ function create_products($products, $bundle_key, $elements, $price){
       }
 
       // Add product sizes
-      $size_range = $product->get('field_product_size_range')->getValue();
+      $size_ranges = $product->get('field_product_size_range')->getValue();
 
-      if (!empty($size_range)) {
-        $options = [];
-
-        foreach($size_range as $opt_group) {
-          $size = Node::load($opt_group['target_id']);
-
-          $sizes = [];
-
-          if($opt_group instanceof NodeInterface){
-            $values = $opt_group->get('field_size_values')->getValue();
-
-            if(!empty($values)){
-              $sizes = get_size_options($values[0]['value']);
-            }
-          }
-
-          $options[$opt_group->title()] = $sizes;
-        }
+      if (!empty($size_ranges)) {
+        $options = get_size_options($size_ranges);
 
          $elements[$bundle_key][$product_key][$product_key.'_size'] = [
           '#type' => 'select',
@@ -478,34 +462,49 @@ function create_products($products, $bundle_key, $elements, $price){
 /**
  * @param $sizes
  */
-function get_size_options($values, $opt_group){
-  $size_options= [];
-  $size_keys = [];
-  $size_values = [];
+function get_size_options($size_ranges){
+  $options = [];
 
-  $values = explode('</br>', $values)
+  foreach($size_ranges as $size_range) {
+    $opt_group = Node::load($size_range['target_id']);
 
-  foreach($values as $value) {
-    $size_values[] = trim($value);
-    $size_price[] = $opt_group->get('field_size_price')->getValue();
+    $sizes = [];
+
+    if($opt_group instanceof NodeInterface){
+      $string = $opt_group->get('field_size_values')->getValue();
+
+      if(!empty($string)){
+        $size_values = [];
+        $size_price = $size_range->get('field_size_price')->getValue();
+
+        $list = explode("\n", $string);
+        $list = array_map('trim', $list);
+        $list = array_filter($list, 'strlen');
+
+        foreach($list as $list_item) {
+          $size_values[] = $list_item;
+        }
+
+        $sizes = unique_size_keys($size_price, $size_values);
+      }
+    }
+
+    $options[$opt_group->title()] = $sizes;
   }
 
-  $sizes = unique_size_keys($size_keys, $size_values);
-
-  return $sizes;
+  return $options;
 }
 
 /**
- * @param $keys
+ * @param $key
  * @param $values
  */
-function unique_size_keys($keys, $values) {
-  $size_options = [];
-  $unique_keys = array_unique($keys);
+function unique_size_keys($key, $values) {
+  $sizes = [];
 
-  for($i = 0; $i < count($keys); $i++){
-    $size_options[$keys[$i] . str_repeat(' ', $i)] = $values[$i];
+  for($i = 0; $i < count($values); $i++){
+    $sizes[$key . str_repeat(' ', $i)] = $values[$i];
   }
 
-  return $size_options;
+  return $sizes;
 }
