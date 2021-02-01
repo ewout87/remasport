@@ -475,9 +475,9 @@ function get_size_options($size_ranges){
 
       if(!empty($string)){
         $size_values = [];
-        $size_price = $size_range->get('field_size_price')->getValue();
+        $size_price = $opt_group->get('field_size_price')->getValue();
 
-        $list = explode("\n", $string);
+        $list = explode("\n", $string[0]['value']);
         $list = array_map('trim', $list);
         $list = array_filter($list, 'strlen');
 
@@ -485,11 +485,12 @@ function get_size_options($size_ranges){
           $size_values[] = $list_item;
         }
 
-        $sizes = unique_size_keys($size_price, $size_values);
+        $sizes = unique_size_keys($size_price[0]['value'], $size_values);
+        debug($sizes);
       }
-    }
 
-    $options[$opt_group->title()] = $sizes;
+      $options[$opt_group->getTitle()] = $sizes;
+    }
   }
 
   return $options;
