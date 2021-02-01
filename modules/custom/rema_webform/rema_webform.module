@@ -116,7 +116,54 @@ function MYMODULE_finish_callback(Payment $payment) {
   }
 }
 
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message) {
+  /** @var \Drupal\webform\WebformHandlerInterface $webform_handler_manager */
+  $webform_handler_manager = \Drupal::service('plugin.manager.webform.handler');
 
+  // Create a \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler.
+  $webform_handler = $webform_handler_manager->createInstance('email');
+
+  // Configuration copied from exported webform.webform.contact.yml
+  $webform_handler->setConfiguration([
+    'id' => $id,
+    'label' => ucfirst(str_replace('_', ' ', $id)),
+    'handler_id' => $id,
+    'status' => TRUE,
+    'weight' => 0,
+    'settings' => [
+      'states' => ['completed'],
+      'to_mail' => $to_mail,
+      'to_options' => array(),
+      'cc_mail' => '',
+      'cc_options' => array(),
+      'bcc_mail' => '',
+      'bcc_options' => array(),
+      'from_mail' => 'default',
+      'from_options' => array(),
+      'from_name' => 'default',
+      'subject' => $subject,
+      'body' => $message.'[webform_submission:values:message:value]',
+      'excluded_elements' => [],
+      'html' => TRUE,
+      'attachments' => FALSE,
+      'debug' => 0,
+      'reply_to' => '',
+      'return_path' => '',
+    ],
+  ]);
+
+  // Must update original id to prevent the below error.
+  // Drupal\Core\Config\ConfigNameException: The machine name of the 'Webform'
+  // bundle cannot be changed in
+  // Drupal\Core\Config\Entity\ConfigEntityBundleBase->preSave()
+  $webform->setOriginalId($webform->id());
+
+  // Add handle to the webform, which triggers another save().
+  $webform->addWebformHandler($webform_handler);
+}
 
 
 /**
@@ -129,8 +176,10 @@ function rema_webform_node_presave(NodeInterface $node)
 
     // Update webform
     if ($webform instanceof WebformInterface) {
+      // Set settings
       $settings = create_settings($node);
 
+      // Set elements
       $elements = create_webform($node);
 
       $webform->set('elements', $elements);
@@ -141,8 +190,10 @@ function rema_webform_node_presave(NodeInterface $node)
 
     // Create webform
     else {
+      // Set settings
       $settings = create_settings($node);
 
+      // Set elements
       $elements = create_webform($node);
 
       // Create a webform.
@@ -156,6 +207,19 @@ function rema_webform_node_presave(NodeInterface $node)
       $webform->save();
     }
 
+    // Add client email handler
+    $excluded_elements = get_excluded_elements($webform);
+
+    $email_handler = add_email_handler($webform, 'email', 'default', 'Bestelling [webform_submission:sid]', null, $excluded_elements);
+
+    // Add client email handler
+    $message = $node->get('field_confirmation_mail')->getValue();
+    $subject = $node->get('field_email_subject')->getValue();
+
+    if(!empty($message)){
+      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject[0]['value'], $message[0]['value'], $excluded_elements);
+    }
+  
     $node->set('webform', $webform->id());
   }
 }
@@ -165,13 +229,13 @@ function rema_webform_node_presave(NodeInterface $node)
  * @return array
  */
 function create_settings($node){
+  $confirmation_message = $node->get('field_confirmation_message')->getValue();
+  
   $settings = [
-    // Define settings.
+    'wizard_progress_states' => TRUE,
+    'confirmation_type' => 'message',
+    'confirmation_message' => !empty($confirmation_message) ? $confirmation_message[0]['value'] : ''
   ];
-
-  $confirmation_message = $node->get('field_confirmation_message')->getValue()[0]['value'];
-
-  $confirmation_mail = $node->get('field_confirmation_mail')->getValue()[0]['value'];
 
   // Append default settings.
   $settings += Webform::getDefaultSettings();
@@ -486,7 +550,6 @@ function get_size_options($size_ranges){
         }
 
         $sizes = unique_size_keys($size_price[0]['value'], $size_values);
-        debug($sizes);
       }
 
       $options[$opt_group->getTitle()] = $sizes;
@@ -508,4 +571,13 @@ function unique_size_keys($key, $values) {
   }
 
   return $sizes;
+}
+
+/**
+ * @param $webform
+ */
+function get_excluded_elements(WebformInterface $webform) {
+  $excluded_elements = [];
+
+  return $excluded_elements;
 }
