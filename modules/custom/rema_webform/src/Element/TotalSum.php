@@ -5,6 +5,7 @@ namespace Drupal\rema_webform\Element;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Entity\Webform;
 
 /**
  * Provides a 'webform_example_element'.
@@ -64,9 +65,30 @@ class TotalSum extends FormElement {
     $min = $element['#min'];
 
     if($form_state->getValue($element_key) < $min) {
-      
       $form_state->setError($element, t('Total amount is minimum @min', ['@min' => $min]));
     }
+
+    $webform = Webform::load($complete_form['#webform_id']);
+
+    $elements = $webform->getElementsDecodedAndFlattened();
+
+    // Get calculated keys
+    $keys = [];
+
+    foreach($elements as $key => $value) {
+      if($value['#type'] == 'number') {
+        $keys[] = $key;
+      }
+    }
+
+    // Get calculated values
+    $total = '';
+
+    foreach ($keys as $key) {
+      $total .= $form_state->getValue($key);
+    }
+
+    $form_state->set($element_key, $total);
   }
 
   /**
