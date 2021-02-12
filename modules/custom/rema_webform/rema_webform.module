@@ -119,7 +119,7 @@ function MYMODULE_finish_callback(Payment $payment) {
 /**
  * Implements hook_ENTITY_TYPE_insert().
  */
-function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message) {
+function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message, $excluded_elements) {
   /** @var \Drupal\webform\WebformHandlerInterface $webform_handler_manager */
   $webform_handler_manager = \Drupal::service('plugin.manager.webform.handler');
 
@@ -146,7 +146,7 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
       'from_name' => 'default',
       'subject' => $subject,
       'body' => $message.'[webform_submission:values:message:value]',
-      'excluded_elements' => [],
+      'excluded_elements' => $excluded_elements,
       'html' => TRUE,
       'attachments' => FALSE,
       'debug' => 0,
@@ -219,7 +219,7 @@ function rema_webform_node_presave(NodeInterface $node)
     if(!empty($message)){
       $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject[0]['value'], $message[0]['value'], $excluded_elements);
     }
-  
+
     $node->set('webform', $webform->id());
   }
 }
@@ -230,7 +230,7 @@ function rema_webform_node_presave(NodeInterface $node)
  */
 function create_settings($node){
   $confirmation_message = $node->get('field_confirmation_message')->getValue();
-  
+
   $settings = [
     'wizard_progress_states' => TRUE,
     'confirmation_type' => 'message',
@@ -373,7 +373,7 @@ function create_bundles($bundles){
             '#title' => 'Berekening',
             '#template' => '
                   {% set total=' . $price[0]['value'] . '%}
-                  {{total}}',
+                  {{total}} €',
             '#ajax' => true,
             '#states' => [
               'invisible' => [
@@ -433,7 +433,8 @@ function create_products($products, $bundle_key, $elements, $price){
 
       // Product flexbox
       $elements[$bundle_key][$product_key] = [
-        '#type' => 'webform_flexbox'
+        '#type' => 'webform_flexbox',
+        '#align_items' => 'center'
       ];
 
       // Add product image
@@ -453,15 +454,20 @@ function create_products($products, $bundle_key, $elements, $price){
         }
       }
 
+      $elements[$bundle_key][$product_key][$product_key.'_fieldset'] = [
+        '#type' => 'fieldset',
+        '#title' => $product_title
+      ];
+
       // Add product sizes
       $size_ranges = $product->get('field_product_size_range')->getValue();
 
       if (!empty($size_ranges)) {
         $options = get_size_options($size_ranges);
 
-         $elements[$bundle_key][$product_key][$product_key.'_size'] = [
+         $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size'] = [
           '#type' => 'select',
-          '#title' => 'Maat',
+          '#title' => 'Maat '.$product_title,
           '#options' => $options,
         ];
       }
@@ -470,9 +476,9 @@ function create_products($products, $bundle_key, $elements, $price){
       $amount = $product->get('field_product_amount')->getValue();
 
       if($bundle_key == 'extra'){
-        $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
+        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_amount'] = [
           '#type'=> 'number',
-          '#title' => 'Aantal',
+          '#title' => 'Aantal '.$product_title,
           '#states' => [
              'required' => [
                ':input[name="' . $product_key . '_size"]' => [
@@ -490,7 +496,7 @@ function create_products($products, $bundle_key, $elements, $price){
           $default_amount = $amount[0]['value'];
         }
 
-         $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
+         $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_amount'] = [
         '#type'=> 'number',
         '#title' => 'Aantal',
         '#disabled' => true,
@@ -500,15 +506,15 @@ function create_products($products, $bundle_key, $elements, $price){
 
       // Add calculation
       if(empty($price)){
-        $elements[$bundle_key][$product_key][$product_key.'_calculation'] = [
+        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_calculation'] = [
           '#type' => 'webform_computed_twig',
-          '#title' => 'Berekening',
+          '#title' => 'Prijs',
           '#template' => '
             {% set total= 0 %}
             {% if data.' . $product_key . '_size %}
             {% set total= data.' . $product_key . '_size*data.'. $product_key .'_amount %}
             {% endif %}
-            {{total}}',
+            {{total}} €',
           '#display_on' => 'form',
           '#hide_empty' => true,
           '#ajax' => true
@@ -578,6 +584,21 @@ function unique_size_keys($key, $values) {
  */
 function get_excluded_elements(WebformInterface $webform) {
   $excluded_elements = [];
+
+  if($webform instanceof WebformInterface){
+    $elements = $webform->getElementsDecodedAndFlattened();
+
+    foreach($elements as $key => $value) {
+      $exclude = [
+        'image',
+        'computed_twig',
+      ];
+
+      if(in_array($value['#type'], $exclude)) {
+        $excluded_elements[] = $key;
+      }
+    }
+  }
 
   return $excluded_elements;
 }
