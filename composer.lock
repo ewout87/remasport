@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2587c1dea5acff80d29c7b5972f7dd13",
+    "content-hash": "054f51201426931c88cce7c6335f0224",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1636,6 +1636,63 @@
             }
         },
         {
+            "name": "drupal/mimemail",
+            "version": "1.0.0-alpha3",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/mimemail.git",
+                "reference": "8.x-1.0-alpha3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/mimemail-8.x-1.0-alpha3.zip",
+                "reference": "8.x-1.0-alpha3",
+                "shasum": "5e02422aa7ea56411c10086c56a5033558eccfa4"
+            },
+            "require": {
+                "drupal/core": "^8 || ^9",
+                "drupal/mailsystem": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.0-alpha3",
+                    "datestamp": "1591399267",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "Alpha releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Allie Micka",
+                    "homepage": "https://www.drupal.org/user/15091"
+                },
+                {
+                    "name": "TR",
+                    "homepage": "https://www.drupal.org/user/202830"
+                },
+                {
+                    "name": "jerdavis",
+                    "homepage": "https://www.drupal.org/user/228997"
+                },
+                {
+                    "name": "sgabe",
+                    "homepage": "https://www.drupal.org/user/232117"
+                }
+            ],
+            "description": "Sends MIME-encoded emails with embedded images and attachments.",
+            "homepage": "https://www.drupal.org/project/mimemail",
+            "support": {
+                "source": "https://git.drupalcode.org/project/mimemail"
+            }
+        },
+        {
             "name": "drupal/pathauto",
             "version": "1.8.0",
             "source": {
@@ -1996,6 +2053,51 @@
             "homepage": "https://www.drupal.org/project/webform_xlsx_export",
             "support": {
                 "source": "https://git.drupalcode.org/project/webform_xlsx_export"
+            }
+        },
+        {
+            "name": "drupal/wkhtmltopdf",
+            "version": "1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/wkhtmltopdf.git",
+                "reference": "8.x-1.3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/wkhtmltopdf-8.x-1.3.zip",
+                "reference": "8.x-1.3",
+                "shasum": "e8b0c29c59f7e27688f499c57ec33d49733c44c1"
+            },
+            "require": {
+                "drupal/core": "^8 || ^9"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.3",
+                    "datestamp": "1593323454",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Júlio Hidemi Kamizato",
+                    "homepage": "https://www.drupal.org/user/2348128",
+                    "email": "jkamizato@gmail.com"
+                }
+            ],
+            "description": "Provider a integration with wkhtmltopdf.",
+            "homepage": "https://www.drupal.org/project/wkhtmltopdf",
+            "support": {
+                "source": "https://git.drupalcode.org/project/wkhtmltopdf"
             }
         },
         {
@@ -2533,6 +2635,134 @@
                 "xml"
             ],
             "time": "2017-09-04T12:26:28+00:00"
+        },
+        {
+            "name": "mikehaertl/php-shellcommand",
+            "version": "1.6.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mikehaertl/php-shellcommand.git",
+                "reference": "fe86ec847877b83bf61a96719e7f2e3b3e516a6b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mikehaertl/php-shellcommand/zipball/fe86ec847877b83bf61a96719e7f2e3b3e516a6b",
+                "reference": "fe86ec847877b83bf61a96719e7f2e3b3e516a6b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">= 5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">4.0 <=9.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "mikehaertl\\shellcommand\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Härtl",
+                    "email": "haertl.mike@gmail.com"
+                }
+            ],
+            "description": "An object oriented interface to shell commands",
+            "keywords": [
+                "shell"
+            ],
+            "time": "2020-11-23T17:31:15+00:00"
+        },
+        {
+            "name": "mikehaertl/php-tmpfile",
+            "version": "1.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mikehaertl/php-tmpfile.git",
+                "reference": "f162f70b472c3c1bad2b66c5a7922000a8065638"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mikehaertl/php-tmpfile/zipball/f162f70b472c3c1bad2b66c5a7922000a8065638",
+                "reference": "f162f70b472c3c1bad2b66c5a7922000a8065638",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">4.0 <8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "mikehaertl\\tmp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Härtl",
+                    "email": "haertl.mike@gmail.com"
+                }
+            ],
+            "description": "A convenience class for temporary files",
+            "keywords": [
+                "files"
+            ],
+            "time": "2020-11-20T16:10:10+00:00"
+        },
+        {
+            "name": "mikehaertl/phpwkhtmltopdf",
+            "version": "2.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mikehaertl/phpwkhtmltopdf.git",
+                "reference": "0e97c2e1eec918fbcd13f5b4b6c9fa476f99e9db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mikehaertl/phpwkhtmltopdf/zipball/0e97c2e1eec918fbcd13f5b4b6c9fa476f99e9db",
+                "reference": "0e97c2e1eec918fbcd13f5b4b6c9fa476f99e9db",
+                "shasum": ""
+            },
+            "require": {
+                "mikehaertl/php-shellcommand": "^1.5.0",
+                "mikehaertl/php-tmpfile": "^1.1.0",
+                "php": ">=5.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">4.0 <8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "mikehaertl\\wkhtmlto\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Haertl",
+                    "email": "haertl.mike@gmail.com"
+                }
+            ],
+            "description": "A slim PHP wrapper around wkhtmltopdf with an easy to use and clean OOP interface",
+            "homepage": "http://mikehaertl.github.com/phpwkhtmltopdf/",
+            "keywords": [
+                "pdf",
+                "wkhtmltoimage",
+                "wkhtmltopdf"
+            ],
+            "time": "2020-01-07T07:47:15+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -5020,7 +5250,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "drupal/maillog": 20
+        "drupal/maillog": 20,
+        "drupal/mimemail": 15
     },
     "prefer-stable": true,
     "prefer-lowest": false,
