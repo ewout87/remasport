@@ -1,0 +1,51 @@
+mollie.admin:
+  path: '/admin/mollie'
+  defaults:
+    _title: 'Mollie'
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+  requirements:
+    _permission: 'access mollie payments overview'
+entity.mollie_payment.canonical:
+  path: '/mollie/payment/{mollie_payment}'
+  defaults:
+    _entity_view: 'mollie_payment'
+    _title: 'Mollie payment'
+    _title_callback: 'Drupal\mollie\Controller\TransactionController::paymentTitle'
+  requirements:
+    _entity_access: 'mollie_payment.view'
+entity.mollie_payment.collection:
+  path: '/admin/mollie/payments'
+  defaults:
+    _entity_list: 'mollie_payment'
+    _title: 'Mollie payments'
+  requirements:
+    _permission: 'access mollie payments overview'
+entity.mollie_payment.add-form:
+  path: '/mollie/payment/add'
+  defaults:
+    _entity_form: mollie_payment.add
+    _title: 'Add Mollie payment'
+  requirements:
+    _entity_create_access: 'mollie_payment'
+
+mollie.configuration:
+  path: '/admin/config/services/mollie'
+  defaults:
+    _form: 'Drupal\mollie\Form\MollieConfigForm'
+    _title: 'Configure Mollie for Drupal'
+  requirements:
+    _permission: 'administer mollie'
+
+mollie.redirect:
+  path: '/mollie/redirect/{context}/{context_id}'
+  defaults:
+    _controller: 'Drupal\mollie\Controller\RedirectController::paymentRedirect'
+  requirements:
+    _access: 'TRUE'
+
+mollie.webhook:
+  path: '/mollie/webhook/{context}/{context_id}'
+  defaults:
+    _controller: 'Drupal\mollie\Controller\WebhookController::invokeHook'
+  requirements:
+    _access: 'TRUE'

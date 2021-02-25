@@ -1,0 +1,10 @@
+mollie_uc.complete_sale:
+  path: '/mollie_uc/order/complete/{order}'
+  defaults:
+    _controller: 'Drupal\mollie_uc\Controller\SaleCompleteController::completeSale'
+  requirements:
+    _access: 'TRUE'
+  options:
+    parameters:
+      order:
+        type: entity:uc_order

@@ -1,0 +1,5 @@
+mollie-toolbar:
+  version: VERSION
+  css:
+    theme:
+      css/mollie-toolbar.css: {}

@@ -29,6 +29,7 @@
         "drupal/maillog": "1.x-dev",
         "drupal/mailsystem": "^4.3",
         "drupal/mimemail": "^1.0@alpha",
+        "drupal/mollie": "^1.0@RC",
         "drupal/pathauto": "^1.8",
         "drupal/payment": "^2.1",
         "drupal/webform": "^5.10",

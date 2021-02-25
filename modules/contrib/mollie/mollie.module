@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function mollie_page_attachments_alter(array &$attachments) {
+  $user = \Drupal::currentUser();
+  if ($user->hasPermission('access toolbar')) {
+    $attachments['#attached']['library'][] = 'mollie/mollie-toolbar';
+  }
+}

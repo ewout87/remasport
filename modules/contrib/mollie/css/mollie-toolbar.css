@@ -1,0 +1,21 @@
+/* Toolbar */
+.toolbar-icon-mollie-admin:before {
+  background-image: url(../assets/icons/787878/mollie.svg);
+}
+
+.toolbar-icon-mollie-admin:active:before,
+.toolbar-icon-mollie-admin.is-active:before {
+  background-image: url(../assets/icons/000000/mollie.svg);
+}
+
+/* Adminimal Admin Toolbar */
+.adminimal-admin-toolbar .toolbar-icon-mollie-admin:before {
+  background-image: url(../assets/icons/acacac/mollie.svg);
+}
+
+.adminimal-admin-toolbar .toolbar-tray-horizontal .menu-item--expanded:hover .toolbar-icon-mollie-admin:before,
+.adminimal-admin-toolbar .toolbar-icon-mollie-admin:hover:before,
+.adminimal-admin-toolbar .toolbar-icon-mollie-admin:active:before,
+.adminimal-admin-toolbar .toolbar-icon-mollie-admin.is-active:before {
+  background-image: url(../assets/icons/ffffff/mollie.svg);
+}

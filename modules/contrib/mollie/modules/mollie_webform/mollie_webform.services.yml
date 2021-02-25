@@ -1,0 +1,11 @@
+services:
+  mollie_webform.redirect_event_subscriber:
+    class: '\Drupal\mollie_webform\EventSubscriber\MollieRedirectEventSubscriber'
+    arguments: ['@entity_type.manager', '@webform.message_manager', '@current_route_match', '@request_stack', '@webform.token_manager', '@config.factory', '@path.alias_manager', '@path.validator', '@webform.request']
+    tags:
+      - { name: 'event_subscriber' }
+  mollie_webform.notification_event_subscriber:
+    class: '\Drupal\mollie_webform\EventSubscriber\MollieNotificationEventSubscriber'
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: 'event_subscriber' }

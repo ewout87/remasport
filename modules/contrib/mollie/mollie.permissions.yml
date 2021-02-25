@@ -1,0 +1,10 @@
+'access mollie payments overview':
+  title: 'Access Mollie for Drupal payments overview'
+  restrict access: TRUE
+
+'administer mollie':
+  title: 'Administer Mollie for Drupal'
+  restrict access: TRUE
+
+permission_callbacks:
+  - Drupal\mollie\TransactionPermissions::paymentPermissions

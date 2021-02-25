@@ -1,0 +1,6 @@
+services:
+  mollie.config_validator:
+    class: Drupal\mollie\MollieConfigValidator
+  mollie.mollie:
+    class: Drupal\mollie\Mollie
+    arguments: ['@messenger', '@config.factory', '@mollie.config_validator']

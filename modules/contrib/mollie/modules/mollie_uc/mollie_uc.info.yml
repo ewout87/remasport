@@ -1,0 +1,17 @@
+name: Mollie for Ubercart
+description: Online payments for Ubercart through Mollie.
+package: Mollie for Drupal
+
+type: module
+core_version_requirement: ^8.8 || ^9
+
+php: 7.0
+
+dependencies:
+  - ubercart:uc_payment
+  - mollie:mollie
+
+# Information added by Drupal.org packaging script on 2021-01-30
+version: '8.x-1.0-rc1'
+project: 'mollie'
+datestamp: 1612017297

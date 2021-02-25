@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e459194d82e0aa1b10937b102a9ea93",
+    "content-hash": "ca318be0008fc19c4048fc1c23888da5",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -147,6 +147,77 @@
             ],
             "description": "A library for retrieving currency exchange rates.",
             "time": "2016-07-01T11:01:48+00:00"
+        },
+        {
+            "name": "composer/ca-bundle",
+            "version": "1.2.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/ca-bundle.git",
+                "reference": "78a0e288fdcebf92aa2318a8d3656168da6ac1a5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/78a0e288fdcebf92aa2318a8d3656168da6ac1a5",
+                "reference": "78a0e288fdcebf92aa2318a8d3656168da6ac1a5",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "ext-pcre": "*",
+                "php": "^5.3.2 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^0.12.55",
+                "psr/log": "^1.0",
+                "symfony/phpunit-bridge": "^4.2 || ^5",
+                "symfony/process": "^2.5 || ^3.0 || ^4.0 || ^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Composer\\CaBundle\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be"
+                }
+            ],
+            "description": "Lets you find a path to the system CA bundle, and includes a fallback to the Mozilla CA bundle.",
+            "keywords": [
+                "cabundle",
+                "cacert",
+                "certificate",
+                "ssl",
+                "tls"
+            ],
+            "funding": [
+                {
+                    "url": "https://packagist.com",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/composer",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-12T12:10:35+00:00"
         },
         {
             "name": "composer/installers",
@@ -1842,6 +1913,59 @@
             }
         },
         {
+            "name": "drupal/mollie",
+            "version": "1.0.0-rc1",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/mollie.git",
+                "reference": "8.x-1.0-rc1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/mollie-8.x-1.0-rc1.zip",
+                "reference": "8.x-1.0-rc1",
+                "shasum": "e088b834c796cf1aa142b5ee24b1cf8aa098b236"
+            },
+            "require": {
+                "drupal/core": "^8.8 || ^9",
+                "mollie/mollie-api-php": "^2.29.0",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "drupal/commerce_payment": "*",
+                "drupal/uc_payment": "*",
+                "drupal/webform": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.0-rc1",
+                    "datestamp": "1612017294",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "RC releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Rico van de Vin (ricovandevin)",
+                    "homepage": "https://www.drupal.org/u/ricovandevin",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Enables online payments in Drupal through Mollie.",
+            "homepage": "https://www.drupal.org/project/mollie",
+            "support": {
+                "source": "https://cgit.drupalcode.org/mollie",
+                "issues": "https://www.drupal.org/project/issues/mollie"
+            }
+        },
+        {
             "name": "drupal/pathauto",
             "version": "1.8.0",
             "source": {
@@ -3048,6 +3172,93 @@
                 "wkhtmltopdf"
             ],
             "time": "2020-01-07T07:47:15+00:00"
+        },
+        {
+            "name": "mollie/mollie-api-php",
+            "version": "v2.29.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mollie/mollie-api-php.git",
+                "reference": "619349868112df2825d7a225d4e92f9fb7e9f2d8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/619349868112df2825d7a225d4e92f9fb7e9f2d8",
+                "reference": "619349868112df2825d7a225d4e92f9fb7e9f2d8",
+                "shasum": ""
+            },
+            "require": {
+                "composer/ca-bundle": "^1.1",
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-openssl": "*",
+                "guzzlehttp/guzzle": "^6.3 || ^7.0",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "eloquent/liberator": "^2.0",
+                "friendsofphp/php-cs-fixer": "^v2.17",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.1 || ^8.5"
+            },
+            "suggest": {
+                "mollie/oauth2-mollie-php": "Use OAuth to authenticate with the Mollie API. This is needed for some endpoints. Visit https://docs.mollie.com/ for more information."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mollie\\Api\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Mollie B.V.",
+                    "email": "info@mollie.com"
+                }
+            ],
+            "description": "Mollie API client library for PHP. Mollie is a European Payment Service provider and offers international payment methods such as Mastercard, VISA, American Express and PayPal, and local payment methods such as iDEAL, Bancontact, SOFORT Banking, SEPA direct debit, Belfius Direct Net, KBC Payment Button and various gift cards such as Podiumcadeaukaart and fashioncheque.",
+            "homepage": "https://www.mollie.com/en/developers",
+            "keywords": [
+                "Apple Pay",
+                "CBC",
+                "Przelewy24",
+                "api",
+                "bancontact",
+                "banktransfer",
+                "belfius",
+                "belfius direct net",
+                "charges",
+                "creditcard",
+                "direct debit",
+                "fashioncheque",
+                "gateway",
+                "gift cards",
+                "ideal",
+                "inghomepay",
+                "intersolve",
+                "kbc",
+                "klarna",
+                "mistercash",
+                "mollie",
+                "paylater",
+                "payment",
+                "payments",
+                "paypal",
+                "paysafecard",
+                "podiumcadeaukaart",
+                "recurring",
+                "refunds",
+                "sepa",
+                "service",
+                "sliceit",
+                "sofort",
+                "sofortbanking",
+                "subscriptions"
+            ],
+            "time": "2021-01-27T10:05:15+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -5536,7 +5747,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/maillog": 20,
-        "drupal/mimemail": 15
+        "drupal/mimemail": 15,
+        "drupal/mollie": 5
     },
     "prefer-stable": true,
     "prefer-lowest": false,

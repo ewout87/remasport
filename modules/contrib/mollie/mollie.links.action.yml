@@ -1,0 +1,5 @@
+entity.mollie_payment.add-form:
+  route_name: entity.mollie_payment.add-form
+  title: 'Add Mollie payment'
+  appears_on:
+    - entity.mollie_payment.collection

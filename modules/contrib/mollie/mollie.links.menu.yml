@@ -1,0 +1,18 @@
+mollie.admin:
+  title: 'Mollie'
+  description: 'Mollie for Drupal'
+  parent: system.admin
+  route_name: mollie.admin
+  weight: -9
+
+entity.mollie_payment.collection:
+  title: 'Payments'
+  description: 'Manage payments made through Mollie for Drupal.'
+  parent: mollie.admin
+  route_name: entity.mollie_payment.collection
+
+mollie.configuration:
+  title: 'Mollie for Drupal'
+  description: 'Configure Mollie for Drupal.'
+  parent: system.admin_config_services
+  route_name: mollie.configuration

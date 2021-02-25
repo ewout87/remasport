@@ -1,0 +1,10 @@
+entity.mollie_payment.collection:
+  title: 'Mollie payments'
+  route_name: entity.mollie_payment.collection
+  base_route: entity.mollie_payment.collection
+
+mollie.configuration:
+  title: 'Configure Mollie for Drupal'
+  route_name: mollie.configuration
+  base_route: entity.mollie_payment.collection
+  weight: 10

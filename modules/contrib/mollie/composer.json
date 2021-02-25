@@ -1,0 +1,23 @@
+{
+    "name": "drupal/mollie",
+    "description": "Enables online payments in Drupal through Mollie.",
+    "type": "drupal-module",
+    "homepage": "https://www.drupal.org/project/mollie",
+    "authors": [
+        {
+            "name": "Rico van de Vin (ricovandevin)",
+            "homepage": "https://www.drupal.org/u/ricovandevin",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/mollie",
+        "source": "https://cgit.drupalcode.org/mollie"
+    },
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.2",
+        "mollie/mollie-api-php": "^2.29.0"
+    }
+}
