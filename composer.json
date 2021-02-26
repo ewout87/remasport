@@ -36,7 +36,8 @@
         "drupal/webform_views": "^5.0",
         "drupal/webform_xlsx_export": "^1.0",
         "drupal/wkhtmltopdf": "^1.3",
-        "mikehaertl/phpwkhtmltopdf": "~2.1"
+        "mikehaertl/phpwkhtmltopdf": "~2.1",
+        "mollie/mollie-api-php": "^2.29"
     },
     "conflict": {
         "drupal/drupal": "*"
