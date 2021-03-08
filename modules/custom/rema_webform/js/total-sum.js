@@ -12,19 +12,21 @@
           // Calculate initial sum.
           sum($element);
           // Add event handlers
-          $form.find('.js-webform-computed-wrapper :input[type=hidden]').on('change', sum);
+          $form.find(':input[type=number]').on('change', sum($form));
         });
       }
     };
   
-    function sum() {
+    function sum($form) {
       var sum = 0;
 
-      $('.js-webform-computed-wrapper').find(':input[type=hidden]').each(function() {
-        sum += parseFloat($(this).val());
+      $form.find(':input[type=number]').each(function() {
+        if($(this).val().length > 0){
+          sum += parseFloat($(this).val());
+        }
       });
  
-      $('.js-form-type-total-sum strong').text(sum.toFixed(2));
+      $('.js-form-type-total-sum strong').text(sum.toFixed(2) + ' €');
       $('.js-form-type-total-sum input').val(sum.toFixed(2));
     }
   

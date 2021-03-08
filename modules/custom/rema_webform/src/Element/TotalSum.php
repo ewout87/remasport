@@ -76,7 +76,7 @@ class TotalSum extends FormElement {
     $keys = [];
 
     foreach($elements as $key => $value) {
-      if($value['#type'] == 'computed_field') {
+      if($value['#type'] == 'webform_computed_field') {
         $keys[] = $key;
       }
     }

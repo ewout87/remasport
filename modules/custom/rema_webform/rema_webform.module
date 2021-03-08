@@ -3,13 +3,51 @@
 use Drupal\Component\Serialization\Yaml;
 use Drupal\media\Entity\Media;
 use Drupal\node\NodeInterface;
-use Drupal\payment\Annotations\PaymentLineItem;
-use Drupal\payment\Annotations\PaymentMethod;
-use Drupal\payment\Payment;
 use Drupal\webform\Entity\Webform;
 use Drupal\node\Entity\Node;
 use Drupal\webform\Entity\WebformSubmission;
 use Drupal\webform\WebformInterface;
+use Drupal\Core\Form\FormStateInterface;
+
+
+/**
+ * Implements hook_FORM_alter().
+ */
+function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+   debug('hello webform');
+  $form['#validate'][] = 'calculate_total_amount';  
+}
+
+function calculate_total_amount($form, &$form_state) {
+  $node = Drupal::routeMatch()->getParameter('node');
+  debug($node->id);
+
+  // Initiate total
+  $total= [];
+
+  if($node instanceof NodeInterface){
+    // Get bundle price
+    $bundle = Node::load($form_state['bundle_select']);
+
+    if($bundle instanceof NodeInterface){
+      $price = $bundle->get('field_bundle_price')->getValue();
+
+      $total = $price[0]['value'];
+    }
+
+    // Get products
+    $products = $node->get('field_bundle_products')->getValue();
+
+    foreach ($products as $product) {
+      $price = trim('extra_product' .  $product[0]['target_id'] . '_size');
+      $amount = trim('extra_product_' . $product[0]['target_id'] . '_amount');
+
+      $total += $form_state->getValue($amount) * $form_state->getValue($price);
+    }
+  }
+
+  $form_state->set('total_amount', $total);
+}
 
 /**
  * Implements hook_ENTITY_TYPE_insert().
@@ -40,7 +78,7 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
       'from_options' => array(),
       'from_name' => 'default',
       'subject' => $subject,
-      'body' => $message.'[webform_submission:values:message:value]',
+      'body' => $message.'[webform_submission:values]',
       'excluded_elements' => $excluded_elements,
       'html' => TRUE,
       'attachments' => FALSE,
@@ -150,6 +188,13 @@ function create_webform($node){
   if (!empty($bundles)) {
     $elements = create_bundles($bundles);
   }
+  
+  $extra_products = $node->get('field_bundle_products')->getValue();
+
+  if (!empty($extra_products)) {
+    $elements = create_free_choice($elements, $extra_products);
+  }
+  
 
   // Personal page
   $elements['personal_data'] = [
@@ -203,6 +248,11 @@ function create_webform($node){
     ]
   ];
 
+  //Total amount
+  $elements['total_amount'] = [
+    '#type' => 'hidden'
+  ];
+
   return $elements;
 }
 
@@ -219,15 +269,13 @@ function create_bundles($bundles){
           '#type' => 'radios',
           '#title' => 'Pakketten',
           '#options' => [],
-          '#options_display' => 'buttons',
+          '#options_display' => 'side_by_side',
           '#required' => true,
           '#states_clear' => false,
           '#options__properties' => ''
         ]
       ];
     }
-
-    $extra_products = [];
 
     foreach ($bundles as $key => $value) {
       $bundle_id = $value['target_id'];
@@ -240,7 +288,7 @@ function create_bundles($bundles){
         $bundle_key = 'bundle_' . $bundle_id;
 
         if(count($bundles) > 1){
-          $elements['selection']['bundle_select']['#options'][] = $bundle_title;
+          $elements['selection']['bundle_select']['#options'][$bundle_id] = $bundle_title;
         }
 
         // Bundle page
@@ -259,10 +307,11 @@ function create_bundles($bundles){
           ];
         }
 
-        /*
+        
         // Add price
         $price = $bundle->get('field_bundle_price')->getValue();
 
+        /*
         if (!empty($price)) {
           $elements[$bundle_key][$bundle_id .'_price'] = [
             '#type' => 'webform_computed_twig',
@@ -280,36 +329,43 @@ function create_bundles($bundles){
             ]
           ];
         }
-
-        $elements[$bundle_key][$bundle_id .'_total'] = [
-          '#type' => 'total_sum',
-          '#title' => 'Totaal'
-        ];
         */
 
         // Add products
         $products = $bundle->get('field_bundle_products')->getValue();
         if (!empty($products)) {
-          $extra_products = array_merge(array_values($extra_products), array_values($products));
-
           $elements = create_products($products, $bundle_key, $elements, $price);
         }
+
+        $elements[$bundle_key][$bundle_id .'_total'] = [
+          '#type' => 'total_sum',
+          '#title' => 'Totaal',
+          '#default_value' => $price[0]['value']
+        ];
       }
     }
 
-  // Free choice page
-  $elements['extra'] = [
-    '#type' => 'webform_wizard_page',
-    '#title' => 'Vrije keuze',
-    'extra_total' => [
-      '#type' => 'total_sum',
-      '#title' => 'Totaal'
-    ]
-  ];
+    return $elements;
+}
 
-  $elements = create_products($extra_products, 'extra', $elements, []);
-
-  return $elements;
+/**
+ * @param $extra_products
+ * @param $elements
+ */
+function create_free_choice($elements, $extra_products){
+    // Free choice page
+    $elements['extra'] = [
+      '#type' => 'webform_wizard_page',
+      '#title' => 'Vrije keuze',
+      'extra_total' => [
+        '#type' => 'total_sum',
+        '#title' => 'Totaal',
+      ]
+    ];
+  
+    $elements = create_products($extra_products, 'extra', $elements, []);
+  
+    return $elements;
 }
 
 /**
@@ -360,7 +416,7 @@ function create_products($products, $bundle_key, $elements, $price){
       $size_ranges = $product->get('field_product_size_range')->getValue();
 
       if (!empty($size_ranges)) {
-        $options = get_size_options($size_ranges);
+        $options = get_size_options($size_ranges, $bundle_key);
 
          $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size'] = [
           '#type' => 'select',
@@ -394,13 +450,14 @@ function create_products($products, $bundle_key, $elements, $price){
         }
 
          $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_amount'] = [
-        '#type'=> 'number',
-        '#title' => 'Aantal',
-        '#disabled' => true,
-        '#default_value' => $default_amount,
-          ];
+          '#type'=> 'number',
+          '#title' => 'Aantal '.$product_title,
+          '#disabled' => true,
+          '#default_value' => $default_amount,
+        ];
       }
 
+      /*
       // Add calculation
       if(empty($price)){
         $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_calculation'] = [
@@ -411,15 +468,15 @@ function create_products($products, $bundle_key, $elements, $price){
             {% if data.' . $product_key . '_size %}
             {% set total= data.' . $product_key . '_size*data.'. $product_key .'_amount %}
             {% endif %}
-            {{total}} €',
+            {{total}}',
           '#display_on' => 'form',
           '#hide_empty' => true,
           '#ajax' => true
         ];
-      }
-      else {
-        $elements[$bundle_key][$product_key][$product_key.'_size']['#required'] = true;
-      }
+      }*/
+      //else {
+         $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size']['#required'] = true;
+      //}
     }
   }
 
@@ -428,12 +485,20 @@ function create_products($products, $bundle_key, $elements, $price){
 
 /**
  * @param $sizes
+ * @param $bundle_key
  */
-function get_size_options($size_ranges){
+function get_size_options($size_ranges, $bundle_key){
   $options = [];
 
   foreach($size_ranges as $size_range) {
     $opt_group = Node::load($size_range['target_id']);
+    $opt_title = $opt_group->getTitle();
+    $opt_price = '';
+
+    if($bundle_key == 'extra') {
+      $opt_price = ' ('. $opt_group->get('field_size_price')->getValue()[0]['value'].' €)';
+    }
+    
 
     $sizes = [];
 
@@ -455,7 +520,7 @@ function get_size_options($size_ranges){
         $sizes = unique_size_keys($size_price[0]['value'], $size_values);
       }
 
-      $options[$opt_group->getTitle()] = $sizes;
+      $options[$opt_title . $opt_price] = $sizes;
     }
   }
 
@@ -487,8 +552,8 @@ function get_excluded_elements(WebformInterface $webform) {
 
     foreach($elements as $key => $value) {
       $exclude = [
-        'image',
-        'computed_twig',
+        'processed_text',
+        'webform_computed_twig',
       ];
 
       if(in_array($value['#type'], $exclude)) {
