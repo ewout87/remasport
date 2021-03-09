@@ -67,28 +67,6 @@ class TotalSum extends FormElement {
     if($form_state->getValue($element_key) < $min) {
       $form_state->setError($element, t('Total amount is minimum @min', ['@min' => $min]));
     }
-
-    $webform = Webform::load($complete_form['#webform_id']);
-
-    $elements = $webform->getElementsDecodedAndFlattened();
-
-    // Get calculated keys
-    $keys = [];
-
-    foreach($elements as $key => $value) {
-      if($value['#type'] == 'webform_computed_field') {
-        $keys[] = $key;
-      }
-    }
-
-    // Get calculated values
-    $total = '';
-
-    foreach ($keys as $key) {
-      $total += $form_state->getValue($key);
-    }
-
-    $form_state->set($element_key, $total);
   }
 
   /**
@@ -105,9 +83,9 @@ class TotalSum extends FormElement {
   public static function preRenderTotalSum(array $element) {
     $element['#attributes']['type'] = 'hidden';
     $element['#attached']['library'][] = 'rema_webform/rema_webform.sum';
+    $form['#attached']['drupalSettings']['minimum'] = $element['#min'];
     Element::setAttributes($element, ['id', 'name', 'value', 'size', 'maxlength', 'placeholder']);
     static::setAttributes($element, ['form-text', 'total-sum']);
     return $element;
   }
-
 }

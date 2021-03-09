@@ -1,9 +1,11 @@
 (function ($) {
-  
+
     'use strict';
-  
+
     Drupal.behaviors.calculationExample = {
-      attach: function (context) {
+      attach: function (context, settings) {
+        var min = settings.min_value;
+
         $(context).find('.js-form-type-total-sum').once('total-sum').append('<strong>0</strong>')
 
         $(context).find('.js-form-type-total-sum').each(function () {
@@ -16,7 +18,7 @@
         });
       }
     };
-  
+
     function sum($form) {
       var sum = 0;
 
@@ -25,9 +27,9 @@
           sum += parseFloat($(this).val());
         }
       });
- 
+
       $('.js-form-type-total-sum strong').text(sum.toFixed(2) + ' €');
       $('.js-form-type-total-sum input').val(sum.toFixed(2));
     }
-  
+
   })(jQuery);
