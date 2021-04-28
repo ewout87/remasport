@@ -61,12 +61,7 @@ class TotalSum extends FormElement {
    * Webform element validation handler for #type 'webform_example_element'.
    */
   public static function validateTotalSum(&$element, FormStateInterface $form_state, &$complete_form) {
-    $element_key = $element['#webform_key'];
-    $min = $element['#min'];
-
-    if($form_state->getValue($element_key) < $min) {
-      $form_state->setError($element, t('Total amount is minimum @min', ['@min' => $min]));
-    }
+  
   }
 
   /**
@@ -83,9 +78,10 @@ class TotalSum extends FormElement {
   public static function preRenderTotalSum(array $element) {
     $element['#attributes']['type'] = 'hidden';
     $element['#attached']['library'][] = 'rema_webform/rema_webform.sum';
-    $form['#attached']['drupalSettings']['minimum'] = $element['#min'];
+    $element['#attached']['drupalSettings']['min_value'] = $element['#min'];
     Element::setAttributes($element, ['id', 'name', 'value', 'size', 'maxlength', 'placeholder']);
     static::setAttributes($element, ['form-text', 'total-sum']);
     return $element;
   }
+
 }

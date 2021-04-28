@@ -14,14 +14,17 @@ use Drupal\Core\Form\FormStateInterface;
  * Implements hook_FORM_alter().
  */
 function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $form['#validate'][] = 'rema_webform_calculate_total_amount';
+  $form['#validate'][] = 'rema_webform_form_validate';
 }
 
-function rema_webform_calculate_total_amount($form, &$form_state) {
+/**
+ * Implements hook_FORM_alter().
+ */
+function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInterface $form_state){
   $node = Drupal::routeMatch()->getParameter('node');
 
   // Initiate total
-  $total= [];
+  $total= 0;
 
   if($node instanceof NodeInterface){
     // Get bundle price
@@ -30,21 +33,34 @@ function rema_webform_calculate_total_amount($form, &$form_state) {
     if($bundle instanceof NodeInterface){
       $price = $bundle->get('field_bundle_price')->getValue();
 
-      $total = $price[0]['value'];
+      if(isset($price) && !empty($price)){
+        $total = $price[0]['value'];
+      }
+      else {
+        $products = $bundle->get('field_bundle_products')->getValue();
+
+        foreach ($products as $product) {
+          $price = 'bundle_'. $bundle->id() .'_product_' .  $product['target_id'] . '_size';
+          $amount = 'bundle_'. $bundle->id() .'_product_' . $product['target_id'] . '_amount';
+    
+          $total += (int)$form_state->getValue($amount) * (int)trim($form_state->getValue($price));
+        }
+      }
     }
 
     // Get products
     $products = $node->get('field_bundle_products')->getValue();
 
     foreach ($products as $product) {
-      $price = trim('extra_product' .  $product[0]['target_id'] . '_size');
-      $amount = trim('extra_product_' . $product[0]['target_id'] . '_amount');
+      $price = 'extra_product_' .  $product['target_id'] . '_size';
+      $amount = 'extra_product_' . $product['target_id'] . '_amount';
 
-      $total += $form_state->getValue($amount) * $form_state->getValue($price);
+     $total += (int)$form_state->getValue($amount) * (int)trim($form_state->getValue($price));
     }
-  }
 
-  $form_state->set('total_amount', $total);
+  $form_state->setValue('total_amount', $total);
+  debug($form_state->getValue('total_amount'));
+  }
 }
 
 /**
@@ -186,13 +202,13 @@ function create_webform($node){
   if (!empty($bundles)) {
     $elements = create_bundles($bundles);
   }
-
+  
   $extra_products = $node->get('field_bundle_products')->getValue();
 
   if (!empty($extra_products)) {
     $elements = create_free_choice($elements, $extra_products);
   }
-
+  
 
   // Personal page
   $elements['personal_data'] = [
@@ -305,7 +321,7 @@ function create_bundles($bundles){
           ];
         }
 
-
+        
         // Add price
         $price = $bundle->get('field_bundle_price')->getValue();
 
@@ -338,8 +354,11 @@ function create_bundles($bundles){
         $elements[$bundle_key][$bundle_id .'_total'] = [
           '#type' => 'total_sum',
           '#title' => 'Totaal',
-          '#default_value' => $price[0]['value']
         ];
+
+        if(!empty($price)){
+          $elements[$bundle_key][$bundle_id .'_total']['#min'] = $price[0]['value'];
+        }
       }
     }
 
@@ -360,9 +379,9 @@ function create_free_choice($elements, $extra_products){
         '#title' => 'Totaal',
       ]
     ];
-
+            
     $elements = create_products($extra_products, 'extra', $elements, []);
-
+  
     return $elements;
 }
 
@@ -422,6 +441,9 @@ function create_products($products, $bundle_key, $elements, $price){
           '#options' => $options,
         ];
       }
+      if($bundle_key !== 'extra'){
+        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size']['#required'] = true;
+      }
 
       // Add amount
       $amount = $product->get('field_product_amount')->getValue();
@@ -471,13 +493,10 @@ function create_products($products, $bundle_key, $elements, $price){
           '#hide_empty' => true,
           '#ajax' => true
         ];
-      }*/
-      //else {
-      if($bundle_key !== 'extra'){
-        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size']['#required'] = true;
       }
-
-      //}
+      else {
+        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size']['#required'] = true;
+      }*/
     }
   }
 
@@ -499,7 +518,7 @@ function get_size_options($size_ranges, $bundle_key){
     if($bundle_key == 'extra') {
       $opt_price = ' ('. $opt_group->get('field_size_price')->getValue()[0]['value'].' €)';
     }
-
+    
 
     $sizes = [];
 

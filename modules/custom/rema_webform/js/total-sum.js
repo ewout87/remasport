@@ -4,32 +4,40 @@
 
     Drupal.behaviors.calculationExample = {
       attach: function (context, settings) {
-        var min = settings.min_value;
-
-        $(context).find('.js-form-type-total-sum').once('total-sum').append('<strong>0</strong>')
+        $(context).find('.js-form-type-total-sum').once('total-sum').append('<strong></strong>')
 
         $(context).find('.js-form-type-total-sum').each(function () {
-          var $element = $(this);
-          var $form = $(this).closest('form');
+          var element = $(this);
+          var form = $(this).closest('form');
+          var min = 0;
+        
+          if(settings.min_value){
+            min = settings.min_value
+          };
           // Calculate initial sum.
-          sum($element);
+          $('.js-form-type-total-sum input').val(parseFloat(min).toFixed(2));
+          $('.js-form-type-total-sum strong').text(parseFloat(min).toFixed(2) + ' €');
+
           // Add event handlers
-          $form.find(':input[type=number]').on('change', sum($form));
+          if(!settings.min_value){
+            $('.js-form-type-number input, .js-form-type-select select').on('change', function(){
+              var sum = parseFloat(min);
+  
+              form.find('.js-form-type-number').each(function() {
+                var number = $(this).find('input').val();
+                var price = $(this).parent().find('.js-form-type-select option:selected').val();
+  
+                if(number.length > 0 && price.length > 0){
+                  sum += parseFloat(price)*parseFloat(number);
+                }
+              });
+  
+              $('.js-form-type-total-sum strong').text(sum.toFixed(2) + ' €');
+              $('.js-form-type-total-sum input').val(sum.toFixed(2));
+            });
+          }
         });
       }
     };
-
-    function sum($form) {
-      var sum = 0;
-
-      $form.find(':input[type=number]').each(function() {
-        if($(this).val().length > 0){
-          sum += parseFloat($(this).val());
-        }
-      });
-
-      $('.js-form-type-total-sum strong').text(sum.toFixed(2) + ' €');
-      $('.js-form-type-total-sum input').val(sum.toFixed(2));
-    }
 
   })(jQuery);
