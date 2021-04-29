@@ -32,8 +32,8 @@ $(function () {
     $el.bootstrapTooltip()
     try {
       $el.bootstrapTooltip('noMethod')
-    } catch (err) {
-      assert.strictEqual(err.message, 'No method named "noMethod"')
+    } catch (error) {
+      assert.strictEqual(error.message, 'No method named "noMethod"')
     }
   })
 
@@ -141,7 +141,7 @@ $(function () {
 
     $tooltip
       .one('shown.bs.tooltip', function () {
-        assert.notEqual($('.tooltip b').length, 0, 'b tag was inserted')
+        assert.notStrictEqual($('.tooltip b').length, 0, 'b tag was inserted')
         $tooltip.bootstrapTooltip('hide')
       })
       .one('hidden.bs.tooltip', function () {
@@ -163,7 +163,7 @@ $(function () {
 
     $tooltip
       .one('shown.bs.tooltip', function () {
-        assert.notEqual($('.tooltip').length, 0, 'tooltip inserted')
+        assert.notStrictEqual($('.tooltip').length, 0, 'tooltip inserted')
         assert.strictEqual($('.tooltip').text(), '<3 writing tests', 'title inserted')
         assert.ok(!$.contains($('.tooltip').get(0), title), 'title node copied, not moved')
         done()
@@ -184,7 +184,7 @@ $(function () {
 
     $tooltip
       .one('shown.bs.tooltip', function () {
-        assert.notEqual($('.tooltip').length, 0, 'tooltip inserted')
+        assert.notStrictEqual($('.tooltip').length, 0, 'tooltip inserted')
         assert.strictEqual($('.tooltip').text(), '<3 writing tests', 'title inserted')
         assert.ok($.contains($('.tooltip').get(0), title), 'title node moved, not copied')
         done()
@@ -231,8 +231,8 @@ $(function () {
 
     try {
       $('<div title="tooltip title" style="display: none"/>').bootstrapTooltip('show')
-    } catch (err) {
-      assert.strictEqual(err.message, 'Please use show on visible elements')
+    } catch (error) {
+      assert.strictEqual(error.message, 'Please use show on visible elements')
       done()
     }
   })
@@ -244,7 +244,7 @@ $(function () {
     $('<div title="tooltip title"/>')
       .appendTo('#qunit-fixture')
       .on('inserted.bs.tooltip', function () {
-        assert.notEqual($('.tooltip').length, 0, 'tooltip was inserted')
+        assert.notStrictEqual($('.tooltip').length, 0, 'tooltip was inserted')
         assert.ok(true, 'inserted event fired')
         done()
       })
@@ -336,7 +336,7 @@ $(function () {
     assert.expect(7)
     var $tooltip = $('<div/>')
       .bootstrapTooltip()
-      .on('click.foo', function () {})  // eslint-disable-line no-empty-function
+      .on('click.foo', function () {})
 
     assert.ok($tooltip.data('bs.tooltip'), 'tooltip has data')
     assert.ok($._data($tooltip[0], 'events').mouseover && $._data($tooltip[0], 'events').mouseout, 'tooltip has hover events')
@@ -403,7 +403,7 @@ $(function () {
 
     $tooltip
       .one('shown.bs.tooltip', function () {
-        assert.notEqual($('body > .tooltip').length, 0, 'tooltip is direct descendant of body')
+        assert.notStrictEqual($('body > .tooltip').length, 0, 'tooltip is direct descendant of body')
         assert.strictEqual($('#qunit-fixture > .tooltip').length, 0, 'tooltip is not in parent')
         $tooltip.bootstrapTooltip('hide')
       })
@@ -561,7 +561,7 @@ $(function () {
 
     try {
       $tooltip.bootstrapTooltip('show')
-    } catch (err) {
+    } catch (_) {
       passed = false
     }
 
@@ -843,7 +843,7 @@ $(function () {
     $.each(tests, function (idx, triggers) {
       for (var i = 0, len = triggers.length; i < len; i++) {
         $el.trigger(triggers[i])
-        assert.equal(i < len - 1, showingTooltip())
+        assert.strictEqual(i < len - 1, showingTooltip())
       }
     })
   })
@@ -998,7 +998,7 @@ $(function () {
     }, 200)
   })
 
-  QUnit.test('should call Popper.js to update', function (assert) {
+  QUnit.test('should call Popper to update', function (assert) {
     assert.expect(2)
 
     var $tooltip = $('<a href="#" rel="tooltip" data-trigger="click" title="Another tooltip"/>')
@@ -1014,7 +1014,7 @@ $(function () {
     assert.ok(spyPopper.called)
   })
 
-  QUnit.test('should not call Popper.js to update', function (assert) {
+  QUnit.test('should not call Popper to update', function (assert) {
     assert.expect(1)
 
     var $tooltip = $('<a href="#" rel="tooltip" data-trigger="click" title="Another tooltip"/>')
@@ -1027,7 +1027,7 @@ $(function () {
     assert.ok(tooltip._popper === null)
   })
 
-  QUnit.test('should use Popper.js to get the tip on placement change', function (assert) {
+  QUnit.test('should use Popper to get the tip on placement change', function (assert) {
     assert.expect(1)
 
     var $tooltip = $('<a href="#" rel="tooltip" data-trigger="click" title="Another tooltip"/>')
@@ -1170,7 +1170,7 @@ $(function () {
       })
 
     var tooltip = $trigger.data('bs.tooltip')
-    assert.strictEqual(tooltip.config.template.indexOf('script'), -1)
+    assert.strictEqual(tooltip.config.template.indexOf('href="javascript:alert(7)"'), -1)
   })
 
   QUnit.test('should allow custom sanitization rules', function (assert) {
@@ -1267,7 +1267,7 @@ $(function () {
     assert.strictEqual(tooltip.config.sanitize, true)
   })
 
-  QUnit.test('should allow to pass config to popper.js with `popperConfig`', function (assert) {
+  QUnit.test('should allow to pass config to Popper with `popperConfig`', function (assert) {
     assert.expect(1)
 
     var $trigger = $('<a href="#" rel="tooltip" data-trigger="click" title="Another tooltip"/>')
@@ -1282,5 +1282,55 @@ $(function () {
     var popperConfig = tooltip._getPopperConfig('top')
 
     assert.strictEqual(popperConfig.placement, 'left')
+  })
+
+  QUnit.test('additional classes can be applied via data attribute', function (assert) {
+    assert.expect(2)
+
+    $('<a href="#" rel="tooltip" data-trigger="click" title="Another tooltip" data-custom-class="a b"/>')
+      .appendTo('#qunit-fixture')
+      .bootstrapTooltip()
+      .bootstrapTooltip('show')
+
+    var tooltip = $('.tooltip')
+
+    assert.strictEqual(tooltip.hasClass('a b'), true)
+    assert.strictEqual(tooltip.hasClass('tooltip fade bs-tooltip-top show'), true)
+  })
+
+  QUnit.test('additional classes can be applied via config string', function (assert) {
+    assert.expect(2)
+
+    $('<a href="#" rel="tooltip" data-trigger="click" title="Another tooltip" />')
+      .appendTo('#qunit-fixture')
+      .bootstrapTooltip({
+        customClass: 'a b'
+      })
+      .bootstrapTooltip('show')
+
+    var tooltip = $('.tooltip')
+
+    assert.strictEqual(tooltip.hasClass('a b'), true)
+    assert.strictEqual(tooltip.hasClass('tooltip fade bs-tooltip-top show'), true)
+  })
+
+  QUnit.test('additional classes can be applied via function', function (assert) {
+    assert.expect(2)
+
+    var getClasses = function () {
+      return 'a b'
+    }
+
+    $('<a href="#" rel="tooltip" data-trigger="click" title="Another tooltip" />')
+      .appendTo('#qunit-fixture')
+      .bootstrapTooltip({
+        customClass: getClasses
+      })
+      .bootstrapTooltip('show')
+
+    var tooltip = $('.tooltip')
+
+    assert.strictEqual(tooltip.hasClass('a b'), true)
+    assert.strictEqual(tooltip.hasClass('tooltip fade bs-tooltip-top show'), true)
   })
 })

@@ -65,8 +65,8 @@ $(function () {
     $el.bootstrapCarousel()
     try {
       $el.bootstrapCarousel('noMethod')
-    } catch (err) {
-      assert.strictEqual(err.message, 'No method named "noMethod"')
+    } catch (error) {
+      assert.strictEqual(error.message, 'No method named "noMethod"')
     }
   })
 
@@ -89,8 +89,8 @@ $(function () {
 
     try {
       $('<div/>').bootstrapCarousel(config)
-    } catch (err) {
-      message = err.message
+    } catch (error) {
+      message = error.message
     }
 
     assert.ok(message === expectedMessage, 'correct error message')
@@ -102,8 +102,8 @@ $(function () {
 
     try {
       $('<div/>').bootstrapCarousel(config)
-    } catch (err) {
-      message = err.message
+    } catch (error) {
+      message = error.message
     }
 
     assert.ok(message === expectedMessage, 'correct error message')
@@ -134,13 +134,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -480,7 +480,7 @@ $(function () {
   })
 
   QUnit.test('should set interval from data attribute on individual carousel-item', function (assert) {
-    assert.expect(2)
+    assert.expect(4)
     var templateHTML = '<div id="myCarousel" class="carousel slide" data-interval="1814">' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" data-interval="2814">' +
@@ -517,12 +517,25 @@ $(function () {
     var $carousel = $(templateHTML)
 
     $carousel.appendTo('body')
+    $carousel.bootstrapCarousel()
+    assert.strictEqual($carousel.data('bs.carousel')._config.interval, 1814)
+    $carousel.remove()
+
+    $carousel.appendTo('body')
+    $carousel.bootstrapCarousel(0)
+    $carousel.data('bs.carousel').cycle()
+    assert.strictEqual($carousel.data('bs.carousel')._config.interval, 2814)
+    $carousel.remove()
+
+    $carousel.appendTo('body')
     $carousel.bootstrapCarousel(1)
+    $carousel.data('bs.carousel').cycle()
     assert.strictEqual($carousel.data('bs.carousel')._config.interval, 3814)
     $carousel.remove()
 
     $carousel.appendTo('body')
     $carousel.bootstrapCarousel(2)
+    $carousel.data('bs.carousel').cycle()
     assert.strictEqual($carousel.data('bs.carousel')._config.interval, 1814, 'reverts to default interval if no data-interval is set')
     $carousel.remove()
   })
@@ -534,7 +547,7 @@ $(function () {
         '<div class="carousel-item active">' +
         '<img alt="">' +
         '</div>' +
-        '<script type="text/x-metamorph" id="thingy"/>' +
+        '<script type="text/x-metamorph" id="thingy"></script>' +
         '<div class="carousel-item">' +
         '<img alt="">' +
         '</div>' +
@@ -560,7 +573,7 @@ $(function () {
         '<div class="carousel-item active">' +
         '<img alt="">' +
         '</div>' +
-        '<script type="text/x-metamorph" id="thingy"/>' +
+        '<script type="text/x-metamorph" id="thingy"></script>' +
         '<div class="carousel-item">' +
         '<img alt="">' +
         '</div>' +
@@ -652,7 +665,7 @@ $(function () {
     var eventArrowDown = $.Event('keydown', {
       which: 40
     })
-    var eventArrowUp   = $.Event('keydown', {
+    var eventArrowUp = $.Event('keydown', {
       which: 38
     })
 
@@ -763,13 +776,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -810,13 +823,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -844,13 +857,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -892,13 +905,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
