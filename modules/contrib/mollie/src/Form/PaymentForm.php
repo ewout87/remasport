@@ -79,13 +79,11 @@ class PaymentForm extends ContentEntityForm {
     $form = parent::form($form, $form_state);
 
     // Get the available payment methods if we have an amount and currency.
-    if ($form_state->hasValue('amount')
-      && $form_state->hasValue('currency')) {
-      $form['method']['widget']['#options'] = \Drupal::service('mollie.mollie')
-        ->getMethods(
-          $form_state->getValue('amount')[0]['value'],
-          $form_state->getValue('currency')[0]['value']
-        );
+    if ($form_state->hasValue('amount') && $form_state->hasValue('currency')) {
+      $form['method']['widget']['#options'] = $this->mollieApiClient->getMethods(
+        $form_state->getValue('amount')[0]['value'],
+        $form_state->getValue('currency')[0]['value']
+      );
     }
 
     // Wrap the method field for ajaxification.
@@ -129,7 +127,7 @@ class PaymentForm extends ContentEntityForm {
    * @return array
    *   Renderable array for the method form element.
    */
-  public function updateMethods($form, FormStateInterface $form_state): array {
+  public static function updateMethods($form, FormStateInterface $form_state): array {
     return $form['method'];
   }
 

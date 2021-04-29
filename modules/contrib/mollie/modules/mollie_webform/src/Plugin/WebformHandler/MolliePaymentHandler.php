@@ -2,15 +2,12 @@
 
 namespace Drupal\mollie_webform\Plugin\WebformHandler;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityStorageException;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\webform\Plugin\WebformHandlerBase;
-use Drupal\webform\WebformSubmissionConditionsValidatorInterface;
 use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  *
@@ -34,9 +31,10 @@ class MolliePaymentHandler extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerChannelFactoryInterface $logger_factory, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, WebformSubmissionConditionsValidatorInterface $conditions_validator) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $logger_factory, $config_factory, $entity_type_manager, $conditions_validator);
-    $this->entityTypeManager = $entity_type_manager;
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $class = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $class->entityTypeManager = $container->get('entity_type.manager');
+    return $class;
   }
 
   /**
@@ -69,11 +67,20 @@ class MolliePaymentHandler extends WebformHandlerBase {
       '#default_value' => $this->getConfiguration()['settings']['amount_element'] ?? '',
     ];
 
+    $form['method_element'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Payment method element'),
+      '#description' => $this->t('Form element holding the payment method chosen in the webform. Leaving empty will allow choosing payment method in Mollie.'),
+      '#required' => FALSE,
+      '#options' => ['' => $this->t('None')] + $options,
+      '#default_value' => $this->getConfiguration()['settings']['method_element'] ?? '',
+    ];
+
     $form['description_element'] = [
       '#type' => 'select',
       '#title' => $this->t('Description element'),
       '#description' => $this->t('(optional) Form element holding the description for the payment. Defaults to "[form title] #[submission id]".'),
-      '#options' => $options,
+      '#options' => ['' => $this->t('None')] + $options,
       '#default_value' => $this->getConfiguration()['settings']['description_element'] ?? '',
     ];
 
@@ -89,6 +96,7 @@ class MolliePaymentHandler extends WebformHandlerBase {
     $this->configuration['currency'] = $form_state->getValue('currency');
     $this->configuration['amount_element'] = $form_state->getValue('amount_element');
     $this->configuration['description_element'] = $form_state->getValue('description_element');
+    $this->configuration['method_element'] = $form_state->getValue('method_element');
   }
 
   /**
@@ -101,6 +109,7 @@ class MolliePaymentHandler extends WebformHandlerBase {
         $this->t('Currency: %currency', ['%currency' => $this->getConfiguration()['settings']['currency']]),
         $this->t('Amount element: %amount_element', ['%amount_element' => $this->getConfiguration()['settings']['amount_element']]),
         $this->t('Description element: %description_element', ['%description_element' => $this->getConfiguration()['settings']['description_element']]),
+        $this->t('Payment method element: %method_element', ['%method_element' => $this->getConfiguration()['settings']['method_element']]),
       ],
     ];
   }
@@ -122,6 +131,7 @@ class MolliePaymentHandler extends WebformHandlerBase {
         'description' => $description,
         'context' => 'mollie_webform',
         'context_id' => $webform_submission->id(),
+        'method' => $webform_submission->getElementData($this->getConfiguration()['settings']['method_element']) ?? [],
       ]
     );
     try {

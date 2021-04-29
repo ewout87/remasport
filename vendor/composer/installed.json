@@ -1962,37 +1962,43 @@
     },
     {
         "name": "drupal/mollie",
-        "version": "1.0.0-rc1",
-        "version_normalized": "1.0.0.0-RC1",
+        "version": "2.0.0",
+        "version_normalized": "2.0.0.0",
         "source": {
             "type": "git",
             "url": "https://git.drupalcode.org/project/mollie.git",
-            "reference": "8.x-1.0-rc1"
+            "reference": "2.0.0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/mollie-8.x-1.0-rc1.zip",
-            "reference": "8.x-1.0-rc1",
-            "shasum": "e088b834c796cf1aa142b5ee24b1cf8aa098b236"
+            "url": "https://ftp.drupal.org/files/projects/mollie-2.0.0.zip",
+            "reference": "2.0.0",
+            "shasum": "9ad2099d07aeb940d397867c43065ed7ee622219"
         },
         "require": {
             "drupal/core": "^8.8 || ^9",
             "mollie/mollie-api-php": "^2.29.0",
-            "php": ">=7.2"
+            "php": ">=7.3"
+        },
+        "conflict": {
+            "webform/webform": "<6.0"
         },
         "require-dev": {
             "drupal/commerce_payment": "*",
             "drupal/uc_payment": "*",
-            "drupal/webform": "*"
+            "drupal/webform": "^6"
+        },
+        "suggest": {
+            "webform/webform": "Webform should be installed for using the Mollie for Drupal Webform submodule (mollie_webform)."
         },
         "type": "drupal-module",
         "extra": {
             "drupal": {
-                "version": "8.x-1.0-rc1",
-                "datestamp": "1612017294",
+                "version": "2.0.0",
+                "datestamp": "1617221948",
                 "security-coverage": {
-                    "status": "not-covered",
-                    "message": "RC releases are not covered by Drupal security advisories."
+                    "status": "covered",
+                    "message": "Covered by Drupal's security advisory policy"
                 }
             }
         },

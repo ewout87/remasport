@@ -80,7 +80,10 @@ class TransactionPermissions implements ContainerInjectionInterface {
     foreach ($this->getAvailableOperations($entityType) as $operation) {
       $permissions["$operation {$entityType->id()} entities"] = [
         'title' => ucfirst(
-          $this->t('view @label entities', ['@label' => $entityType->getLabel()])
+          $this->t('@operation @label entities', [
+            '@operation' =>  $operation,
+            '@label' => $entityType->getLabel()
+          ])
         ),
       ];
     }

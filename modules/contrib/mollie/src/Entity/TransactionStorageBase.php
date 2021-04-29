@@ -9,6 +9,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityStorageBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -75,6 +76,8 @@ abstract class TransactionStorageBase extends ContentEntityStorageBase {
    *   Language manager.
    * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memoryCache
    *   The memory cache backend.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entityTypeBundleInfo
+   *   The entity type bundle info.
    */
   public function __construct(
     EntityTypeInterface $entityType,
@@ -84,9 +87,10 @@ abstract class TransactionStorageBase extends ContentEntityStorageBase {
     Mollie $mollieConnector,
     ConfigFactoryInterface $configFactory,
     LanguageManagerInterface $languageManager,
-    MemoryCacheInterface $memoryCache = NULL
+    MemoryCacheInterface $memoryCache,
+    EntityTypeBundleInfoInterface $entityTypeBundleInfo
   ) {
-    parent::__construct($entityType, $entityFieldTypeManager, $cache, $memoryCache);
+    parent::__construct($entityType, $entityFieldTypeManager, $cache, $memoryCache, $entityTypeBundleInfo);
 
     $this->messenger = $messenger;
     $this->mollieApiClient = $mollieConnector->getClient();
@@ -100,13 +104,14 @@ abstract class TransactionStorageBase extends ContentEntityStorageBase {
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entityType) {
     return new static(
       $entityType,
-      $container->get('entity.manager'),
+      $container->get('entity_field.manager'),
       $container->get('cache.entity'),
       $container->get('messenger'),
       $container->get('mollie.mollie'),
       $container->get('config.factory'),
       $container->get('language_manager'),
-      $container->get('entity.memory_cache')
+      $container->get('entity.memory_cache'),
+      $container->get('entity_type.bundle.info')
     );
   }
 
@@ -165,6 +170,18 @@ abstract class TransactionStorageBase extends ContentEntityStorageBase {
   /**
    * {@inheritdoc}
    */
+  public function hasData(): bool {
+    // We use an API to store data externally. Returning true here prevents
+    // module uninstall. It seems that hasData() is only used in situations
+    // that might result in data loss when an operation is proceeded while data
+    // is stored. That is not the case in our situation so it seems that we can
+    // safely allow those operations. Including module uninstall.
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function purgeFieldItems(ContentEntityInterface $entity, FieldDefinitionInterface $field_definition) {
     // TODO: Implement purgeFieldItems() method.
   }
@@ -191,10 +208,21 @@ abstract class TransactionStorageBase extends ContentEntityStorageBase {
   }
 
   /**
-   * {@inheritdoc}
+   * BC for Drupal 8.
+   *
+   * In Drupal 9 this is superseded by doLoadMultipleRevisionsFieldItems().
+   * @see https://www.drupal.org/project/drupal/issues/1730874
+   * @see https://www.drupal.org/project/drupal/issues/3069696
    */
   public function doLoadRevisionFieldItems($revision_id) {
     // TODO: Implement doLoadRevisionFieldItems() method.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function doLoadMultipleRevisionsFieldItems($revision_ids) {
+    // TODO: Implement doLoadMultipleRevisionsFieldItems() method.
   }
 
   /**
