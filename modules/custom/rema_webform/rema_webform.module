@@ -64,7 +64,7 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert().
+ * Add email handler.
  */
 function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message, $excluded_elements) {
   /** @var \Drupal\webform\WebformHandlerInterface $webform_handler_manager */
@@ -99,6 +99,39 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
       'debug' => 0,
       'reply_to' => '',
       'return_path' => '',
+    ],
+  ]);
+
+  // Must update original id to prevent the below error.
+  // Drupal\Core\Config\ConfigNameException: The machine name of the 'Webform'
+  // bundle cannot be changed in
+  // Drupal\Core\Config\Entity\ConfigEntityBundleBase->preSave()
+  $webform->setOriginalId($webform->id());
+
+  // Add handle to the webform, which triggers another save().
+  $webform->addWebformHandler($webform_handler);
+}
+
+/**
+ * Add payment handler.
+ */
+function add_payment_handler(WebformInterface $webform) {
+  /** @var \Drupal\webform\WebformHandlerInterface $webform_handler_manager */
+  $webform_handler_manager = \Drupal::service('plugin.manager.webform.handler');
+
+  // Create a \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler.
+  $webform_handler = $webform_handler_manager->createInstance('mollie_payment_handler');
+
+  // Configuration copied from exported webform.webform.contact.yml
+  $webform_handler->setConfiguration([
+    'id' => $webform->id(),
+    'label' => 'Mollie payment',
+    'handler_id' => 'mollie_payment',
+    'status' => TRUE,
+    'weight' => 0,
+    'settings' => [
+      'amount_element' => 'total_amount',
+      'currency' => 'EUR',
     ],
   ]);
 
@@ -165,6 +198,13 @@ function rema_webform_node_presave(NodeInterface $node)
 
     if(!empty($message)){
       $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject[0]['value'], $message[0]['value'], $excluded_elements);
+    }
+
+    // Add Mollie payment handler
+    $payment = $node->get('field_payment')->getValue()[0]['value'];
+
+    if($payment){
+      $payment_handler = add_payment_handler($webform);
     }
 
     $node->set('webform', $webform->id());
@@ -259,14 +299,19 @@ function create_webform($node){
       '#mode' => 'html',
       '#template' => '[webform_submission:values]',
       '#ajax' => true
+    ],
+    'total_amount' => [
+      '#type' => 'number',
+      '#title' => 'Totaalbedrag',
+      '#min' => 0,
     ]
   ];
 
-  //Total amount
-  $elements['total_amount'] = [
-    '#type' => 'hidden'
+  $elements['payment_status'] = [
+    '#type' => 'mollie_payment_status',
+    '#title' => 'Betaling'
   ];
-
+ 
   return $elements;
 }
 
