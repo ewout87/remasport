@@ -133,12 +133,12 @@ class MollieConfigForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
+
     $this->config('mollie.config')
       ->set('test_mode', $form_state->getValue('test_mode'))
-      ->set('webhook_base_url', $form_state->getValue('webhook_base_url'));
-    $this->config('mollie.config')->save();
-
-    parent::submitForm($form, $form_state);
+      ->set('webhook_base_url', $form_state->getValue('webhook_base_url'))
+      ->save();
   }
 
   /**

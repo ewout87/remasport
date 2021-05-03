@@ -12,7 +12,7 @@ configure: mollie.configuration
 dependencies:
   - drupal:datetime
 
-# Information added by Drupal.org packaging script on 2021-01-30
-version: '8.x-1.0-rc1'
+# Information added by Drupal.org packaging script on 2021-03-31
+version: '2.0.0'
 project: 'mollie'
-datestamp: 1612017297
+datestamp: 1617221950

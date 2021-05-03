@@ -17,7 +17,13 @@
     "license": "GPL-2.0-or-later",
     "minimum-stability": "dev",
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.3",
         "mollie/mollie-api-php": "^2.29.0"
+    },
+    "suggest": {
+        "webform/webform": "Webform should be installed for using the Mollie for Drupal Webform submodule (mollie_webform)."
+    },
+    "conflict": {
+        "webform/webform": "<6.0"
     }
 }

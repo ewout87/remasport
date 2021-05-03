@@ -189,7 +189,7 @@ class Mollie {
       return $this->getClient()->methods->allActive(
         [
           'amount' => [
-            'value' => number_format($amount, 2),
+            'value' => number_format($amount, 2, '.', ''),
             'currency' => $currency,
           ]
         ]

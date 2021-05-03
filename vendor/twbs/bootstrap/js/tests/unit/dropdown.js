@@ -31,8 +31,8 @@ $(function () {
     $el.bootstrapDropdown()
     try {
       $el.bootstrapDropdown('noMethod')
-    } catch (err) {
-      assert.strictEqual(err.message, 'No method named "noMethod"')
+    } catch (error) {
+      assert.strictEqual(error.message, 'No method named "noMethod"')
     }
   })
 
@@ -309,7 +309,7 @@ $(function () {
     var done = assert.async()
     var dropdownHTML = '<div class="nav">' +
         '<div class="dropdown" id="testmenu">' +
-        '<a class="dropdown-toggle" data-toggle="dropdown" href="#testmenu">Test menu <span class="caret"/></a>' +
+        '<a class="dropdown-toggle" data-toggle="dropdown" href="#testmenu">Test menu</a>' +
         '<div class="dropdown-menu">' +
         '<a class="dropdown-item" href="#sub1">Submenu 1</a>' +
         '</div>' +
@@ -355,7 +355,7 @@ $(function () {
     var done = assert.async()
     var dropdownHTML = '<div class="nav">' +
         '<div class="dropdown" id="testmenu">' +
-        '<a class="dropdown-toggle" data-toggle="dropdown" href="#testmenu">Test menu <span class="caret"/></a>' +
+        '<a class="dropdown-toggle" data-toggle="dropdown" href="#testmenu">Test menu</a>' +
         '<div class="dropdown-menu">' +
         '<a class="dropdown-item" href="#sub1">Submenu 1</a>' +
         '</div>' +
@@ -363,7 +363,7 @@ $(function () {
         '</div>' +
         '<div class="btn-group">' +
         '<button class="btn">Actions</button>' +
-        '<button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"/></button>' +
+        '<button class="btn dropdown-toggle" data-toggle="dropdown"></button>' +
         '<div class="dropdown-menu">' +
         '<a class="dropdown-item" href="#">Action 1</a>' +
         '</div>' +
@@ -747,7 +747,7 @@ $(function () {
     $dropdown.trigger('click')
   })
 
-  QUnit.test('Dropdown should not use Popper.js in navbar', function (assert) {
+  QUnit.test('Dropdown should not use Popper in navbar', function (assert) {
     assert.expect(1)
     var done = assert.async()
     var html = '<nav class="navbar navbar-expand-md navbar-light bg-light">' +
@@ -770,7 +770,7 @@ $(function () {
     $triggerDropdown
       .parent('.dropdown')
       .on('shown.bs.dropdown', function () {
-        assert.ok(typeof $dropdownMenu.attr('style') === 'undefined', 'No inline style applied by Popper.js')
+        assert.ok(typeof $dropdownMenu.attr('style') === 'undefined', 'No inline style applied by Popper')
         done()
       })
     $triggerDropdown.trigger($.Event('click'))
@@ -1020,7 +1020,71 @@ $(function () {
     $textarea.trigger('click')
   })
 
-  QUnit.test('should not use Popper.js if display set to static', function (assert) {
+  QUnit.test('should not stop key event propagation when dropdown is disabled', function (assert) {
+    assert.expect(1)
+    var done = assert.async()
+
+    var dropdownHTML = '<div class="tabs">' +
+        '<div class="dropdown">' +
+        '<a href="#" class="dropdown-toggle" id="toggle" data-toggle="dropdown" disabled>Dropdown</a>' +
+        '<div class="dropdown-menu">' +
+        '<a class="dropdown-item" id="item" href="#">Menu item</a>' +
+        '</div>' +
+        '</div>'
+
+    var $dropdown = $(dropdownHTML)
+      .appendTo('#qunit-fixture')
+      .find('[data-toggle="dropdown"]')
+      .bootstrapDropdown()
+
+    var $body = $('body')
+
+    $(document).on('keydown', function () {
+      $body.addClass('event-handled')
+    })
+
+    // Key escape
+    $dropdown.trigger('focus').trigger($.Event('keydown', {
+      which: 27
+    }))
+
+    assert.ok($body.hasClass('event-handled'), 'ESC key event was propagated')
+    done()
+  })
+
+  QUnit.test('should not stop ESC key event propagation when dropdown is not active', function (assert) {
+    assert.expect(1)
+    var done = assert.async()
+
+    var dropdownHTML = '<div class="tabs">' +
+        '<div class="dropdown">' +
+        '<a href="#" class="dropdown-toggle" id="toggle" data-toggle="dropdown">Dropdown</a>' +
+        '<div class="dropdown-menu">' +
+        '<a class="dropdown-item" id="item" href="#">Menu item</a>' +
+        '</div>' +
+        '</div>'
+
+    var $dropdown = $(dropdownHTML)
+      .appendTo('#qunit-fixture')
+      .find('[data-toggle="dropdown"]')
+      .bootstrapDropdown()
+
+    var $body = $('body')
+
+    $(document).on('keydown', function () {
+      $body.addClass('event-handled')
+    })
+
+    // Key escape
+    $dropdown.trigger('focus').trigger($.Event('keydown', {
+      which: 27
+    }))
+
+    assert.ok($body.hasClass('event-handled'), 'ESC key event was propagated')
+    done()
+  })
+
+  QUnit.test('should not use Popper if display set to static', function (assert) {
     assert.expect(1)
     var dropdownHTML =
         '<div class="dropdown">' +
@@ -1042,7 +1106,7 @@ $(function () {
 
     $dropdown.parent('.dropdown')
       .on('shown.bs.dropdown', function () {
-        // Popper.js add this attribute when we use it
+        // Popper adds this attribute when we use it
         assert.strictEqual(dropdownMenu.getAttribute('x-placement'), null)
         done()
       })
@@ -1050,7 +1114,7 @@ $(function () {
     $dropdown.trigger('click')
   })
 
-  QUnit.test('should call Popper.js and detect navbar on update', function (assert) {
+  QUnit.test('should call Popper and detect navbar on update', function (assert) {
     assert.expect(3)
 
     var dropdownHTML =
@@ -1482,7 +1546,7 @@ $(function () {
     assert.ok(typeof offset.fn === 'undefined')
   })
 
-  QUnit.test('should allow to pass config to popper.js with `popperConfig`', function (assert) {
+  QUnit.test('should allow to pass config to Popper with `popperConfig`', function (assert) {
     assert.expect(1)
 
     var dropdownHTML =
