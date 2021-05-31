@@ -8,3 +8,8 @@ rema_webform.sum:
   dependencies:
     - core/jquery
     - core/drupal
+rema_webform.confirmation:
+  version: VERSION
+  css:
+    theme:
+      css/confirmation-page.css: {}

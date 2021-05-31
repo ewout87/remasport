@@ -14,6 +14,17 @@ use Drupal\Core\Form\FormStateInterface;
  * Implements hook_FORM_alter().
  */
 function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if($form_state->getValue('bundle_select')){
+    $bundle = Node::load($form_state->getValue('bundle_select'));
+  }
+  else {
+    $bundle = Node::load($form_state->getValue('selection'));
+  }
+
+  if($bundle instanceof NodeInterface){
+    $form['elements']['extra']['extra_total']['#default_value'] = $form_state->getValue($bundle->id().'_total');
+  }
+
   $form['#validate'][] = 'rema_webform_form_validate';
 }
 
@@ -23,28 +34,48 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
 function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInterface $form_state){
   $node = Drupal::routeMatch()->getParameter('node');
 
+  /*
+  // In webform, query the corresponding node
+  if($node === NULL){
+    $storage = \Drupal::entityTypeManager()->getStorage('node');
+    $query = $storage->getQuery()
+      ->condition('type', 'webform')
+      ->condition('webform', Drupal::routeMatch()->getRawParameter('webform'))
+      ->condition('status', Node::PUBLISHED);
+    $ids = $query->execute();
+
+    if (!empty($ids)) {
+      $node = Node::load(array_values($ids)[0]);
+    }
+  }
+  */
+
   // Initiate total
   $total= 0;
 
   if($node instanceof NodeInterface){
     // Get bundle price
-    $bundle = Node::load($form_state->getValue('bundle_select'));
+    if($form_state->getValue('bundle_select')){
+      $bundle = Node::load($form_state->getValue('bundle_select'));
+    }
+    else {
+      $bundle = Node::load($form_state->getValue('selection'));
+    }
 
     if($bundle instanceof NodeInterface){
-      $price = $bundle->get('field_bundle_price')->getValue();
+      $bundle_price = $bundle->get('field_bundle_price')->getValue();
+      $products = $bundle->get('field_bundle_products')->getValue();
 
-      if(isset($price) && !empty($price)){
-        $total = $price[0]['value'];
-      }
-      else {
-        $products = $bundle->get('field_bundle_products')->getValue();
+      foreach ($products as $product) {
+        empty($bundle_price) ? $price = (float)trim($form_state->getValue('bundle_'. $bundle->id() .'_product_' .  $product['target_id'] . '_size')) : $price = 0.00;
 
-        foreach ($products as $product) {
-          $price = 'bundle_'. $bundle->id() .'_product_' .  $product['target_id'] . '_size';
-          $amount = 'bundle_'. $bundle->id() .'_product_' . $product['target_id'] . '_amount';
-    
-          $total += (int)$form_state->getValue($amount) * (int)trim($form_state->getValue($price));
+        if($form_state->getValue('bundle_'. $bundle->id() .'_product_' . $product['target_id'] . '_print')){
+          $price += 5.00;
         }
+
+        $amount = (float)$form_state->getValue('bundle_'. $bundle->id() .'_product_' . $product['target_id'] . '_amount');
+  
+        $total += $amount * $price;
       }
     }
 
@@ -52,36 +83,52 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
     $products = $node->get('field_bundle_products')->getValue();
 
     foreach ($products as $product) {
-      $price = 'extra_product_' .  $product['target_id'] . '_size';
-      $amount = 'extra_product_' . $product['target_id'] . '_amount';
+      $price = (float)trim($form_state->getValue('extra_product_' .  $product['target_id'] . '_size'));
 
-     $total += (int)$form_state->getValue($amount) * (int)trim($form_state->getValue($price));
+      if($form_state->getValue('extra_product_' .  $product['target_id'] . '_print')){
+        $price += 5.00;
+      }
+
+      $amount = (float)$form_state->getValue('extra_product_' . $product['target_id'] . '_amount');
+
+     $total += $amount * $price;
     }
 
-  $form_state->setValue('total_amount', $total);
-  debug($form_state->getValue('total_amount'));
+    $form_state->setValue('total_amount', $total);
   }
 }
 
 /**
  * Add email handler.
  */
-function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message, $excluded_elements) {
+function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message, $excluded_elements, $payment) {
   /** @var \Drupal\webform\WebformHandlerInterface $webform_handler_manager */
   $webform_handler_manager = \Drupal::service('plugin.manager.webform.handler');
 
   // Create a \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler.
   $webform_handler = $webform_handler_manager->createInstance('email');
 
+  $conditions = [];
+
+  if($payment){
+    $conditions = [
+      'enabled' => [
+        ':input[name="payment_status"]' => [
+          'value' => 'paid'
+        ]
+      ]
+    ];
+  }
+
   // Configuration copied from exported webform.webform.contact.yml
   $webform_handler->setConfiguration([
     'id' => $id,
     'label' => ucfirst(str_replace('_', ' ', $id)),
     'handler_id' => $id,
-    'status' => TRUE,
+    'status' => 1,
+    'conditions' => $payment ? ['enabled' => [':input[name="payment_status"]' => ['value' => 'paid']]] : [],
     'weight' => 0,
     'settings' => [
-      'states' => ['completed'],
       'to_mail' => $to_mail,
       'to_options' => array(),
       'cc_mail' => '',
@@ -93,7 +140,7 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
       'from_name' => 'default',
       'subject' => $subject,
       'body' => $message.'[webform_submission:values]',
-      'excluded_elements' => $excluded_elements,
+      'exclude_empty_checkbox' => TRUE,
       'html' => TRUE,
       'attachments' => FALSE,
       'debug' => 0,
@@ -115,7 +162,7 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
 /**
  * Add payment handler.
  */
-function add_payment_handler(WebformInterface $webform) {
+function add_payment_handler(WebformInterface $webform, $status) {
   /** @var \Drupal\webform\WebformHandlerInterface $webform_handler_manager */
   $webform_handler_manager = \Drupal::service('plugin.manager.webform.handler');
 
@@ -127,7 +174,7 @@ function add_payment_handler(WebformInterface $webform) {
     'id' => $webform->id(),
     'label' => 'Mollie payment',
     'handler_id' => 'mollie_payment',
-    'status' => TRUE,
+    'status' => $status,
     'weight' => 0,
     'settings' => [
       'amount_element' => 'total_amount',
@@ -187,24 +234,35 @@ function rema_webform_node_presave(NodeInterface $node)
       $webform->save();
     }
 
-    // Add client email handler
-    $excluded_elements = get_excluded_elements($webform);
-
-    $email_handler = add_email_handler($webform, 'email', 'default', 'Bestelling [webform_submission:sid]', null, $excluded_elements);
-
-    // Add client email handler
-    $message = $node->get('field_confirmation_mail')->getValue();
-    $subject = $node->get('field_email_subject')->getValue();
-
-    if(!empty($message)){
-      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject[0]['value'], $message[0]['value'], $excluded_elements);
-    }
-
     // Add Mollie payment handler
     $payment = $node->get('field_payment')->getValue()[0]['value'];
 
     if($payment){
-      $payment_handler = add_payment_handler($webform);
+      $payment_handler = add_payment_handler($webform, TRUE);
+    }
+    else {
+      $payment_handler = add_payment_handler($webform, FALSE);
+    }
+
+    // Add client email handler
+    $excluded_elements = get_excluded_elements($webform);
+
+    if($payment){
+      $email_handler = add_email_handler($webform, 'email', 'default', 'Bestelling [webform_submission:sid]', null, $excluded_elements, TRUE);
+    }
+    else {
+      $email_handler = add_email_handler($webform, 'email', 'default', 'Bestelling [webform_submission:sid]', null, $excluded_elements, FALSE);
+    }
+    
+    // Add client email handler
+    $message = $node->get('field_confirmation_mail')->getValue();
+    $subject = $node->get('field_email_subject')->getValue();
+
+    if($payment){
+      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject[0]['value'], $message[0]['value'], $excluded_elements, TRUE);
+    }
+    else {
+      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject[0]['value'], $message[0]['value'], $excluded_elements, FALSE);
     }
 
     $node->set('webform', $webform->id());
@@ -220,8 +278,14 @@ function create_settings($node){
 
   $settings = [
     'wizard_progress_states' => TRUE,
-    'confirmation_type' => 'message',
-    'confirmation_message' => !empty($confirmation_message) ? $confirmation_message[0]['value'] : ''
+    'confirmation_type' => 'page',
+    'confirmation_message' => !empty($confirmation_message) ? $confirmation_message[0]['value'] : '',
+    'confirmation_attributes' => [
+      'style' => 'align-items: center'
+    ],
+    'confirmation_back_attributes' => [
+      'class' => 'button'
+    ]
   ];
 
   // Append default settings.
@@ -287,6 +351,18 @@ function create_webform($node){
     ]
   ];
 
+    // Print page
+    $elements['print'] = [
+      '#type' => 'webform_wizard_page',
+      '#title' => 'Bedrukking',
+      'print_name' => [
+        '#type' => 'textfield',
+        '#title' => 'Naam om te drukken',
+        '#required' => true
+      ],
+    ];
+
+    /*
   // Confirmation page
   $elements['confirmation'] = [
     '#type' => 'webform_wizard_page',
@@ -300,11 +376,14 @@ function create_webform($node){
       '#template' => '[webform_submission:values]',
       '#ajax' => true
     ],
-    'total_amount' => [
-      '#type' => 'number',
-      '#title' => 'Totaalbedrag',
-      '#min' => 0,
-    ]
+  ];
+  */
+
+  $elements['total_amount'] = [
+    '#type' => 'number',
+    '#title' => 'Totaalbedrag',
+    '#min' => 0,
+    '#access' => false
   ];
 
   $elements['payment_status'] = [
@@ -328,11 +407,17 @@ function create_bundles($bundles){
           '#type' => 'radios',
           '#title' => 'Pakketten',
           '#options' => [],
-          '#options_display' => 'side_by_side',
           '#required' => true,
           '#states_clear' => false,
           '#options__properties' => ''
         ]
+      ];
+    }
+    else {
+      $elements['selection'] = [
+        '#type' => 'value',
+        '#title' => 'Selectie',
+        '#value' => $bundles[0]['target_id']
       ];
     }
 
@@ -399,6 +484,7 @@ function create_bundles($bundles){
         $elements[$bundle_key][$bundle_id .'_total'] = [
           '#type' => 'total_sum',
           '#title' => 'Totaal',
+          '#default_value' => 0
         ];
 
         if(!empty($price)){
@@ -421,8 +507,8 @@ function create_free_choice($elements, $extra_products){
       '#title' => 'Vrije keuze',
       'extra_total' => [
         '#type' => 'total_sum',
-        '#title' => 'Totaal',
-      ]
+        '#title' => 'Totaal'
+      ],
     ];
             
     $elements = create_products($extra_products, 'extra', $elements, []);
@@ -469,32 +555,27 @@ function create_products($products, $bundle_key, $elements, $price){
         }
       }
 
-      $elements[$bundle_key][$product_key][$product_key.'_fieldset'] = [
-        '#type' => 'fieldset',
-        '#title' => $product_title
-      ];
-
       // Add product sizes
       $size_ranges = $product->get('field_product_size_range')->getValue();
 
       if (!empty($size_ranges)) {
         $options = get_size_options($size_ranges, $bundle_key);
 
-         $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size'] = [
+         $elements[$bundle_key][$product_key][$product_key.'_size'] = [
           '#type' => 'select',
           '#title' => 'Maat '.$product_title,
           '#options' => $options,
         ];
       }
       if($bundle_key !== 'extra'){
-        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size']['#required'] = true;
+        $elements[$bundle_key][$product_key][$product_key.'_size']['#required'] = true;
       }
 
       // Add amount
       $amount = $product->get('field_product_amount')->getValue();
 
       if($bundle_key == 'extra'){
-        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_amount'] = [
+        $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
           '#type'=> 'number',
           '#title' => 'Aantal '.$product_title,
           '#states' => [
@@ -514,11 +595,27 @@ function create_products($products, $bundle_key, $elements, $price){
           $default_amount = $amount[0]['value'];
         }
 
-         $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_amount'] = [
+         $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
           '#type'=> 'number',
           '#title' => 'Aantal '.$product_title,
           '#disabled' => true,
           '#default_value' => $default_amount,
+        ];
+      }
+
+      //Add Print
+      if($product->get('field_product_print')->getValue()[0]['value'] == 1){
+        $elements[$bundle_key][$product_key][$product_key.'_print'] = [
+          '#type'=> 'checkbox',
+          '#title' => 'Bedrukken met mijn naam',
+          '#description' => 'Kostprijs: &euro5/st',
+          '#description_display' => 'tooltip'
+        ];
+      }
+      else {
+        $elements[$bundle_key][$product_key][$product_key.'_print'] = [
+          '#type'=> 'markup',
+          '#markup' => 'Niet bedrukbaar',
         ];
       }
 

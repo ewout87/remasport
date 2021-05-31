@@ -79,6 +79,7 @@ class TotalSum extends FormElement {
     $element['#attributes']['type'] = 'hidden';
     $element['#attached']['library'][] = 'rema_webform/rema_webform.sum';
     $element['#attached']['drupalSettings']['min_value'] = $element['#min'];
+    
     Element::setAttributes($element, ['id', 'name', 'value', 'size', 'maxlength', 'placeholder']);
     static::setAttributes($element, ['form-text', 'total-sum']);
     return $element;

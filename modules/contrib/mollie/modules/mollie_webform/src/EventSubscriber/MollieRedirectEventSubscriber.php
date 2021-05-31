@@ -9,7 +9,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Messenger\MessengerTrait;
-use Drupal\path_alias\AliasManagerInterface;
+use Drupal\Core\Path\AliasManager;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -80,7 +80,7 @@ class MollieRedirectEventSubscriber implements EventSubscriberInterface {
   /**
    * Alias manager.
    *
-   * @var \Drupal\path_alias\AliasManagerInterface
+   * @var \Drupal\Core\Path\AliasManager
    */
   protected $aliasManager;
 
@@ -113,7 +113,7 @@ class MollieRedirectEventSubscriber implements EventSubscriberInterface {
    *   Webform token manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Configuration factory.
-   * @param \Drupal\path_alias\AliasManagerInterface $aliasManager
+   * @param \Drupal\Core\Path\AliasManager $aliasManager
    *   Alias manager.
    * @param \Drupal\Core\Path\PathValidatorInterface $pathValidator
    *   Path validator.
@@ -127,7 +127,7 @@ class MollieRedirectEventSubscriber implements EventSubscriberInterface {
     RequestStack $requestStack,
     WebformTokenManagerInterface $tokenManager,
     ConfigFactoryInterface $configFactory,
-    AliasManagerInterface $aliasManager,
+    AliasManager $aliasManager,
     PathValidatorInterface $pathValidator,
     WebformRequestInterface $requestHandler
   ) {
