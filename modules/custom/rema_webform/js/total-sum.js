@@ -33,7 +33,7 @@
               var print = $(this).parents('.webform-flexbox').find('.js-form-type-checkbox input').prop('checked');
               
               if(print){
-                price += 5.00;
+                price += 4.00;
               }
 
               if(number > 0 && price > 0){
