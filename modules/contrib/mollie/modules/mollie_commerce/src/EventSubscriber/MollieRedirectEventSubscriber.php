@@ -7,7 +7,10 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\mollie\Events\MollieRedirectEvent;
+use Mollie\Api\Types\PaymentStatus;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * Class MollieRedirectEventSubscriber.
@@ -24,13 +27,24 @@ class MollieRedirectEventSubscriber implements EventSubscriberInterface {
   protected $entityTypeManager;
 
   /**
+   * HTTP kernel.
+   *
+   * @var \Symfony\Component\HttpKernel\HttpKernelInterface
+   */
+  protected $httpKernel;
+
+  /**
    * MollieRedirectEventSubscriber constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
+   *
+   * @param \Symfony\Component\HttpKernel\HttpKernelInterface $httpKernel
+   *   HTTP kernel.
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, HttpKernelInterface $httpKernel) {
     $this->entityTypeManager = $entityTypeManager;
+    $this->httpKernel = $httpKernel;
   }
 
   /**
@@ -45,8 +59,8 @@ class MollieRedirectEventSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    // By default redirect to the return URL in Drupal Commerce.
-    $routeNme = 'commerce_payment.checkout.return';
+    // By default, redirect to the return URL in Drupal Commerce.
+    $routeName = 'commerce_payment.checkout.return';
     try {
       /** @var \Drupal\mollie\TransactionInterface[] $payments */
       $payments = $this->entityTypeManager->getStorage('mollie_payment')
@@ -58,20 +72,48 @@ class MollieRedirectEventSubscriber implements EventSubscriberInterface {
       // context ID.
       $payment = reset($payments);
 
-      if (!$payment || in_array($payment->getStatus(), ['canceled', 'expired', 'failed'], TRUE)) {
+      // We do a sub request to Drupal Commerce to handle payment and order
+      // status updates there.
+      $url = Url::fromRoute(
+        'commerce_payment.notify',
+        [
+          'commerce_payment_gateway' => 'mollie',
+        ]
+      );
+      $subRequest = Request::create(
+        $url->toString(),
+        'POST',
+        [
+          'mollie_transaction_id' => $payment->id(),
+          'order_id' => $event->getContextId()
+        ]
+      );
+      try {
+        $this->httpKernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
+      }
+      catch (\Exception $e) {
+        watchdog_exception('mollie', $e);
+      }
+
+      $failed_statuses = [
+        PaymentStatus::STATUS_CANCELED,
+        PaymentStatus::STATUS_EXPIRED,
+        PaymentStatus::STATUS_FAILED,
+      ];
+      if (!$payment || in_array($payment->getStatus(), $failed_statuses, TRUE)) {
         // For 'failed' statuses redirect to the cancel URL in Drupal Commerce.
-        $routeNme = 'commerce_payment.checkout.cancel';
+        $routeName = 'commerce_payment.checkout.cancel';
       }
     } catch (PluginNotFoundException | InvalidPluginDefinitionException $e) {
       watchdog_exception('mollie_commerce', $e);
       // Redirect to the cancel URL in Drupal Commerce if we could not load
       // a mollie_payment entity for this event.
-      $routeNme = 'commerce_payment.checkout.cancel';
+      $routeName = 'commerce_payment.checkout.cancel';
     }
 
     // Hand over control back to Drupal Commerce.
     $url = Url::fromRoute(
-      $routeNme,
+      $routeName,
       ['commerce_order' => $event->getContextId(), 'step' => 'payment']
     );
 

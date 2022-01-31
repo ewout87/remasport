@@ -2,6 +2,10 @@
 
 namespace Drupal\mollie\Events;
 
+/**
+ * TODO: Change to \Symfony\Contracts\EventDispatcher\Event once Drupal 8 is
+ *   EOL.
+ */
 use Symfony\Component\EventDispatcher\Event;
 
 /**

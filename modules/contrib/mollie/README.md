@@ -30,7 +30,8 @@ installing the Mollie API client for PHP using Composer. Learn how to
 
 ### Mollie account
 For security reasons your Mollie credentials cannot be managed through the Drupal UI.
-Add your Mollie credentials to the settings.php file:
+Add your Mollie credentials to the settings.php file (access_token is optional and not yet used in the currently
+supported features in this module):
 ```php
 $settings['mollie.settings'] = [
   'live_key' => 'live_YouRMollIeLIVeAPIkeY',

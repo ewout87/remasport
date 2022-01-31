@@ -64,6 +64,10 @@ class PaymentListBuilder extends EntityListBuilder {
     $header['id'] = $this->t('Payment ID');
     $header['mode'] = $this->t('Mode');
     $header['amount'] = $this->t('Amount');
+    $header['refunded_amount'] = $this->t('Refunded amount');
+    $header['refundable_amount'] = $this->t('Refundable amount');
+    $header['captured_amount'] = $this->t('Captured mount');
+    $header['charged_back_amount'] = $this->t('Charged back amount');
     $header['status'] = $this->t('Status');
     $header['created'] = $this->t('Created');
     $header['changed'] = $this->t('Changed');
@@ -85,6 +89,34 @@ class PaymentListBuilder extends EntityListBuilder {
       [
         '@amount' => $entity->getAmount(),
         '@currency' => $entity->getCurrency(),
+      ]
+    );
+    $row['refunded_amount'] = $this->t(
+      '@amount @currency',
+      [
+        '@amount' => $entity->getRefundedAmount(),
+        '@currency' => $entity->getRefundedCurrency(),
+      ]
+    );
+    $row['refundable_amount'] = $this->t(
+      '@amount @currency',
+      [
+        '@amount' => $entity->getRefundableAmount(),
+        '@currency' => $entity->getRefundableCurrency(),
+      ]
+    );
+    $row['captured_amount'] = $this->t(
+      '@amount @currency',
+      [
+        '@amount' => $entity->getCapturedAmount(),
+        '@currency' => $entity->getCapturedCurrency(),
+      ]
+    );
+    $row['charged_back_amount'] = $this->t(
+      '@amount @currency',
+      [
+        '@amount' => $entity->getChargedBackAmount(),
+        '@currency' => $entity->getChargedBackCurrency(),
       ]
     );
     $row['status'] = $entity->getStatus();

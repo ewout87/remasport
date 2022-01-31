@@ -1,0 +1,11 @@
+entity.mollie_customer.add_form:
+  route_name: entity.mollie_customer.add_form
+  title: 'Add Mollie customer'
+  appears_on:
+    - entity.mollie_customer.collection
+
+entity.mollie_customer.delete_form:
+  route_name: entity.mollie_customer.delete_form
+  title: 'Delete'
+  appears_on:
+    - entity.mollie_customer.collection

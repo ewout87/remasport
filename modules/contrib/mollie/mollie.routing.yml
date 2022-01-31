@@ -43,9 +43,21 @@ mollie.redirect:
   requirements:
     _access: 'TRUE'
 
-mollie.webhook:
+# Mollie calls the webhook for different types of events without indicating the event type. This makes it a challenge
+# to determine the event to react too. Inspired by
+# https://github.com/mollie/api-documentation/issues/528#issuecomment-726120810 and until there is a better and more
+# reliable solution we will change the webhook to the mollie.webhook.aftercare route once the payment reaches the 'paid'
+# status.
+mollie.webhook.status_change:
   path: '/mollie/webhook/{context}/{context_id}'
   defaults:
-    _controller: 'Drupal\mollie\Controller\WebhookController::invokeHook'
+    _controller: 'Drupal\mollie\Controller\WebhookController::invokeStatusChangeHook'
+  requirements:
+    _access: 'TRUE'
+
+mollie.webhook.aftercare:
+  path: '/mollie/webhook/{context}/{context_id}/aftercare'
+  defaults:
+    _controller: 'Drupal\mollie\Controller\WebhookController::invokeAftercareHook'
   requirements:
     _access: 'TRUE'

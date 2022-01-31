@@ -1,0 +1,15 @@
+entity.mollie_customers.collection:
+  title: 'Mollie customers'
+  route_name: entity.mollie_customers.collection
+  base_route: entity.mollie_customers.collection
+
+entity.mollie_customers.canonical:
+  route_name: entity.mollie_customers.canonical
+  base_route: entity.mollie_customers.canonical
+  title: View
+
+entity.mollie_customers.delete_form:
+  route_name:  entity.mollie_customers.delete_form
+  base_route:  entity.mollie_customers.canonical
+  title: Delete
+  weight: 10

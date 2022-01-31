@@ -82,11 +82,11 @@ class MollieConfigForm extends ConfigFormBase {
     ) . '<br>';
     $checkMarkup .= $this->generateCheckMarkup(
       $this->mollieConfigValidator->hasTestApiKey(),
-      'Test API key'
+      'Test API key (optional, unless test mode is enabled)'
     ) . '<br>';
     $checkMarkup .= $this->generateCheckMarkup(
       $this->mollieConfigValidator->hasOrganisationAccessToken(),
-      'Organisation access token'
+      'Organisation access token (optional)'
     ) . '<br><br>';
     $checkMarkup .= $this->t('You need to configure at least a live API key.') . '</p>';
 

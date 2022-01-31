@@ -1,0 +1,5 @@
+entity.mollie_customers.collection:
+  title: 'Customers'
+  description: 'Manage customers created through Mollie for Drupal.'
+  parent: mollie.admin
+  route_name: entity.mollie_customer.collection

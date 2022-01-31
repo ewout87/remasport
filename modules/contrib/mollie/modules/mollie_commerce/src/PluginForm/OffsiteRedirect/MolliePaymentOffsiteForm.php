@@ -131,6 +131,10 @@ class MolliePaymentOffsiteForm extends PaymentOffsiteForm implements ContainerIn
       // Create the Mollie payment.
       $transaction->save();
 
+      // Store the Commerce payment.
+      $payment->setRemoteId($transaction->id());
+      $payment->save();
+
       // Redirect to Mollie.
       throw new NeedsRedirectException($transaction->getCheckoutUrl());
     }

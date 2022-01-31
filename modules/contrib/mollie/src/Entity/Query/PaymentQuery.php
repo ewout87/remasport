@@ -57,7 +57,8 @@ class PaymentQuery extends TransactionQueryBase {
       watchdog_exception('mollie', $e);
     }
 
-    return new PaymentCollection($this->mollieApiClient, 0, []);
+    $_links = new \stdClass();
+    return new PaymentCollection($this->mollieApiClient, 0, $_links);
   }
 
 }

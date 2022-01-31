@@ -8,6 +8,7 @@ use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\mollie\Entity\Query\PaymentQuery;
+use Drupal\mollie_customers\Entity\Query\CustomerQuery;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Exceptions\IncompatiblePlatform;
 use Mollie\Api\MollieApiClient;
@@ -19,6 +20,11 @@ use Mollie\Api\Resources\MethodCollection;
  * @package Drupal\mollie
  */
 class Mollie {
+
+  /**
+   * Key of collection of last webhook invocation dates in the key/value store.
+   */
+  const LAST_WEBHOOK_INVOCATION_COLLECTION_KEY = 'mollie_last_webhook_invocation';
 
   /**
    * Messenger.
@@ -146,6 +152,14 @@ class Mollie {
           $client
         );
       }
+    }
+    if ($entityType->id() === 'mollie_customer') {
+      return new CustomerQuery(
+        $entityType,
+        $conjunction,
+        ['\Drupal\mollie\Entity\Query'],
+        $this->getClient()
+      );
     }
 
     return NULL;

@@ -1,0 +1,6 @@
+'access mollie customers overview':
+  title: 'Access customers overview for Mollie for Drupal'
+  restrict access: TRUE
+
+permission_callbacks:
+  - Drupal\mollie_customers\CustomerPermissions::customerPermissions

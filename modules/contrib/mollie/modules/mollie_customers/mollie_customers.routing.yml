@@ -1,0 +1,32 @@
+entity.mollie_customer.collection:
+  path: '/admin/mollie/customers'
+  defaults:
+    _entity_list: 'mollie_customer'
+    _title: 'Mollie customers'
+  requirements:
+    _permission: 'access mollie customers overview'
+
+entity.mollie_customer.canonical:
+  path: '/mollie/customer/{mollie_customer}'
+  defaults:
+    _entity_view: 'mollie_customer'
+    _title: 'Mollie customer'
+    _title_callback: 'Drupal\mollie_customers\Controller\CustomerController::customerTitle'
+  requirements:
+    _entity_access: 'mollie_customer.view'
+
+entity.mollie_customer.add_form:
+  path: '/mollie/customer/add'
+  defaults:
+    _entity_form: mollie_customer.add
+    _title: 'Add Mollie customer'
+  requirements:
+    _entity_create_access: 'mollie_customer'
+
+entity.mollie_customer.delete_form:
+  path: '/mollie/customer/{mollie_customer}/delete'
+  defaults:
+    _entity_form: mollie_customer.delete
+    _title: 'Delete'
+  requirements:
+    _entity_access: 'mollie_customer.delete'

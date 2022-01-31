@@ -5,6 +5,8 @@
  * Install, update and uninstall hooks for Mollie for Drupal.
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\mollie\Mollie;
 use Mollie\Api\MollieApiClient;
 
 /**
@@ -102,4 +104,140 @@ function mollie_requirements($phase) {
   }
 
   return $requirements;
+}
+
+/**
+ * Add missing amount fields for payments.
+ */
+function mollie_update_9101() {
+  /** @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface $entity_definition_update_manager */
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  // Refunded amount.
+  $refunded_amount = BaseFieldDefinition::create('float')
+    ->setLabel(t('Refunded amount'))
+    ->setRequired(TRUE)
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'string_textfield',
+        'weight' => 10,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('refunded_amount', 'mollie_payment', 'mollie_payment', $refunded_amount);
+
+  // Refunded currency.
+  $refunded_currency = BaseFieldDefinition::create('list_string')
+    ->setLabel(t('Refunded currency'))
+    ->setRequired(TRUE)
+    ->setSetting(
+      'allowed_values',
+      ['EUR' => 'Euro', 'USD' => 'USD']
+    )
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'options_select',
+        'weight' => 5,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('refunded_currency', 'mollie_payment', 'mollie_payment', $refunded_currency);
+
+  // Refundable amount.
+  $refundable_amount = BaseFieldDefinition::create('float')
+    ->setLabel(t('Refundable amount'))
+    ->setRequired(TRUE)
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'string_textfield',
+        'weight' => 10,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('refundable_amount', 'mollie_payment', 'mollie_payment', $refundable_amount);
+
+  // Refundable currency.
+  $refundable_currency = BaseFieldDefinition::create('list_string')
+    ->setLabel(t('Refundable currency'))
+    ->setRequired(TRUE)
+    ->setSetting(
+      'allowed_values',
+      ['EUR' => 'Euro', 'USD' => 'USD']
+    )
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'options_select',
+        'weight' => 5,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('refundable_currency', 'mollie_payment', 'mollie_payment', $refundable_currency);
+
+  // Captured amount.
+  $captured_amount = BaseFieldDefinition::create('float')
+    ->setLabel(t('Captured amount'))
+    ->setRequired(TRUE)
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'string_textfield',
+        'weight' => 10,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('captured_amount', 'mollie_payment', 'mollie_payment', $captured_amount);
+
+  // Captured currency.
+  $captured_currency = BaseFieldDefinition::create('list_string')
+    ->setLabel(t('Captured currency'))
+    ->setRequired(TRUE)
+    ->setSetting(
+      'allowed_values',
+      ['EUR' => 'Euro', 'USD' => 'USD']
+    )
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'options_select',
+        'weight' => 5,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('captured_currency', 'mollie_payment', 'mollie_payment', $captured_currency);
+
+  // Charged back amount.
+  $charged_back_amount = BaseFieldDefinition::create('float')
+    ->setLabel(t('Charged back amount'))
+    ->setRequired(TRUE)
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'string_textfield',
+        'weight' => 10,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('charged_back_amount', 'mollie_payment', 'mollie_payment', $charged_back_amount);
+
+  // Charged back currency.
+  $charged_back_currency = BaseFieldDefinition::create('list_string')
+    ->setLabel(t('Charged back currency'))
+    ->setRequired(TRUE)
+    ->setSetting(
+      'allowed_values',
+      ['EUR' => 'Euro', 'USD' => 'USD']
+    )
+    ->setDisplayOptions(
+      'form',
+      [
+        'type' => 'options_select',
+        'weight' => 5,
+      ]
+    );
+  $entity_definition_update_manager->installFieldStorageDefinition('charged_back_currency', 'mollie_payment', 'mollie_payment', $charged_back_currency);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function mollie_uninstall($is_syncing) {
+  // Clean up the key/value store.
+  \Drupal::keyValue(Mollie::LAST_WEBHOOK_INVOCATION_COLLECTION_KEY)->deleteAll();
 }

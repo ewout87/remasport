@@ -1,12 +1,12 @@
 services:
   mollie_commerce.redirect_event_subscriber:
     class: '\Drupal\mollie_commerce\EventSubscriber\MollieRedirectEventSubscriber'
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@http_kernel']
     tags:
       - { name: 'event_subscriber' }
 
-  mollie_commerce.notification_event_subscriber:
-    class: '\Drupal\mollie_commerce\EventSubscriber\MollieNotificationEventSubscriber'
+  mollie_commerce.transaction_event_subscriber:
+    class: '\Drupal\mollie_commerce\EventSubscriber\MollieTransactionEventSubscriber'
     arguments: ['@http_kernel']
     tags:
       - { name: 'event_subscriber' }

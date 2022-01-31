@@ -34,6 +34,14 @@ class PaymentStorage extends TransactionStorageBase {
         'status' => $payment->status,
         'amount' => $payment->amount->value,
         'currency' => $payment->amount->currency,
+        'refunded_amount' => $payment->amountRefunded ? $payment->amountRefunded->value : 0,
+        'refunded_currency' => $payment->amountRefunded ? $payment->amountRefunded->currency : 'EUR',
+        'refundable_amount' => $payment->amountRemaining ? $payment->amountRemaining->value : 0,
+        'refundable_currency' => $payment->amountRemaining ? $payment->amountRemaining->currency : 'EUR',
+        'captured_amount' => $payment->amountCaptured ? $payment->amountCaptured->value : 0,
+        'captured_currency' => $payment->amountCaptured ? $payment->amountCaptured->currency : 'EUR',
+        'charged_back_amount' => $payment->amountChargedBack ? $payment->amountChargedBack->value : 0,
+        'charged_back_currency' => $payment->amountChargedBack ? $payment->amountChargedBack->value : 'EUR',
         'description' => $payment->description,
         'mode' => $payment->mode,
         'method' => $payment->method,
@@ -63,7 +71,7 @@ class PaymentStorage extends TransactionStorageBase {
         ['context' => $entity->getContext(), 'context_id' => $entity->getContextId()]
       )->setAbsolute()->toString();
       $webhookUrl = Url::fromRoute(
-        'mollie.webhook',
+        'mollie.webhook.status_change',
         ['context' => $entity->getContext(), 'context_id' => $entity->getContextId()]
       )->setAbsolute()->toString();
 

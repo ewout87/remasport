@@ -1,0 +1,16 @@
+name: Mollie for Drupal - Customers API
+description: Mollie Customers API integration for Mollie for Drupal.
+package: Mollie for Drupal
+
+type: module
+core_version_requirement: ^8.8 || ^9
+
+php: 7.0
+
+dependencies:
+  - mollie:mollie
+
+# Information added by Drupal.org packaging script on 2021-09-09
+version: '2.1.4'
+project: 'mollie'
+datestamp: 1631201999

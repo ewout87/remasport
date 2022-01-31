@@ -18,6 +18,11 @@ use Drupal\webform\Utility\WebformElementHelper;
  */
 class WebformActions extends Container {
 
+  /**
+   * Buttons.
+   *
+   * @var string[]
+   */
   public static $buttons = [
     'submit',
     'reset',
@@ -125,7 +130,7 @@ class WebformActions extends Container {
       // Apply custom label.
       $has_custom_label = !empty($element[$button_name]['#webform_actions_button_custom']);
       if (!empty($element['#' . $settings_name . '__label']) && !$has_custom_label) {
-        if ($element[$button_name]['#type'] === 'link') {
+        if (isset($element[$button_name]['#type']) && ($element[$button_name]['#type'] === 'link')) {
           $element[$button_name]['#title'] = $element['#' . $settings_name . '__label'];
         }
         else {
@@ -152,7 +157,7 @@ class WebformActions extends Container {
           else {
             $element[$button_name]['#attributes'][$attribute_name] = $attribute_value;
           }
-        };
+        }
       }
 
       if (Element::isVisibleElement($element[$button_name])) {

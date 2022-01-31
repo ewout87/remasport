@@ -59,6 +59,118 @@ class Payment extends TransactionBase {
         ]
       );
 
+    // Refunded amount.
+    $fields['refunded_amount'] = BaseFieldDefinition::create('float')
+      ->setLabel(t('Refunded amount'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'string_textfield',
+          'weight' => 20,
+        ]
+      );
+
+    // Refunded currency.
+    $fields['refunded_currency'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('Refunded currency'))
+      ->setRequired(TRUE)
+      ->setSetting(
+        'allowed_values',
+        ['EUR' => 'Euro', 'USD' => 'USD']
+      )
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'options_select',
+          'weight' => 15,
+        ]
+      );
+
+    // Refundable amount.
+    $fields['refundable_amount'] = BaseFieldDefinition::create('float')
+      ->setLabel(t('Refundable amount'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'string_textfield',
+          'weight' => 30,
+        ]
+      );
+
+    // Refundable currency.
+    $fields['refundable_currency'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('Refundable currency'))
+      ->setRequired(TRUE)
+      ->setSetting(
+        'allowed_values',
+        ['EUR' => 'Euro', 'USD' => 'USD']
+      )
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'options_select',
+          'weight' => 25,
+        ]
+      );
+
+    // Captured amount.
+    $fields['captured_amount'] = BaseFieldDefinition::create('float')
+      ->setLabel(t('Captured amount'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'string_textfield',
+          'weight' => 40,
+        ]
+      );
+
+    // Captured currency.
+    $fields['captured_currency'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('Captured currency'))
+      ->setRequired(TRUE)
+      ->setSetting(
+        'allowed_values',
+        ['EUR' => 'Euro', 'USD' => 'USD']
+      )
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'options_select',
+          'weight' => 35,
+        ]
+      );
+
+    // Charged back amount.
+    $fields['charged_back_amount'] = BaseFieldDefinition::create('float')
+      ->setLabel(t('Charged back amount'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'string_textfield',
+          'weight' => 50,
+        ]
+      );
+
+    // Charged back currency.
+    $fields['charged_back_currency'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('Charged back currency'))
+      ->setRequired(TRUE)
+      ->setSetting(
+        'allowed_values',
+        ['EUR' => 'Euro', 'USD' => 'USD']
+      )
+      ->setDisplayOptions(
+        'form',
+        [
+          'type' => 'options_select',
+          'weight' => 45,
+        ]
+      );
+
     // Payment method.
     $fields['method'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Method'))
@@ -66,7 +178,7 @@ class Payment extends TransactionBase {
         'form',
         [
           'type' => 'options_select',
-          'weight' => 15,
+          'weight' => 55,
         ]
       );
 
@@ -77,7 +189,7 @@ class Payment extends TransactionBase {
         'form',
         [
           'type' => 'options_select',
-          'weight' => 15,
+          'weight' => 60,
         ]
       );
 
@@ -96,6 +208,86 @@ class Payment extends TransactionBase {
    */
   public function getDescription(): string {
     return $this->get('description')->value;
+  }
+
+  /**
+   * Returns the refunded amount for the transaction.
+   *
+   * @return float
+   *   Refunded amount for the transaction.
+   */
+  public function getRefundedAmount(): float {
+    return $this->get('refunded_amount')->value;
+  }
+
+  /**
+   * Returns the currency of the refunded amount for the transaction.
+   *
+   * @return string
+   *   Currency of the refunded amount for the transaction.
+   */
+  public function getRefundedCurrency(): string {
+    return $this->get('refunded_currency')->value;
+  }
+
+  /**
+   * Returns the refundable amount for the transaction.
+   *
+   * @return float
+   *   Refundable amount for the transaction.
+   */
+  public function getRefundableAmount(): float {
+    return $this->get('refundable_amount')->value;
+  }
+
+  /**
+   * Returns the currency of the refundable amount for the transaction.
+   *
+   * @return string
+   *   Currency of the refundable amount for the transaction.
+   */
+  public function getRefundableCurrency(): string {
+    return $this->get('refundable_currency')->value;
+  }
+
+  /**
+   * Returns the captured amount for the transaction.
+   *
+   * @return float
+   *   Captured amount for the transaction.
+   */
+  public function getCapturedAmount(): float {
+    return $this->get('captured_amount')->value;
+  }
+
+  /**
+   * Returns the currency of the captured amount for the transaction.
+   *
+   * @return string
+   *   Currency of the captured amount for the transaction.
+   */
+  public function getCapturedCurrency(): string {
+    return $this->get('captured_currency')->value;
+  }
+
+  /**
+   * Returns the charged back amount for the transaction.
+   *
+   * @return float
+   *   Charged back amount for the transaction.
+   */
+  public function getChargedBackAmount(): float {
+    return $this->get('charged_back_amount')->value;
+  }
+
+  /**
+   * Returns the currency of the charged back amount for the transaction.
+   *
+   * @return string
+   *   Currency of the charged back amount for the transaction.
+   */
+  public function getChargedBackCurrency(): string {
+    return $this->get('charged_back_currency')->value;
   }
 
   /**
