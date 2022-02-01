@@ -96,7 +96,9 @@ class ComposerStaticInit02581c63a41cea26a46df605293de250
             'Symfony\\Component\\ClassLoader\\' => 30,
             'Symfony\\Cmf\\Component\\Routing\\' => 30,
             'Symfony\\Bridge\\PsrHttpMessage\\' => 30,
+            'Svg\\' => 4,
             'SelfUpdate\\' => 11,
+            'Sabberworm\\CSS\\' => 15,
         ),
         'R' => 
         array (
@@ -348,9 +350,17 @@ class ComposerStaticInit02581c63a41cea26a46df605293de250
         array (
             0 => __DIR__ . '/..' . '/symfony/psr-http-message-bridge',
         ),
+        'Svg\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phenx/php-svg-lib/src/Svg',
+        ),
         'SelfUpdate\\' => 
         array (
             0 => __DIR__ . '/..' . '/consolidation/self-update/src',
+        ),
+        'Sabberworm\\CSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
         ),
         'Robo\\' => 
         array (
@@ -618,17 +628,9 @@ class ComposerStaticInit02581c63a41cea26a46df605293de250
         ),
         'S' => 
         array (
-            'Svg\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/phenx/php-svg-lib/src',
-            ),
             'Stack' => 
             array (
                 0 => __DIR__ . '/..' . '/stack/builder/src',
-            ),
-            'Sabberworm\\CSS' => 
-            array (
-                0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/lib',
             ),
         ),
         'H' => 
@@ -681,8 +683,8 @@ class ComposerStaticInit02581c63a41cea26a46df605293de250
         'AssertionError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/AssertionError.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Cpdf' => __DIR__ . '/..' . '/dompdf/dompdf/lib/Cpdf.php',
         'DivisionByZeroError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/DivisionByZeroError.php',
+        'Dompdf\\Cpdf' => __DIR__ . '/..' . '/dompdf/dompdf/lib/Cpdf.php',
         'Drupal' => __DIR__ . '/../..' . '/core/lib/Drupal.php',
         'DrupalFinder\\DrupalFinder' => __DIR__ . '/..' . '/webflo/drupal-finder/src/DrupalFinder.php',
         'Drupal\\Component\\Utility\\Timer' => __DIR__ . '/../..' . '/core/lib/Drupal/Component/Utility/Timer.php',

@@ -2,8 +2,8 @@
 /**
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien M�nager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg\Surface;
@@ -159,7 +159,7 @@ class SurfacePDFLib implements SurfaceInterface
             $data = file_get_contents($image);
         }
 
-        $image = tempnam("", "svg");
+        $image = tempnam(sys_get_temp_dir(), "svg");
         file_put_contents($image, $data);
 
         $img = $this->canvas->load_image("auto", $image, "");
@@ -315,7 +315,7 @@ class SurfacePDFLib implements SurfaceInterface
         $this->style = $style;
         $canvas = $this->canvas;
 
-        if (($stroke = $style->stroke) && $stroke !== "none") {
+        if ($stroke = $style->stroke && is_array($style->stroke)) {
             $canvas->setcolor(
                 "stroke",
                 "rgb",
@@ -326,7 +326,7 @@ class SurfacePDFLib implements SurfaceInterface
             );
         }
 
-        if (($fill = $style->fill) && $fill !== "none") {
+        if ($fill = $style->fill && is_array($style->fill)) {
             $canvas->setcolor(
                 "fill",
                 "rgb",

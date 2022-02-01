@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce45c5007320e9d309fe567b97f60bdd",
+    "content-hash": "20c7010433661eb3f2384bc7c857a5a7",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -290,38 +290,36 @@
         },
         {
             "name": "composer/installers",
-            "version": "v1.12.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19"
+                "reference": "a241e78aaeb09781f5f5b92ac01ffd13ab43e5e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/d20a64ed3c94748397ff5973488761b22f6d3f19",
-                "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19",
+                "url": "https://api.github.com/repos/composer/installers/zipball/a241e78aaeb09781f5f5b92ac01ffd13ab43e5e8",
+                "reference": "a241e78aaeb09781f5f5b92ac01ffd13ab43e5e8",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "^1.0 || ^2.0"
-            },
-            "replace": {
-                "roundcube/plugin-installer": "*",
-                "shama/baton": "*"
+                "composer-plugin-api": "^1.0 || ^2.0",
+                "php": "^7.2 || ^8.0"
             },
             "require-dev": {
                 "composer/composer": "1.6.* || ^2.0",
                 "composer/semver": "^1 || ^3",
                 "phpstan/phpstan": "^0.12.55",
                 "phpstan/phpstan-phpunit": "^0.12.16",
-                "symfony/phpunit-bridge": "^4.2 || ^5",
-                "symfony/process": "^2.3"
+                "symfony/phpunit-bridge": "^5.3",
+                "symfony/process": "^5"
             },
+            "default-branch": true,
             "type": "composer-plugin",
             "extra": {
                 "class": "Composer\\Installers\\Plugin",
                 "branch-alias": {
-                    "dev-main": "1.x-dev"
+                    "dev-main": "2.x-dev"
                 }
             },
             "autoload": {
@@ -343,7 +341,6 @@
             "description": "A multi-framework Composer library installer",
             "homepage": "https://composer.github.io/installers/",
             "keywords": [
-                "Craft",
                 "Dolibarr",
                 "Eliasis",
                 "Hurad",
@@ -364,7 +361,6 @@
                 "Whmcs",
                 "WolfCMS",
                 "agl",
-                "aimeos",
                 "annotatecms",
                 "attogram",
                 "bitrix",
@@ -383,7 +379,6 @@
                 "grav",
                 "installer",
                 "itop",
-                "joomla",
                 "known",
                 "kohana",
                 "laravel",
@@ -411,9 +406,7 @@
                 "silverstripe",
                 "sydes",
                 "sylius",
-                "symfony",
                 "tastyigniter",
-                "typo3",
                 "wordpress",
                 "yawik",
                 "zend",
@@ -421,7 +414,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/installers/issues",
-                "source": "https://github.com/composer/installers/tree/v1.12.0"
+                "source": "https://github.com/composer/installers/tree/v2.0.1"
             },
             "funding": [
                 {
@@ -437,7 +430,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-13T08:19:44+00:00"
+            "time": "2021-09-13T08:21:20+00:00"
         },
         {
             "name": "composer/semver",
@@ -1815,29 +1808,33 @@
         },
         {
             "name": "dompdf/dompdf",
-            "version": "v0.8.0",
+            "version": "v0.8.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dompdf/dompdf.git",
-                "reference": "0f418c6b58fdeafc2a0e80eb1fa5e644e185089c"
+                "reference": "8f49b3b01693f51037dd50da81090beba1b5c005"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/0f418c6b58fdeafc2a0e80eb1fa5e644e185089c",
-                "reference": "0f418c6b58fdeafc2a0e80eb1fa5e644e185089c",
+                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/8f49b3b01693f51037dd50da81090beba1b5c005",
+                "reference": "8f49b3b01693f51037dd50da81090beba1b5c005",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
-                "ext-gd": "*",
                 "ext-mbstring": "*",
-                "phenx/php-font-lib": "0.5.*",
-                "phenx/php-svg-lib": "0.2.*",
-                "php": ">=5.3.0"
+                "phenx/php-font-lib": "^0.5.1",
+                "phenx/php-svg-lib": "^0.3.3",
+                "php": "^7.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "4.8.*",
-                "squizlabs/php_codesniffer": "2.*"
+                "phpunit/phpunit": "^7.5",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "suggest": {
+                "ext-gd": "Needed to process images",
+                "ext-gmagick": "Improves image processing performance",
+                "ext-imagick": "Improves image processing performance"
             },
             "type": "library",
             "extra": {
@@ -1877,7 +1874,7 @@
                 "issues": "https://github.com/dompdf/dompdf/issues",
                 "source": "https://github.com/dompdf/dompdf/tree/master"
             },
-            "time": "2017-02-16T02:40:40+00:00"
+            "time": "2020-01-20T17:00:46+00:00"
         },
         {
             "name": "drupal/antibot",
@@ -1925,56 +1922,6 @@
             "homepage": "https://www.drupal.org/project/antibot",
             "support": {
                 "source": "https://git.drupalcode.org/project/antibot"
-            }
-        },
-        {
-            "name": "drupal/bootstrap_barrio",
-            "version": "4.33.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/bootstrap_barrio.git",
-                "reference": "8.x-4.33"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/bootstrap_barrio-8.x-4.33.zip",
-                "reference": "8.x-4.33",
-                "shasum": "a8002d713fc1f14e7b98846c65fc5c56239c094c"
-            },
-            "require": {
-                "drupal/core": "^8 || ^9",
-                "twbs/bootstrap": "^4.4.1"
-            },
-            "type": "drupal-theme",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-4.33",
-                    "datestamp": "1603660944",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Alberto Siles",
-                    "homepage": "https://www.drupal.org/user/2824325",
-                    "email": "alberto@siles.pe"
-                },
-                {
-                    "name": "hatuhay",
-                    "homepage": "https://www.drupal.org/user/827704"
-                }
-            ],
-            "description": "Bootstrap 4 base theme.",
-            "homepage": "https://www.drupal.org/project/bootstrap_barrio",
-            "support": {
-                "source": "https://git.drupalcode.org/project/bootstrap_barrio"
             }
         },
         {
@@ -2494,50 +2441,6 @@
             "time": "2020-08-02T22:04:49+00:00"
         },
         {
-            "name": "drupal/creative_responsive_theme",
-            "version": "1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/creative-responsive-theme.git",
-                "reference": "8.x-1.2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/creative_responsive_theme-8.x-1.2.zip",
-                "reference": "8.x-1.2",
-                "shasum": "79d205b68611f450494525eec6a9ecc667b7600c"
-            },
-            "require": {
-                "drupal/core": "~8.0"
-            },
-            "type": "drupal-theme",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-1.2",
-                    "datestamp": "1511196785",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "zymphonies-team",
-                    "homepage": "https://www.drupal.org/user/2280310"
-                }
-            ],
-            "description": "Designed & Developed by <a href=http://www.zymphonies.com>Zymphonies</a><br/>Contact us for any kind of Drupal services <a href=mailto:info@zymphonies.com>info@zymphonies.com</a>",
-            "homepage": "https://www.drupal.org/project/creative_responsive_theme",
-            "support": {
-                "source": "https://git.drupalcode.org/project/creative_responsive_theme"
-            }
-        },
-        {
             "name": "drupal/ctools",
             "version": "3.7.0",
             "source": {
@@ -2761,21 +2664,22 @@
         },
         {
             "name": "drupal/entity_print",
-            "version": "2.2.0",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/entity_print.git",
-                "reference": "8.x-2.2"
+                "reference": "8.x-2.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/entity_print-8.x-2.2.zip",
-                "reference": "8.x-2.2",
-                "shasum": "5bd7671e2563a68925ab7f6ecd8dc8e8e396a0ea"
+                "url": "https://ftp.drupal.org/files/projects/entity_print-8.x-2.4.zip",
+                "reference": "8.x-2.4",
+                "shasum": "838fd304a408f8f7620eb26af52046ac9e88eead"
             },
             "require": {
-                "dompdf/dompdf": "~0.8.0",
-                "drupal/core": "^8 || ^9"
+                "dompdf/dompdf": "~0.8.4 || ^1.0",
+                "drupal/core": "^8 || ^9",
+                "php": "^7.1 || ^8.0"
             },
             "suggest": {
                 "mikehaertl/phpwkhtmltopdf": "PhpWkhtmlToPdf provides the PHP library to use Wkhtmltopdf"
@@ -2783,8 +2687,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-2.2",
-                    "datestamp": "1592533892",
+                    "version": "8.x-2.4",
+                    "datestamp": "1632300401",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3096,66 +3000,6 @@
             "homepage": "https://www.drupal.org/project/mailsystem",
             "support": {
                 "source": "https://git.drupalcode.org/project/mailsystem"
-            }
-        },
-        {
-            "name": "drupal/mimemail",
-            "version": "1.0.0-alpha4",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/mimemail.git",
-                "reference": "8.x-1.0-alpha4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/mimemail-8.x-1.0-alpha4.zip",
-                "reference": "8.x-1.0-alpha4",
-                "shasum": "7e65bbcb616de898ecc7c01d280b8d69101f2dcc"
-            },
-            "require": {
-                "drupal/core": "^8.8.2 || ^9",
-                "drupal/mailsystem": "*"
-            },
-            "require-dev": {
-                "drupal/rules": "*"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-1.0-alpha4",
-                    "datestamp": "1638738304",
-                    "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Alpha releases are not covered by Drupal security advisories."
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "Allie Micka",
-                    "homepage": "https://www.drupal.org/user/15091"
-                },
-                {
-                    "name": "TR",
-                    "homepage": "https://www.drupal.org/user/202830"
-                },
-                {
-                    "name": "jerdavis",
-                    "homepage": "https://www.drupal.org/user/228997"
-                },
-                {
-                    "name": "sgabe",
-                    "homepage": "https://www.drupal.org/user/232117"
-                }
-            ],
-            "description": "Sends MIME-encoded emails with embedded images and attachments.",
-            "homepage": "https://www.drupal.org/project/mimemail",
-            "support": {
-                "source": "https://git.drupalcode.org/project/mimemail"
             }
         },
         {
@@ -5910,25 +5754,29 @@
         },
         {
             "name": "phenx/php-svg-lib",
-            "version": "v0.2",
+            "version": "0.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PhenX/php-svg-lib.git",
-                "reference": "de291bec8449b89acfe85691b5c71434797959dc"
+                "reference": "f627771eb854aa7f45f80add0f23c6c4d67ea0f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PhenX/php-svg-lib/zipball/de291bec8449b89acfe85691b5c71434797959dc",
-                "reference": "de291bec8449b89acfe85691b5c71434797959dc",
+                "url": "https://api.github.com/repos/PhenX/php-svg-lib/zipball/f627771eb854aa7f45f80add0f23c6c4d67ea0f2",
+                "reference": "f627771eb854aa7f45f80add0f23c6c4d67ea0f2",
                 "shasum": ""
             },
             "require": {
-                "sabberworm/php-css-parser": "6.0.*"
+                "php": "^7.4 || ^8.0",
+                "sabberworm/php-css-parser": "^8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Svg\\": "src/"
+                "psr-4": {
+                    "Svg\\": "src/Svg"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -5945,9 +5793,9 @@
             "homepage": "https://github.com/PhenX/php-svg-lib",
             "support": {
                 "issues": "https://github.com/PhenX/php-svg-lib/issues",
-                "source": "https://github.com/PhenX/php-svg-lib/tree/master"
+                "source": "https://github.com/PhenX/php-svg-lib/tree/0.3.4"
             },
-            "time": "2016-12-13T20:25:45+00:00"
+            "time": "2021-10-18T02:13:32+00:00"
         },
         {
             "name": "phpoffice/phpspreadsheet",
@@ -6488,25 +6336,33 @@
         },
         {
             "name": "sabberworm/php-css-parser",
-            "version": "6.0.2",
+            "version": "8.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sabberworm/PHP-CSS-Parser.git",
-                "reference": "7df1f66498655db5a1cf6003f55309d394487d5f"
+                "reference": "e41d2140031d533348b2192a83f02d8dd8a71d30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sabberworm/PHP-CSS-Parser/zipball/7df1f66498655db5a1cf6003f55309d394487d5f",
-                "reference": "7df1f66498655db5a1cf6003f55309d394487d5f",
+                "url": "https://api.github.com/repos/sabberworm/PHP-CSS-Parser/zipball/e41d2140031d533348b2192a83f02d8dd8a71d30",
+                "reference": "e41d2140031d533348b2192a83f02d8dd8a71d30",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.2"
+                "ext-iconv": "*",
+                "php": ">=5.6.20"
+            },
+            "require-dev": {
+                "codacy/coverage": "^1.4",
+                "phpunit/phpunit": "^4.8.36"
+            },
+            "suggest": {
+                "ext-mbstring": "for parsing UTF-8 CSS"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Sabberworm\\CSS": "lib/"
+                "psr-4": {
+                    "Sabberworm\\CSS\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -6519,7 +6375,7 @@
                 }
             ],
             "description": "Parser for CSS Files written in PHP",
-            "homepage": "http://www.sabberworm.com/blog/2010/6/10/php-css-parser",
+            "homepage": "https://www.sabberworm.com/blog/2010/6/10/php-css-parser",
             "keywords": [
                 "css",
                 "parser",
@@ -6527,9 +6383,9 @@
             ],
             "support": {
                 "issues": "https://github.com/sabberworm/PHP-CSS-Parser/issues",
-                "source": "https://github.com/sabberworm/PHP-CSS-Parser/tree/6.0.2"
+                "source": "https://github.com/sabberworm/PHP-CSS-Parser/tree/8.4.0"
             },
-            "time": "2020-06-01T09:07:27+00:00"
+            "time": "2021-12-11T13:40:54+00:00"
         },
         {
             "name": "stack/builder",
@@ -8973,61 +8829,6 @@
             "time": "2021-12-08T09:12:39+00:00"
         },
         {
-            "name": "twbs/bootstrap",
-            "version": "v4.6.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/twbs/bootstrap.git",
-                "reference": "043a03c95a2ad6738f85b65e53b9dbdfb03b8d10"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/043a03c95a2ad6738f85b65e53b9dbdfb03b8d10",
-                "reference": "043a03c95a2ad6738f85b65e53b9dbdfb03b8d10",
-                "shasum": ""
-            },
-            "replace": {
-                "twitter/bootstrap": "self.version"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.3.x-dev"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mark Otto",
-                    "email": "markdotto@gmail.com"
-                },
-                {
-                    "name": "Jacob Thornton",
-                    "email": "jacobthornton@gmail.com"
-                }
-            ],
-            "description": "The most popular front-end framework for developing responsive, mobile first projects on the web.",
-            "homepage": "https://getbootstrap.com/",
-            "keywords": [
-                "JS",
-                "css",
-                "framework",
-                "front-end",
-                "mobile-first",
-                "responsive",
-                "sass",
-                "web"
-            ],
-            "support": {
-                "issues": "https://github.com/twbs/bootstrap/issues",
-                "source": "https://github.com/twbs/bootstrap/tree/v4.6.1"
-            },
-            "time": "2021-10-28T14:45:21+00:00"
-        },
-        {
             "name": "twig/twig",
             "version": "v1.42.5",
             "source": {
@@ -9308,7 +9109,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/maillog": 20,
-        "drupal/mimemail": 15
+        "drupal/webform_views": 15
     },
     "prefer-stable": true,
     "prefer-lowest": false,

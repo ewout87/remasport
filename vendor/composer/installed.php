@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '4471c01a6d7733ffdaa76e2e5703375103bda740',
+        'reference' => 'e7a89d7444c945793d12c81ebf548115398a992d',
         'name' => 'drupal/legacy-project',
         'dev' => true,
     ),
@@ -62,12 +62,14 @@
             'dev_requirement' => false,
         ),
         'composer/installers' => array(
-            'pretty_version' => 'v1.12.0',
-            'version' => '1.12.0.0',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'composer-plugin',
             'install_path' => __DIR__ . '/./installers',
-            'aliases' => array(),
-            'reference' => 'd20a64ed3c94748397ff5973488761b22f6d3f19',
+            'aliases' => array(
+                0 => '2.x-dev',
+            ),
+            'reference' => 'a241e78aaeb09781f5f5b92ac01ffd13ab43e5e8',
             'dev_requirement' => false,
         ),
         'composer/semver' => array(
@@ -239,12 +241,12 @@
             'dev_requirement' => false,
         ),
         'dompdf/dompdf' => array(
-            'pretty_version' => 'v0.8.0',
-            'version' => '0.8.0.0',
+            'pretty_version' => 'v0.8.4',
+            'version' => '0.8.4.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../dompdf/dompdf',
             'aliases' => array(),
-            'reference' => '0f418c6b58fdeafc2a0e80eb1fa5e644e185089c',
+            'reference' => '8f49b3b01693f51037dd50da81090beba1b5c005',
             'dev_requirement' => false,
         ),
         'drupal/action' => array(
@@ -321,15 +323,6 @@
             'replaced' => array(
                 0 => '8.9.20',
             ),
-        ),
-        'drupal/bootstrap_barrio' => array(
-            'pretty_version' => '4.33.0',
-            'version' => '4.33.0.0',
-            'type' => 'drupal-theme',
-            'install_path' => __DIR__ . '/../../themes/contrib/bootstrap_barrio',
-            'aliases' => array(),
-            'reference' => '8.x-4.33',
-            'dev_requirement' => false,
         ),
         'drupal/breakpoint' => array(
             'dev_requirement' => false,
@@ -601,15 +594,6 @@
                 0 => '8.9.20',
             ),
         ),
-        'drupal/creative_responsive_theme' => array(
-            'pretty_version' => '1.2.0',
-            'version' => '1.2.0.0',
-            'type' => 'drupal-theme',
-            'install_path' => __DIR__ . '/../../themes/contrib/creative_responsive_theme',
-            'aliases' => array(),
-            'reference' => '8.x-1.2',
-            'dev_requirement' => false,
-        ),
         'drupal/ctools' => array(
             'pretty_version' => '3.7.0',
             'version' => '3.7.0.0',
@@ -668,12 +652,12 @@
             ),
         ),
         'drupal/entity_print' => array(
-            'pretty_version' => '2.2.0',
-            'version' => '2.2.0.0',
+            'pretty_version' => '2.4.0',
+            'version' => '2.4.0.0',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../modules/contrib/entity_print',
             'aliases' => array(),
-            'reference' => '8.x-2.2',
+            'reference' => '8.x-2.4',
             'dev_requirement' => false,
         ),
         'drupal/entity_reference' => array(
@@ -802,7 +786,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '4471c01a6d7733ffdaa76e2e5703375103bda740',
+            'reference' => 'e7a89d7444c945793d12c81ebf548115398a992d',
             'dev_requirement' => false,
         ),
         'drupal/link' => array(
@@ -884,15 +868,6 @@
             'replaced' => array(
                 0 => '8.9.20',
             ),
-        ),
-        'drupal/mimemail' => array(
-            'pretty_version' => '1.0.0-alpha4',
-            'version' => '1.0.0.0-alpha4',
-            'type' => 'drupal-module',
-            'install_path' => __DIR__ . '/../../modules/contrib/mimemail',
-            'aliases' => array(),
-            'reference' => '8.x-1.0-alpha4',
-            'dev_requirement' => false,
         ),
         'drupal/minimal' => array(
             'dev_requirement' => false,
@@ -1486,12 +1461,12 @@
             'dev_requirement' => false,
         ),
         'phenx/php-svg-lib' => array(
-            'pretty_version' => 'v0.2',
-            'version' => '0.2.0.0',
+            'pretty_version' => '0.3.4',
+            'version' => '0.3.4.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phenx/php-svg-lib',
             'aliases' => array(),
-            'reference' => 'de291bec8449b89acfe85691b5c71434797959dc',
+            'reference' => 'f627771eb854aa7f45f80add0f23c6c4d67ea0f2',
             'dev_requirement' => false,
         ),
         'phpoffice/phpspreadsheet' => array(
@@ -1594,12 +1569,6 @@
             'reference' => '120b605dfeb996808c31b6477290a714d356e822',
             'dev_requirement' => false,
         ),
-        'roundcube/plugin-installer' => array(
-            'dev_requirement' => false,
-            'replaced' => array(
-                0 => '*',
-            ),
-        ),
         'rsky/pear-core-min' => array(
             'dev_requirement' => false,
             'replaced' => array(
@@ -1607,19 +1576,13 @@
             ),
         ),
         'sabberworm/php-css-parser' => array(
-            'pretty_version' => '6.0.2',
-            'version' => '6.0.2.0',
+            'pretty_version' => '8.4.0',
+            'version' => '8.4.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../sabberworm/php-css-parser',
             'aliases' => array(),
-            'reference' => '7df1f66498655db5a1cf6003f55309d394487d5f',
+            'reference' => 'e41d2140031d533348b2192a83f02d8dd8a71d30',
             'dev_requirement' => false,
-        ),
-        'shama/baton' => array(
-            'dev_requirement' => false,
-            'replaced' => array(
-                0 => '*',
-            ),
         ),
         'stack/builder' => array(
             'pretty_version' => 'v1.0.5',
@@ -1909,15 +1872,6 @@
             'reference' => 'da444caae6aca7a19c0c140f68c6182e337d5b1c',
             'dev_requirement' => false,
         ),
-        'twbs/bootstrap' => array(
-            'pretty_version' => 'v4.6.1',
-            'version' => '4.6.1.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../twbs/bootstrap',
-            'aliases' => array(),
-            'reference' => '043a03c95a2ad6738f85b65e53b9dbdfb03b8d10',
-            'dev_requirement' => false,
-        ),
         'twig/twig' => array(
             'pretty_version' => 'v1.42.5',
             'version' => '1.42.5.0',
@@ -1926,12 +1880,6 @@
             'aliases' => array(),
             'reference' => '87b2ea9d8f6fd014d0621ca089bb1b3769ea3f8e',
             'dev_requirement' => false,
-        ),
-        'twitter/bootstrap' => array(
-            'dev_requirement' => false,
-            'replaced' => array(
-                0 => 'v4.6.1',
-            ),
         ),
         'typo3/phar-stream-wrapper' => array(
             'pretty_version' => 'v3.1.4',
