@@ -35,6 +35,7 @@
         "drupal/mollie": "^2.0",
         "drupal/pathauto": "^1.8",
         "drupal/payment": "^2.1",
+        "drupal/swiftmailer": "2.2",
         "drupal/webform": "^6.1",
         "drupal/webform_views": "^5.0",
         "drupal/webform_xlsx_export": "^1.0",
