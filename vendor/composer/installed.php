@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '32f5567c05d113e78fd42f01d75671a15a7ea0b2',
+        'reference' => '79291e1541eac03d52c3a79f2a6bf3b4f98f261e',
         'name' => 'drupal/legacy-project',
         'dev' => true,
     ),
@@ -744,7 +744,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '32f5567c05d113e78fd42f01d75671a15a7ea0b2',
+            'reference' => '79291e1541eac03d52c3a79f2a6bf3b4f98f261e',
             'dev_requirement' => false,
         ),
         'drupal/link' => array(
@@ -1322,6 +1322,24 @@
             'reference' => 'b99ad3662b4141efa9ee8eb83a04c2d3c100f83c',
             'dev_requirement' => false,
         ),
+        'mpdf/mpdf' => array(
+            'pretty_version' => 'v8.0.17',
+            'version' => '8.0.17.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../mpdf/mpdf',
+            'aliases' => array(),
+            'reference' => '5f64118317c8145c0abc606b310aa0a66808398a',
+            'dev_requirement' => false,
+        ),
+        'myclabs/deep-copy' => array(
+            'pretty_version' => '1.11.0',
+            'version' => '1.11.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../myclabs/deep-copy',
+            'aliases' => array(),
+            'reference' => '14daed4296fae74d9e3201d2c4925d1acb7aa614',
+            'dev_requirement' => false,
+        ),
         'myclabs/php-enum' => array(
             'pretty_version' => '1.8.3',
             'version' => '1.8.3.0',
@@ -1345,6 +1363,15 @@
             'replaced' => array(
                 0 => '~2.0',
             ),
+        ),
+        'paragonie/random_compat' => array(
+            'pretty_version' => 'v9.99.100',
+            'version' => '9.99.100.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../paragonie/random_compat',
+            'aliases' => array(),
+            'reference' => '996434e5492cb4c3edcb9168db6fbb1359ef965a',
+            'dev_requirement' => false,
         ),
         'pear/archive_tar' => array(
             'pretty_version' => '1.4.14',
@@ -1430,8 +1457,8 @@
         'psr/container-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0',
-                1 => '^1.0',
+                0 => '^1.0',
+                1 => '1.0',
             ),
         ),
         'psr/event-dispatcher-implementation' => array(
@@ -1534,6 +1561,15 @@
             'install_path' => __DIR__ . '/../sabberworm/php-css-parser',
             'aliases' => array(),
             'reference' => 'e41d2140031d533348b2192a83f02d8dd8a71d30',
+            'dev_requirement' => false,
+        ),
+        'setasign/fpdi' => array(
+            'pretty_version' => 'v2.3.6',
+            'version' => '2.3.6.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../setasign/fpdi',
+            'aliases' => array(),
+            'reference' => '6231e315f73e4f62d72b73f3d6d78ff0eed93c31',
             'dev_requirement' => false,
         ),
         'stack/builder' => array(

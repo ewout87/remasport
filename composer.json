@@ -39,7 +39,8 @@
         "drupal/wkhtmltopdf": "^1.3",
         "drush/drush": "^10.0",
         "mikehaertl/phpwkhtmltopdf": "~2.5",
-        "mollie/mollie-api-php": "^2.29"
+        "mollie/mollie-api-php": "^2.29",
+        "mpdf/mpdf": "^8.0"
     },
     "conflict": {
         "drupal/drupal": "*"
