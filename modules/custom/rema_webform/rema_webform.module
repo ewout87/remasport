@@ -19,6 +19,15 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
     $form['elements']['extra']['extra_total']['#default_value'] = $form_state->getValue('total_amount');
   }
 
+  if(!empty($form_state->getValue('bundle_select'))){
+    $bundle = Node::load($form_state->getValue('bundle_select'));
+
+    if($bundle instanceof NodeInterface) {
+      $bundle_price = $bundle->get('field_bundle_price')->getValue();
+      $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
+    }
+  }
+
   $form['actions']['wizard_prev']['#access'] = FALSE;
 
   $form['#validate'][] = 'rema_webform_form_validate';
@@ -29,23 +38,6 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
  */
 function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInterface $form_state){
   $node = Drupal::routeMatch()->getParameter('node');
-
-  /*
-  // In webform, query the corresponding node
-  if($node === NULL){
-    $storage = \Drupal::entityTypeManager()->getStorage('node');
-    $query = $storage->getQuery()
-      ->condition('type', 'webform')
-      ->condition('webform', Drupal::routeMatch()->getRawParameter('webform'))
-      ->condition('status', Node::PUBLISHED);
-    $ids = $query->execute();
-
-    if (!empty($ids)) {
-      $node = Node::load(array_values($ids)[0]);
-    }
-  }
-  */
-
   // Initiate total
   $total= 0;
 
@@ -67,14 +59,14 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
       }
 
       foreach ($products as $product) {
-        empty($bundle_price) ? $price = (float)trim($form_state->getValue('bundle_'. $bundle->id() .'_product_' .  $product['target_id'] . '_size')) : $price = 0.00;
+        empty($bundle_price) ? $price = (float)trim($form_state->getValue('bundle_product_' .  $product['target_id'] . '_size')) : $price = 0.00;
 
-        if($form_state->getValue('bundle_'. $bundle->id() .'_product_' . $product['target_id'] . '_print')){
+        if($form_state->getValue('bundle_product_' . $product['target_id'] . '_print')){
           $price += 4.00;
           $form_state->setValue('print_status', true);
         }
 
-        $amount = (float)$form_state->getValue('bundle_'. $bundle->id() .'_product_' . $product['target_id'] . '_amount');
+        $amount = (float)$form_state->getValue('bundle_product_' . $product['target_id'] . '_amount');
   
         $total += $amount * $price;
       }
@@ -111,7 +103,7 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
 /**
  * Add email handler.
  */
-function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message, $excluded_elements, $payment) {
+function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $message, $payment, $products) {
   /** @var \Drupal\webform\WebformHandlerInterface $webform_handler_manager */
   $webform_handler_manager = \Drupal::service('plugin.manager.webform.handler');
 
@@ -130,6 +122,42 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
     ];
   }
 
+  $rows = [];
+
+  foreach ($products as $product) {
+    $product_id = $product['target_id'];
+
+    $product = Node::load($product_id);
+
+    if ($product instanceof NodeInterface) {
+      $product_title = $product->getTitle();
+      $product_id = $product->id();
+      $product_print = $product->get('field_print')->getValue();
+      $product_key = '_product_'.$product_id;
+      $rows[] = 
+      $style = 'style="padding-top: 5px; padding-right: 7px; padding-bottom: 5px; padding-left: 7px;"';
+      '{% if webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) or webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) %}<tr>
+      <td>'.$product_title.'</td>
+      <td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) }}</td>
+      <td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_amount]", webform_submission, [], options) }}</td>'
+      . $product_print ? '<td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_print]", webform_submission, [], options) }}</td>' : 'Nvt'
+      . '<td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) }}</td>
+      <td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_amount]", webform_submission, [], options) }}</td>'
+      . $product_print ? '<td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_print]", webform_submission, [], options) }}</td>' : 'Nvt'
+      . '</tr>{% endif %}';
+    }
+  }
+
+  $product_rows = implode($rows);
+  $table= 
+  '<h2>{{ webform_token("[webform_submission:values:name]", webform_submission, [], options) }} 
+  {{ webform_token("[webform_submission:values:first_name]", webform_submission, [], options) }}</h2>
+  <p>{{ webform_token("[webform_submission:values:mobile]", webform_submission, [], options) }}<br>
+  {{ webform_token("[webform_submission:values:e_mail]", webform_submission, [], options) }}</p><br>
+  <table><tr><th>Product</th><th>Maat</th><th>Aantal</th><th>Bedrukking</th><th>Extra</th><th>Aantal</th></tr>' 
+    . $product_rows . 
+  '</table><p><b>Totaal:</b> € {{ webform_token("[webform_submission:values:total_amount]", webform_submission, [], options) }}</p>';
+
   // Configuration copied from exported webform.webform.contact.yml
   $webform_handler->setConfiguration([
     'id' => $id,
@@ -145,13 +173,11 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
       'cc_options' => array(),
       'bcc_mail' => '',
       'bcc_options' => array(),
-      'from_mail' => 'default',
       'from_options' => array(),
-      'from_name' => 'default',
       'subject' => $subject,
-      'body' => $message.'[webform_submission:values]',
+      'body' => $message.$table,
       'exclude_empty_checkbox' => TRUE,
-      'html' => TRUE,
+      'twig' => TRUE,
       'attachments' => FALSE,
       'debug' => 0,
       'reply_to' => '',
@@ -254,14 +280,13 @@ function rema_webform_node_presave(NodeInterface $node)
       $payment_handler = add_payment_handler($webform, FALSE);
     }
 
-    // Add client email handler
-    $excluded_elements = get_excluded_elements($webform);
+    $products = $node->get('field_bundle_products')->getValue();
 
     if($payment){
-      $email_handler = add_email_handler($webform, 'email', 'default', 'Bestelling [webform:title] [webform_submission:sid]', null, $excluded_elements, TRUE);
+      $email_handler = add_email_handler($webform, 'email', '[site:mail]', 'Bestelling [webform:title] [webform_submission:sid]', null, TRUE, $products);
     }
     else {
-      $email_handler = add_email_handler($webform, 'email', 'default', 'Bestelling [webform:title] [webform_submission:sid]', null, $excluded_elements, FALSE);
+      $email_handler = add_email_handler($webform, 'email', '[site:mail]', 'Bestelling [webform:title] [webform_submission:sid]', null, FALSE, $products);
     }
     
     // Add client email handler
@@ -269,10 +294,10 @@ function rema_webform_node_presave(NodeInterface $node)
     $subject = $node->get('field_email_subject')->getValue()[0]['value'];
 
     if($payment){
-      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject, $message[0]['value'], $excluded_elements, TRUE);
+      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject, $message[0]['value'], TRUE, $products);
     }
     else {
-      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject, $message[0]['value'], $excluded_elements, FALSE);
+      $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject, $message[0]['value'], FALSE, $products);
     }
 
     $node->set('webform', $webform->id());
@@ -313,15 +338,15 @@ function create_webform($node){
 
   // Build a render array of elements.
   $elements= [];
+  $products = $node->get('field_bundle_products')->getValue();
 
   if (!empty($bundles)) {
-    $elements = create_bundles($bundles, $node);
+    $elements = create_selection_page($bundles, $node);
+    $elements = create_bundle_page($elements, $products, $node);
   }
-  
-  $extra_products = $node->get('field_bundle_products')->getValue();
 
-  if (!empty($extra_products)) {
-    $elements = create_free_choice($elements, $extra_products, $node);
+  if (!empty($products)) {
+    $elements = create_free_choice($elements, $products, $node);
   }
 
   // Add shipment page
@@ -416,19 +441,19 @@ function create_webform($node){
 
   $elements['personal_data']['name_parent'] = [
     '#type' => 'textfield',
-    '#title' => 'Naam ouder/voogd',
+    '#title' => 'Naam ouder',
     '#required' => true
   ];
 
   $elements['personal_data']['mobile'] = [
     '#type' => 'tel',
-    '#title' => 'GSM-nummer ouder/voogd',
+    '#title' => 'GSM-nummer',
     '#required' => true
   ];
 
   $elements['personal_data']['e_mail'] = [
     '#type' => 'textfield',
-    '#title' => 'E-mailadres ouder/voogd',
+    '#title' => 'E-mailadres',
     '#required' => true
   ];
 
@@ -467,23 +492,6 @@ function create_webform($node){
     ];
   }
 
-    /*
-  // Confirmation page
-  $elements['confirmation'] = [
-    '#type' => 'webform_wizard_page',
-    '#title' => 'Bevestiging',
-    'confirmation_products' => [
-      '#type' => 'webform_computed_token',
-      '#title' => 'bevestiging producten',
-      '#title_display' => 'invisible',
-      '#display_on' => 'form',
-      '#mode' => 'html',
-      '#template' => '[webform_submission:values]',
-      '#ajax' => true
-    ],
-  ];
-  */
-
   $elements['total_amount'] = [
     '#type' => 'number',
     '#title' => 'Totaalbedrag',
@@ -505,106 +513,89 @@ function create_webform($node){
   return $elements;
 }
 
+/**
+ * @param $bundles
+ */
+function create_selection_page($bundles, $node){
+  // Bundle selection page
+  if(count($bundles) > 1) {
+    $elements['selection'] = [
+      '#type' => 'webform_wizard_page',
+      '#title' => 'Selectie',
+    ];
+
+    // Add description
+    if($node->get('body')->getValue()){
+      $elements['selection']['selection_description'] = [
+        '#type' => 'processed_text',
+        '#text' => $node->get('body')->getValue()[0]['value'],
+        '#format' => 'full_html'
+      ];
+    }
+
+    $options = [];
+
+    foreach($bundles as $bundle){
+      $bundle_id = $bundle['target_id'];
+      $bundle = Node::load($bundle_id);
+
+      if ($bundle instanceof NodeInterface) {
+        $options[$bundle_id] = $bundle->getTitle();
+      }
+    }
+
+    // Add select
+    $elements['selection']['bundle_select'] = [
+      '#type' => 'radios',
+      '#title' => 'Pakketten',
+      '#options' => $options,
+      '#required' => true,
+      '#states_clear' => false,
+      '#options__properties' => ''
+    ];
+  }
+  else {
+    $elements['selection'] = [
+      '#type' => 'value',
+      '#title' => 'Selectie',
+      '#value' => $bundles[0]['target_id']
+    ];
+  }
+
+  return $elements;
+}
+
 
 /**
  * @param $bundles
  */
-function create_bundles($bundles, $node){
-    // Bundle selection page
-    if(count($bundles) > 1) {
-      $elements['selection'] = [
-        '#type' => 'webform_wizard_page',
-        '#title' => 'Selectie',
-      ];
+function create_bundle_page($elements, $products, $node){
+  // Bundle page
+  $elements['bundle'] = [
+    '#type' => 'webform_wizard_page',
+    '#title' => 'Pakket',
+  ];
 
-      // Add description
-      if($node->get('body')->getValue()){
-        $elements['selection']['selection_description'] = [
-          '#type' => 'processed_text',
-          '#text' => $node->get('body')->getValue()[0]['value'],
-          '#format' => 'full_html'
-        ];
-      }
+  // Add description
+  if($node->get('field_bundle_description')->getValue()){
+    $elements['bundle']['bundle_description'] = [
+      '#type' => 'processed_text',
+      '#text' => $node->get('field_bundle_description')->getValue()[0]['value'],
+      '#format' => 'full_html'
+    ];
+  }
 
-      // Add select
-      $elements['selection']['bundle_select'] = [
-        '#type' => 'radios',
-        '#title' => 'Pakketten',
-        '#options' => [],
-        '#required' => true,
-        '#states_clear' => false,
-        '#options__properties' => ''
-      ];
-    }
-    else {
-      $elements['selection'] = [
-        '#type' => 'value',
-        '#title' => 'Selectie',
-        '#value' => $bundles[0]['target_id']
-      ];
-    }
+  if (!empty($products)) {
+    $elements = create_products($products, 'bundle', $elements, $node);
+  }
 
-    foreach ($bundles as $key => $value) {
-      $bundle_id = $value['target_id'];
+  $elements['bundle']['bundle_total'] = [
+    '#type' => 'total_sum',
+    '#title' => 'Totaal',
+    '#default_value' => 0
+  ]; 
 
-      $bundle = Node::load($bundle_id);
-
-      if ($bundle instanceof NodeInterface) {
-        $bundle_title = $bundle->getTitle();
-        $bundle_id = $bundle->id();
-        $bundle_key = 'bundle_' . $bundle_id;
-
-        if(count($bundles) > 1){
-          $elements['selection']['bundle_select']['#options'][$bundle_id] = $bundle_title;
-        }
-
-        // Bundle page
-        $elements[$bundle_key] = [
-          '#type' => 'webform_wizard_page',
-          '#title' => $bundle_title,
-        ];
-
-        if(count($bundles) > 1) {
-          $elements[$bundle_key]['#states'] = [
-            'visible' => [
-              ':input[name="bundle_select"]' => [
-                'value' => $bundle_id
-              ]
-            ]
-          ];
-        }
-
-        // Add description
-        if($node->get('field_bundle_description')->getValue()){
-          $elements[$bundle_key][$bundle_key.'_description'] = [
-            '#type' => 'processed_text',
-            '#text' => $node->get('field_bundle_description')->getValue()[0]['value'],
-            '#format' => 'full_html'
-          ];
-        }
-
-        // Add price
-        $price = $bundle->get('field_bundle_price')->getValue();
-
-        // Add products
-        $products = $bundle->get('field_bundle_products')->getValue();
-        if (!empty($products)) {
-          $elements = create_products($products, $bundle_key, $elements, $price);
-        }
-
-        $elements[$bundle_key][$bundle_id .'_total'] = [
-          '#type' => 'total_sum',
-          '#title' => 'Totaal',
-          '#default_value' => 0
-        ];
-
-        if(!empty($price)){
-          $elements[$bundle_key][$bundle_id .'_total']['#min'] = $price[0]['value'];
-        }
-      }
-    }
-
-    return $elements;
+  return $elements;
 }
 
 /**
@@ -626,7 +617,7 @@ function create_free_choice($elements, $extra_products, $node){
       ];
     }
 
-    $elements = create_products($extra_products, 'extra', $elements, []);
+    $elements = create_products($extra_products, 'extra', $elements, $node);
 
     $elements['extra']['extra_total'] = [
       '#type' => 'total_sum',
@@ -642,7 +633,7 @@ function create_free_choice($elements, $extra_products, $node){
  * @param $bundle_key
  * @param $elements
  */
-function create_products($products, $bundle_key, $elements, $price){
+function create_products($products, $bundle_key, $elements, $node){
   foreach ($products as $product) {
     $product_id = $product['target_id'];
 
@@ -695,14 +686,12 @@ function create_products($products, $bundle_key, $elements, $price){
          ],
         ];
       }
-      if($bundle_key !== 'extra'){
-        $elements[$bundle_key][$product_key][$product_key.'_size']['#required'] = true;
-      }
 
       // Add amount
       $amount = $product->get('field_product_amount')->getValue();
 
       if($bundle_key == 'extra'){
+        $elements[$bundle_key][$product_key][$product_key.'_size']['#required'] = true;
         $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
           '#type'=> 'number',
           '#title' => 'Aantal '.$product_title,
@@ -718,17 +707,42 @@ function create_products($products, $bundle_key, $elements, $price){
       }
       else {
         $default_amount = 1;
-
         if(!empty($amount)){
           $default_amount = $amount[0]['value'];
         }
 
-         $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
+        $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
           '#type'=> 'number',
           '#title' => 'Aantal '.$product_title,
           '#disabled' => true,
           '#default_value' => $default_amount,
         ];
+
+        $bundles = $node->get('field_webform_bundles')->getValue();
+        if(count($bundles) > 1) {
+          $conditions = [];
+
+          foreach($bundles as $bundle){
+            $bundle_id = $bundle['target_id'];
+            $bundle = Node::load($bundle_id);
+      
+            if ($bundle instanceof NodeInterface) {
+              $bundle_products = $bundle->get('field_bundle_products')->getValue();
+              $products_ids = [];
+
+              foreach($bundle_products as $bundle_product){
+                if($product_id == $bundle_product['target_id']){
+                  $elements[$bundle_key][$product_key]['#states']['visible'][] = [
+                    ':input[name="bundle_select"]' => [
+                      'value' => $bundle_id
+                    ]
+                  ];
+                  $elements[$bundle_key][$product_key]['#states']['visible'][] = 'xor';
+                }
+              }
+            }
+          }
+        }
       }
 
       //Add Print
@@ -742,27 +756,6 @@ function create_products($products, $bundle_key, $elements, $price){
           '#description_display' => 'after'
         ];
       } 
-      
-      /*
-      // Add calculation
-      if(empty($price)){
-        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_calculation'] = [
-          '#type' => 'webform_computed_twig',
-          '#title' => 'Prijs',
-          '#template' => '
-            {% set total= 0 %}
-            {% if data.' . $product_key . '_size %}
-            {% set total= data.' . $product_key . '_size*data.'. $product_key .'_amount %}
-            {% endif %}
-            {{total}}',
-          '#display_on' => 'form',
-          '#hide_empty' => true,
-          '#ajax' => true
-        ];
-      }
-      else {
-        $elements[$bundle_key][$product_key][$product_key.'_fieldset'][$product_key.'_size']['#required'] = true;
-      }*/
     }
   }
 
@@ -824,28 +817,4 @@ function unique_size_keys($key, $values) {
   }
 
   return $sizes;
-}
-
-/**
- * @param $webform
- */
-function get_excluded_elements(WebformInterface $webform) {
-  $excluded_elements = [];
-
-  if($webform instanceof WebformInterface){
-    $elements = $webform->getElementsDecodedAndFlattened();
-
-    foreach($elements as $key => $value) {
-      $exclude = [
-        'processed_text',
-        'webform_computed_twig',
-      ];
-
-      if(in_array($value['#type'], $exclude)) {
-        $excluded_elements[] = $key;
-      }
-    }
-  }
-
-  return $excluded_elements;
 }
