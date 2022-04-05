@@ -3094,6 +3094,131 @@
             "install-path": "../../modules/contrib/token"
         },
         {
+            "name": "drupal/vbo_export",
+            "version": "4.0.0",
+            "version_normalized": "4.0.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/vbo_export.git",
+                "reference": "4.0.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/vbo_export-4.0.0.zip",
+                "reference": "4.0.0",
+                "shasum": "9950139058d6c4027f5121c57daa327a8068943b"
+            },
+            "require": {
+                "drupal/core": "^9.3",
+                "drupal/views_bulk_operations": ">=3.5",
+                "phpoffice/phpspreadsheet": "^1.6"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "4.0.0",
+                    "datestamp": "1648062124",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Graber",
+                    "homepage": "https://www.drupal.org/user/1599440"
+                }
+            ],
+            "description": "Views bulk export operations.",
+            "homepage": "https://www.drupal.org/project/vbo_export",
+            "support": {
+                "source": "https://git.drupalcode.org/project/vbo_export"
+            },
+            "install-path": "../../modules/contrib/vbo_export"
+        },
+        {
+            "name": "drupal/views_bulk_operations",
+            "version": "4.1.2",
+            "version_normalized": "4.1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/views_bulk_operations.git",
+                "reference": "4.1.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/views_bulk_operations-4.1.2.zip",
+                "reference": "4.1.2",
+                "shasum": "1cfa10f755240cae46de8d8684272a9a8907a730"
+            },
+            "require": {
+                "drupal/core": "^9"
+            },
+            "require-dev": {
+                "drush/drush": "^10"
+            },
+            "suggest": {
+                "drush/drush": "^9 || ^10"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "4.1.2",
+                    "datestamp": "1647943086",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": "^9 || ^10"
+                    }
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Marcin Grabias",
+                    "homepage": "https://www.drupal.org/u/graber"
+                },
+                {
+                    "name": "Jon Pugh",
+                    "homepage": "https://www.drupal.org/user/17028"
+                },
+                {
+                    "name": "bojanz",
+                    "homepage": "https://www.drupal.org/user/86106"
+                },
+                {
+                    "name": "infojunkie",
+                    "homepage": "https://www.drupal.org/user/48424"
+                },
+                {
+                    "name": "joelpittet",
+                    "homepage": "https://www.drupal.org/user/160302"
+                }
+            ],
+            "description": "Adds an ability to perform bulk operations on selected entities from view results. Provides an API to create such operations.",
+            "homepage": "https://www.drupal.org/project/views_bulk_operations",
+            "support": {
+                "source": "https://git.drupalcode.org/project/views_bulk_operations/-/tree/8.x-3.x",
+                "issues": "https://www.drupal.org/project/issues/views_bulk_operations?version=8.x",
+                "docs": "https://www.drupal.org/docs/8/modules/views-bulk-operations-vbo"
+            },
+            "install-path": "../../modules/contrib/views_bulk_operations"
+        },
+        {
             "name": "drupal/webform",
             "version": "6.1.2",
             "version_normalized": "6.1.2.0",
