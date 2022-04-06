@@ -1,0 +1,6 @@
+rema_webform.export_pdf:
+  path: '/download/pdf'
+  defaults:
+    _controller: '\Drupal\rema_webform\Controller\WebformController::generatePdf'
+  requirements:
+    _permission: 'access content'

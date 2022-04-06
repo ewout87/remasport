@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: download_orders_action
+label: 'Download orders'
+type: node
+plugin: entity:download_orders_action:node
+configuration: {  }
