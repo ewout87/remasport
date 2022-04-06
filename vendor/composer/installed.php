@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '79291e1541eac03d52c3a79f2a6bf3b4f98f261e',
+        'reference' => '64e1f0d4327ec1f181427127794e7de3eed21b1e',
         'name' => 'drupal/legacy-project',
         'dev' => true,
     ),
@@ -744,7 +744,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '79291e1541eac03d52c3a79f2a6bf3b4f98f261e',
+            'reference' => '64e1f0d4327ec1f181427127794e7de3eed21b1e',
             'dev_requirement' => false,
         ),
         'drupal/link' => array(
@@ -1055,11 +1055,29 @@
                 0 => '9.3.3',
             ),
         ),
+        'drupal/vbo_export' => array(
+            'pretty_version' => '4.0.0',
+            'version' => '4.0.0.0',
+            'type' => 'drupal-module',
+            'install_path' => __DIR__ . '/../../modules/contrib/vbo_export',
+            'aliases' => array(),
+            'reference' => '4.0.0',
+            'dev_requirement' => false,
+        ),
         'drupal/views' => array(
             'dev_requirement' => false,
             'replaced' => array(
                 0 => '9.3.3',
             ),
+        ),
+        'drupal/views_bulk_operations' => array(
+            'pretty_version' => '4.1.2',
+            'version' => '4.1.2.0',
+            'type' => 'drupal-module',
+            'install_path' => __DIR__ . '/../../modules/contrib/views_bulk_operations',
+            'aliases' => array(),
+            'reference' => '4.1.2',
+            'dev_requirement' => false,
         ),
         'drupal/views_ui' => array(
             'dev_requirement' => false,
