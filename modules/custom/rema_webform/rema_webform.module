@@ -132,19 +132,20 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
     if ($product instanceof NodeInterface) {
       $product_title = $product->getTitle();
       $product_id = $product->id();
-      $product_print = $product->get('field_print')->getValue();
-      $product_key = '_product_'.$product_id;
-      $rows[] = 
+      $product_key = '_product_'.$product_id;    
+      $bundle_product_print = $product->get('field_product_print')->getValue()[0]['value'] ? '{{ webform_token("[webform_submission:values:bundle'.$product_key.'_print]", webform_submission, [], options) }}' : 'Nvt';
+      $extra_product_print = $product->get('field_product_print')->getValue()[0]['value'] ? '{{ webform_token("[webform_submission:values:extra'.$product_key.'_print]", webform_submission, [], options) }}' : 'Nvt';
       $style = 'style="padding-top: 5px; padding-right: 7px; padding-bottom: 5px; padding-left: 7px;"';
+      $rows[] = 
       '{% if webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) or webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) %}<tr>
       <td>'.$product_title.'</td>
       <td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) }}</td>
-      <td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_amount]", webform_submission, [], options) }}</td>'
-      . $product_print ? '<td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_print]", webform_submission, [], options) }}</td>' : 'Nvt'
-      . '<td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) }}</td>
-      <td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_amount]", webform_submission, [], options) }}</td>'
-      . $product_print ? '<td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_print]", webform_submission, [], options) }}</td>' : 'Nvt'
-      . '</tr>{% endif %}';
+      <td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_amount]", webform_submission, [], options) }}</td>
+      <td>' . $bundle_product_print . '</td>
+      <td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) }}</td>
+      <td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_amount]", webform_submission, [], options) }}</td>
+      <td>' . $extra_product_print . '</td>
+      </tr>{% endif %}';
     }
   }
 
