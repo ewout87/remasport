@@ -22,9 +22,10 @@
           $('.js-form-type-number input, .js-form-type-select select, .js-form-type-checkbox input').on('change', function(){
             var sum = parseFloat(min);
 
-            form.find('.js-form-type-number').each(function() {
-              var number = parseFloat($(this).find('input').val());
-              var price = parseFloat($(this).parents('.webform-flexbox').find('.js-form-type-select option:selected').val());
+            form.find('.js-form-type-select').each(function() {
+              var number = parseFloat($(this).parents('.webform-flexbox').find('.js-form-type-number input').val());
+              var optionGroup = $(this).find('option:selected').parent().attr('label');
+              var price = optionGroup ? parseFloat($(this).find('select').attr(optionGroup)) : 0.00;
 
               if(settings.min_value){
                 price = 0.00;
@@ -37,7 +38,7 @@
               }
 
               if(number > 0 && price > 0){
-                sum += price*number;
+                sum += price * number;
               }
             });
 
