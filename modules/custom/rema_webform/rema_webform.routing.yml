@@ -1,6 +1,13 @@
-rema_webform.export_pdf:
-  path: '/download/pdf'
+rema_webform.download:
+  path: '/node/{node}/download'
   defaults:
-    _controller: '\Drupal\rema_webform\Controller\WebformController::generatePdf'
+    _form: '\Drupal\rema_webform\Form\DownloadForm'
+    _title: 'Download orders'
   requirements:
     _permission: 'access content'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+    _admin_route: TRUE

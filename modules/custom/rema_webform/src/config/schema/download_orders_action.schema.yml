@@ -1,3 +1,0 @@
-action.configuration.download_orders_action:
-  type: download_orders_action
-  label: 'Download orders'

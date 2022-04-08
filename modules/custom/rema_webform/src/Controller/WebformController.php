@@ -2,20 +2,21 @@
 
 namespace Drupal\rema_webform\Controller;
 
+use Drupal\Core\Controller\ControllerBase;
 
 /**
- * 
+ * An example controller.
  */
-class WebformController {
+class WebformController extends ControllerBase {
 
-    /**
-     * 
-     */
-    public function generatePdf() {
-        $pdf = [
-            '#markup' => '<div>bla</div>'
-        ];
+  /**
+   * Returns a render-able array for a test page.
+   */
+  public function exportPdf() {
+    $build = [
+      '#markup' => $this->t('Hello World!'),
+    ];
+    return $build;
+  }
 
-        return $pdf;
-    }
 }

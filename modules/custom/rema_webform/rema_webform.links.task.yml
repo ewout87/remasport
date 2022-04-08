@@ -1,4 +1,5 @@
-rema_webform.download_orders:
-  route_name: rema_webform.export_pdf
-  title: 'Download Orders'
+rema_webform.download:
+  route_name: rema_webform.download
   base_route: entity.node.canonical
+  title: Download
+  weight: 10
