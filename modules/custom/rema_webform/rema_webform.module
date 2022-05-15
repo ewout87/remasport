@@ -773,16 +773,25 @@ function create_products($products, $bundle_key, $elements, $node){
       }
 
       //Add Print
-      $print = $product->get('field_product_print')->getValue();
+      if ($node->get('field_print')->getValue()[0]['value'] == 1){
+        $print = $product->get('field_product_print')->getValue();
       
-      if($print[0]['value'] == 1) {
-        $elements[$bundle_key][$product_key][$product_key.'_print'] = [
-          '#type'=> 'checkbox',
-          '#title' => 'Bedrukken met mijn naam',
-          '#description' => 'Kostprijs: &euro;4/st',
-          '#description_display' => 'after'
-        ];
-      } 
+        if ($print[0]['value'] == 1) {
+          $elements[$bundle_key][$product_key][$product_key.'_print'] = [
+            '#type'=> 'checkbox',
+            '#title' => 'Bedrukken met mijn naam',
+            '#description' => 'Kostprijs: &euro;4/st',
+            '#description_display' => 'after'
+          ];
+        } 
+        else {
+          $elements[$bundle_key][$product_key][$product_key.'_print'] = [
+            '#type'=> 'markup',
+            '#markup' => 'Niet bedrukbaar',
+          ];
+        }
+      }
+
     }
   }
 
