@@ -734,7 +734,7 @@ function create_products($products, $bundle_key, $elements, $node){
       }
       else {
         $default_amount = 1;
-        if(!empty($amount)){
+        if (!empty($amount)){
           $default_amount = $amount[0]['value'];
         }
 
@@ -746,27 +746,29 @@ function create_products($products, $bundle_key, $elements, $node){
         ];
 
         $bundles = $node->get('field_webform_bundles')->getValue();
-        if(count($bundles) > 1) {
-          $conditions = [];
+        $conditions = [];
 
-          foreach($bundles as $bundle){
-            $bundle_id = $bundle['target_id'];
-            $bundle = Node::load($bundle_id);
+        foreach ($bundles as $bundle){
+          $bundle_id = $bundle['target_id'];
+          $bundle = Node::load($bundle_id);
       
-            if ($bundle instanceof NodeInterface) {
-              $bundle_products = $bundle->get('field_bundle_products')->getValue();
-              $products_ids = [];
+          if ($bundle instanceof NodeInterface) {
+            $bundle_products = $bundle->get('field_bundle_products')->getValue();
+            $products_ids = [];
 
-              foreach($bundle_products as $bundle_product){
-                if($product_id == $bundle_product['target_id']){
-                  $elements[$bundle_key][$product_key]['#states']['visible'][] = [
-                    ':input[name="bundle_select"]' => [
-                      'value' => $bundle_id
-                    ]
-                  ];
-                  $elements[$bundle_key][$product_key]['#states']['visible'][] = 'xor';
-                }
+            foreach ($bundle_products as $bundle_product){
+              if ($product_id == $bundle_product['target_id']){
+                $elements[$bundle_key][$product_key]['#states']['visible'][] = [
+                  ':input[name="bundle_select"]' => [
+                  'value' => $bundle_id
+                  ]
+                ];
+                $elements[$bundle_key][$product_key]['#states']['visible'][] = 'xor';
               }
+            }
+
+            if (empty($elements[$bundle_key][$product_key]['#states'])) {
+              $elements[$bundle_key][$product_key]['#access'] = FALSE;
             }
           }
         }
