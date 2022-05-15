@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '64e1f0d4327ec1f181427127794e7de3eed21b1e',
+        'reference' => '13d107533d5b274efbe84d03861269204fe6ddc5',
         'name' => 'drupal/legacy-project',
         'dev' => true,
     ),
@@ -744,7 +744,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '64e1f0d4327ec1f181427127794e7de3eed21b1e',
+            'reference' => '13d107533d5b274efbe84d03861269204fe6ddc5',
             'dev_requirement' => false,
         ),
         'drupal/link' => array(
@@ -903,6 +903,15 @@
             'install_path' => __DIR__ . '/../../modules/contrib/plugin',
             'aliases' => array(),
             'reference' => '8.x-2.9',
+            'dev_requirement' => false,
+        ),
+        'drupal/quick_node_clone' => array(
+            'pretty_version' => '1.15.0',
+            'version' => '1.15.0.0',
+            'type' => 'drupal-module',
+            'install_path' => __DIR__ . '/../../modules/contrib/quick_node_clone',
+            'aliases' => array(),
+            'reference' => '8.x-1.15',
             'dev_requirement' => false,
         ),
         'drupal/quickedit' => array(

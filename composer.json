@@ -32,6 +32,7 @@
         "drupal/mollie": "^2.1",
         "drupal/pathauto": "^1.8",
         "drupal/payment": "^2.1",
+        "drupal/quick_node_clone": "1.15",
         "drupal/swiftmailer": "2.2",
         "drupal/vbo_export": "4.0",
         "drupal/webform": "^6.1",
