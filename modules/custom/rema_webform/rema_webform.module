@@ -19,13 +19,16 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
     $form['elements']['extra']['extra_total']['#default_value'] = $form_state->getValue('total_amount');
   }
 
-  if(!empty($form_state->getValue('bundle_select'))){
+  if ($form['elements']['selection']) {
+    $bundle = Node::load($form['elements']['selection']['#value']);
+  }
+  else {
     $bundle = Node::load($form_state->getValue('bundle_select'));
+  }
 
-    if($bundle instanceof NodeInterface) {
-      $bundle_price = $bundle->get('field_bundle_price')->getValue();
-      $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
-    }
+  if ($bundle instanceof NodeInterface) {
+    $bundle_price = $bundle->get('field_bundle_price')->getValue();
+    $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
   }
 
   $form['actions']['wizard_prev']['#access'] = FALSE;
@@ -541,16 +544,16 @@ function create_webform($node){
 /**
  * @param $bundles
  */
-function create_selection_page($bundles, $node){
+function create_selection_page($bundles, $node) {
   // Bundle selection page
-  if(count($bundles) > 1) {
+  if (count($bundles) > 1) {
     $elements['selection'] = [
       '#type' => 'webform_wizard_page',
       '#title' => 'Selectie',
     ];
 
     // Add description
-    if($node->get('body')->getValue()){
+    if ($node->get('body')->getValue()) {
       $elements['selection']['selection_description'] = [
         '#type' => 'processed_text',
         '#text' => $node->get('body')->getValue()[0]['value'],
@@ -560,7 +563,7 @@ function create_selection_page($bundles, $node){
 
     $options = [];
 
-    foreach($bundles as $bundle){
+    foreach ($bundles as $bundle) {
       $bundle_id = $bundle['target_id'];
       $bundle = Node::load($bundle_id);
 

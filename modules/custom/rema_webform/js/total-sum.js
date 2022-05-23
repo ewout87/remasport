@@ -1,4 +1,4 @@
-(function ($) {
+(function ($, drupalSettings) {
 
     'use strict';
 
@@ -7,12 +7,12 @@
         $(context).find('.js-form-type-total-sum').once('total-sum').append('<strong></strong>')
 
         $(context).find('.js-form-type-total-sum').each(function () {
-          var element = $(this);
-          var form = $(this).closest('form');
-          var min = $('.js-form-type-total-sum input').val();
+          var $element = $(this);
+          var $form = $(this).closest('form');
+          var min = 0.00;
         
-          if(settings.min_value){
-            min = settings.min_value;
+          if(drupalSettings.min_value){
+            min = drupalSettings.min_value;
           };
 
           // Calculate initial sum.
@@ -22,12 +22,12 @@
           $('.js-form-type-number input, .js-form-type-select select, .js-form-type-checkbox input').on('change', function(){
             var sum = parseFloat(min);
 
-            form.find('.js-form-type-select').each(function() {
+            $form.find('.js-form-type-select').each(function() {
               var number = parseFloat($(this).parents('.webform-flexbox').find('.js-form-type-number input').val());
               var optionGroup = $(this).find('option:selected').parent().attr('label');
               var price = optionGroup ? parseFloat($(this).find('select').attr(optionGroup)) : 0.00;
 
-              if(settings.min_value){
+              if(drupalSettings.min_value){
                 price = 0.00;
               };
 
@@ -49,4 +49,4 @@
       }
     };
 
-  })(jQuery);
+  })(jQuery, drupalSettings);
