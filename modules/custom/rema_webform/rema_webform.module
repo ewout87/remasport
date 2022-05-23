@@ -164,14 +164,14 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
       $extra_product_print = $product->get('field_product_print')->getValue()[0]['value'] ? '{{ webform_token("[webform_submission:values:extra'.$product_key.'_print]", webform_submission, [], options) }}' : 'Nvt';
       $style = 'style="padding-top: 5px; padding-right: 7px; padding-bottom: 5px; padding-left: 7px;"';
       $rows[] = 
-      '{% if webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) or webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) %}<tr>
+      '{% if webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) or webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) %}<tr>
       <td>'.$product_title.'</td>
-      <td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) }}</td>
-      <td>{{ webform_token("[webform_submission:values:bundle'.$product_key.'_amount]", webform_submission, [], options) }}</td>
-      <td>' . $bundle_product_print . '</td>
-      <td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) }}</td>
-      <td>{{ webform_token("[webform_submission:values:extra'.$product_key.'_amount]", webform_submission, [], options) }}</td>
-      <td>' . $extra_product_print . '</td>
+      <td style="text-align: center;">{{ webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) }}</td>
+      <td style="text-align: center;">{{ webform_token("[webform_submission:values:bundle'.$product_key.'_amount]", webform_submission, [], options) }}</td>
+      <td style="text-align: center;">' . $bundle_product_print . '</td>
+      <td style="text-align: center;">{{ webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) }}</td>
+      <td style="text-align: center;">{{ webform_token("[webform_submission:values:extra'.$product_key.'_amount]", webform_submission, [], options) }}</td>
+      <td style="text-align: center;">' . $extra_product_print . '</td>
       </tr>{% endif %}';
     }
   }
@@ -182,7 +182,13 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
   {{ webform_token("[webform_submission:values:first_name]", webform_submission, [], options) }}</h2>
   <p>{{ webform_token("[webform_submission:values:mobile]", webform_submission, [], options) }}<br>
   {{ webform_token("[webform_submission:values:e_mail]", webform_submission, [], options) }}</p><br>
-  <table><tr><th>Product</th><th>Maat</th><th>Aantal</th><th>Bedrukking</th><th>Extra</th><th>Aantal</th></tr>' 
+  <table><tr><th'. $style .'>Product</th>
+  <th'. $style .'>Maat</th>
+  <th'. $style .'>Aantal</th>
+  <th'. $style .'>Bedrukking</th>
+  <th'. $style .'>Extra</th>
+  <th'. $style .'>Aantal</th>
+  <th'. $style .'>Bedrukking</th></tr>' 
     . $product_rows . 
   '</table><p><b>Totaal:</b> € {{ webform_token("[webform_submission:values:total_amount]", webform_submission, [], options) }}</p>';
 
@@ -309,17 +315,17 @@ function rema_webform_node_presave(NodeInterface $node)
     }
 
     $products = $node->get('field_bundle_products')->getValue();
+    $subject = 'Bestelling [webform:title] [webform_submission:sid]';
 
     if($payment){
-      $email_handler = add_email_handler($webform, 'email', '[site:mail]', 'Bestelling [webform:title] [webform_submission:sid]', null, TRUE, $products);
+      $email_handler = add_email_handler($webform, 'email', '[site:mail]', $subject, null, TRUE, $products);
     }
     else {
-      $email_handler = add_email_handler($webform, 'email', '[site:mail]', 'Bestelling [webform:title] [webform_submission:sid]', null, FALSE, $products);
+      $email_handler = add_email_handler($webform, 'email', '[site:mail]', $subject, null, FALSE, $products);
     }
     
     // Add client email handler
     $message = $node->get('field_confirmation_mail')->getValue();
-    $subject = $node->get('field_email_subject')->getValue()[0]['value'];
 
     if($payment){
       $client_email_handler = add_email_handler($webform, 'client_email', '[webform_submission:values:e_mail:raw]', $subject, $message[0]['value'], TRUE, $products);
@@ -530,7 +536,7 @@ function create_webform($node){
   $elements['print_status'] = [
     '#type' => 'checkbox',
     '#title' => 'Bedrukking',
-    '#access' => false
+    '#access' => false,
   ];
 
   $elements['payment_status'] = [
