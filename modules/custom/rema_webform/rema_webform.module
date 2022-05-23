@@ -31,8 +31,6 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
     $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
   }
 
-  $form['actions']['wizard_prev']['#access'] = FALSE;
-
   $form['#validate'][] = 'rema_webform_form_validate';
 }
 
@@ -121,8 +119,6 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
       $total += (float)($form_state->getValue('shipment_select'));
     }
 
-    debug($total);
-
     $form_state->setValue('total_amount', $total);
   }
 }
@@ -182,13 +178,14 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
   {{ webform_token("[webform_submission:values:first_name]", webform_submission, [], options) }}</h2>
   <p>{{ webform_token("[webform_submission:values:mobile]", webform_submission, [], options) }}<br>
   {{ webform_token("[webform_submission:values:e_mail]", webform_submission, [], options) }}</p><br>
-  <table><tr><th'. $style .'>Product</th>
-  <th'. $style .'>Maat</th>
-  <th'. $style .'>Aantal</th>
-  <th'. $style .'>Bedrukking</th>
-  <th'. $style .'>Extra</th>
-  <th'. $style .'>Aantal</th>
-  <th'. $style .'>Bedrukking</th></tr>' 
+  <table><tr>
+  <th>Product</th>
+  <th>Maat</th>
+  <th>Aantal</th>
+  <th>Bedrukking</th>
+  <th>Extra</th>
+  <th>Aantal</th>
+  <th>Bedrukking</th></tr>' 
     . $product_rows . 
   '</table><p><b>Totaal:</b> € {{ webform_token("[webform_submission:values:total_amount]", webform_submission, [], options) }}</p>';
 
@@ -530,13 +527,18 @@ function create_webform($node){
     '#type' => 'number',
     '#title' => 'Totaalbedrag',
     '#min' => 0,
-    '#access' => false
+    '#access' => FALSE,
   ];
 
   $elements['print_status'] = [
     '#type' => 'checkbox',
     '#title' => 'Bedrukking',
-    '#access' => false,
+    '#access' => FALSE,
+    '#attributes' => [
+      'class' => [
+        'hidden',
+      ]
+    ]
   ];
 
   $elements['payment_status'] = [
