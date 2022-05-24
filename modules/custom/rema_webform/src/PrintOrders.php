@@ -32,7 +32,7 @@ class PrintOrders {
     $destination = DRUPAL_ROOT . '/sites/default/files/webforms';
     $filename = $webform_id . date('_d-m-Y_h:i:s') . '.pdf';
     $path = $destination . '/' . $filename;
-    $css = file_get_contents(__DIR__ . '/../../css/pdf.css');
+    $css = file_get_contents('./modules/custom/rema_webform/css/pdf.css');
     $mpdf = new Mpdf([
     'setAutoTopMargin' => 'pad',
     'setAutoBottomMargin' => 'pad',
@@ -48,11 +48,13 @@ class PrintOrders {
    */
   public function generateHtml($submission_data, NodeInterface $node) {
     $html = '<html><body>';
-    foreach ($submission_data as $order) {
+    foreach ($submission_data as $key => $order) {
       $html .= '<table>';
-      $html .= '<tr><td>' . $order['first_name'] . '</td></tr>';
+      $html .= '<tr><td></td></tr>';
+      $html .= '<tr><td>' . $order['first_name'] . $order['name'] . '</td><td></td><td></td><td></td><td></td><td></td><td>'. $node->getTitle() . ': ' . $key . '</td></tr>';
       $html .= '<tr><td>' . $order['mobile'] . '</td></tr>';
       $html .= '<tr><td>' . $order['e_mail'] . '</td></tr>';
+      $html .= '<tr><td></td></tr>';
       $html .= '<tr><th>Product</th><th>Maat</th><th>Aantal</th><th>Bedrukking</th><th>Extra</th><th>Aantal</th><th>Bedrukking</th></tr>';
       $products = $node->get('field_bundle_products')->getValue();
 
@@ -68,18 +70,36 @@ class PrintOrders {
           $product_id = $product->id();
           $product_key = '_product_'.$product_id;    
           if ($order['bundle' . $product_key . '_size'] || $order['extra' . $product_key . '_size']) {
-            $html .= '<tr><td>' . $product_title . '</td>';
-            $html .= '<td>' . $order['bundle' . $product_key . '_size'] . '</td>';
-            $html .= '<td>' . $order['bundle' . $product_key . '_amount'] . '</td>';
-            $html .= '<td>' . $order['bundle' . $product_key . '_print'] . '</td>';
-            $html .= '<td>' . $order['bundle' . $product_key . '_size'] . '</td>';
-            $html .= '<td>' . $order['extra' . $product_key . '_amount'] . '</td>'; 
-            $html .= '<td>' . $order['extra' . $product_key . '_print'] . '</td></tr>';
+            $html .= '<tr class="product-values"><td class="product-title">' . $product_title . '</td>';
+            if ($order['bundle' . $product_key . '_size']) {
+              $html .= '<td>' . $order['bundle' . $product_key . '_size'] . '</td>';
+              $html .= '<td>' . $order['bundle' . $product_key . '_amount'] . '</td>';
+              $print_bundle = $order['bundle' . $product_key . '_print'] ? 'Ja*' : 'Neen';
+              $html .= '<td>' . $print_bundle . '</td>';
+            }
+            else {
+              $html .= '<td></td><td></td><td></td>';
+            }
+            
+            if ($order['extra' . $product_key . '_size']) {
+              $html .= '<td>' . $order['extra' . $product_key . '_size'] . '</td>';
+              $html .= '<td>' . $order['extra' . $product_key . '_amount'] . '</td>'; 
+              $print_extra = $order['extra' . $product_key . '_print'] ? 'Ja*' : 'Neen';
+              $html .= '<td>' . $print_extra . '</td>';
+            }
+            else {
+              $html .= '<td></td><td></td><td></td>';
+            }
+            $html .= '</tr>';
           }
         }
       }
 
-      $html .= '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td>Totaal:</td>€ ' . $order['total_amount'] . '</tr></table><br><hr><br>';
+      $html .= '<tr><td></td></tr>';
+      if ($order['print_name']) {
+        $html .= '<tr><td>*' . $order['print_name'] . '</td></tr>';
+      }
+      $html .= '<tr><td></td></tr></table>';
     }
     $html .= '</body></html>';
     

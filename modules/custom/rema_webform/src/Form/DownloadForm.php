@@ -165,7 +165,7 @@ class DownloadForm extends FormBase {
         '#default_value' => $export_options['sticky'],
       ];
 
-      /*
+      
       $form['download'] = [
         '#type' => 'submit',
         '#value' => $this->t('Download'),
@@ -178,12 +178,13 @@ class DownloadForm extends FormBase {
         ],
         '#name' => 'download_orders',
       ];
-      */
 
+      /*
       $form['submit'] = [
         '#type' => 'submit',
         '#value' => $this->t('Download'),
       ];
+      */
 
     return $form;
   }
@@ -216,10 +217,9 @@ class DownloadForm extends FormBase {
           ->condition('webform_id', $webform_id);
         $result = $query->execute();
         $submission_data = [];
-        dump($submission_data);
         foreach ($result as $item) {
           $submission = WebformSubmission::load($item);
-          $submission_data[] = $submission->getData();
+          $submission_data[$item] = $submission->getData();
         }
         $pdf = \Drupal::service('rema_webform.print_orders')->generatePdf($submission_data, $webform_id, $node);
       }
@@ -245,7 +245,7 @@ class DownloadForm extends FormBase {
         $submission_data = [];
         foreach ($result as $item) {
           $submission = WebformSubmission::load($item);
-          $submission_data[] = $submission->getData();
+          $submission_data[$item] = $submission->getData();
         }
         $pdf = \Drupal::service('rema_webform.print_orders')->generatePdf($submission_data, $webform_id, $node);
       }
