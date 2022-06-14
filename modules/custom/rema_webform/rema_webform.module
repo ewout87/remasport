@@ -19,7 +19,7 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
     $form['elements']['extra']['extra_total']['#default_value'] = $form_state->getValue('total_amount');
   }
 
-  if ($form['elements']['selection']) {
+  if ($form['elements']['selection']['#value']) {
     $bundle = Node::load($form['elements']['selection']['#value']);
   }
   else {
@@ -29,6 +29,14 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
   if ($bundle instanceof NodeInterface) {
     $bundle_price = $bundle->get('field_bundle_price')->getValue();
     $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
+  }
+
+  if ($form_state->get('current_page') === 'bundle') {
+    $products = $bundle->get('field_bundle_products')->getValue();
+
+    foreach ($products as $product) {
+      $form['elements']['bundle']['bundle_product_'.$product['target_id']]['bundle_product_'. $product['target_id'].'_amount']['#default_value'] = 1;
+    }
   }
 
   if ($form_state->get('current_page') === 'extra') {
@@ -801,7 +809,6 @@ function create_products($products, $bundle_key, $elements, $node){
           '#type'=> 'number',
           '#title' => 'Aantal '.$product_title,
           '#disabled' => true,
-          '#default_value' => $default_amount,
         ];
 
         foreach ($value as $bundle_id){
