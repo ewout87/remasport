@@ -31,6 +31,18 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
     $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
   }
 
+  if ($form_state->get('current_page') === 'extra') {
+    $form['elements']['extra']['extra_total']['#start'] = $form_state->getValue('bundle_total') ?? 0;
+  }
+
+  if ($form_state->get('current_page') === 'personal_data') {
+    $form['elements']['personal_data']['personal_total']['#start'] = $form_state->getValue('extra_total') ?? 0;
+  }
+
+  if ($form_state->get('current_page') === 'print_page') {
+    $form['elements']['print_page']['print_total']['#start'] = $form_state->getValue('extra_total') ?? 0;
+  }
+
   $form['#validate'][] = 'rema_webform_form_validate';
 }
 
@@ -97,7 +109,7 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
         foreach($size_ranges as $size_range) {
           $opt_group = Node::load($size_range['target_id']);
           $opt_name = $opt_group->getTitle();
-          if (str_starts_with($form_state->getValue('bundle_product_' .  $product->id() . '_size'), $opt_name)) {
+          if (str_starts_with($form_state->getValue('extra_product_' .  $product->id() . '_size'), $opt_name)) {
             $price = (float)$opt_group->get('field_size_price')->getValue()[0]['value'];
           }
         }
@@ -156,20 +168,21 @@ function add_email_handler(WebformInterface $webform, $id, $to_mail, $subject, $
       $product_title = $product->getTitle();
       $product_id = $product->id();
       $product_key = '_product_'.$product_id;    
-      $bundle_product_print = $product->get('field_product_print')->getValue()[0]['value'] ? '{{ webform_token("[webform_submission:values:bundle'.$product_key.'_print:clear]", webform_submission, [], options) }}' : 'Nvt';
-      $extra_product_print = $product->get('field_product_print')->getValue()[0]['value'] ? '{{ webform_token("[webform_submission:values:extra'.$product_key.'_print:clear]", webform_submission, [], options) }}' : 'Nvt';
       $style = 'style="padding-top: 5px; padding-right: 7px; padding-bottom: 5px; padding-left: 7px;"';
       $rows[] = 
-      '{% if webform_token("[webform_submission:values:bundle'.$product_key.'_size]", webform_submission, [], options) or webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) %}
+      '{% if not (webform_token("[webform_submission:values:bundle'.$product_key.'_size:clear]", webform_submission, [], options) is empty) or webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) %}
       <tr>
       <td style="text-align: left; padding: 7px 5px; border: 1px solid;">'.$product_title.'</td>
       <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:bundle'.$product_key.'_size:clear]", webform_submission, [], options) }}</td>
       <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:bundle'.$product_key.'_amount:clear]", webform_submission, [], options) }}</td>
-      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">' . $bundle_product_print . '</td>
-      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:extra'.$product_key.'_size:clear]", webform_submission, [], options) }}</td>
-      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:extra'.$product_key.'_amount:clear]", webform_submission, [], options) }}</td>
-      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">' . $extra_product_print . '</td>
+      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:bundle'.$product_key.'_print:clear]", webform_submission, [], options) }}</td>
+      {% if webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) %}
+      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:extra'.$product_key.'_size]", webform_submission, [], options) }}</td>
+      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:extra'.$product_key.'_amount]", webform_submission, [], options) }}</td>
+      <td style="text-align: center; padding: 7px 5px; border: 1px solid;">{{ webform_token("[webform_submission:values:extra'.$product_key.'_print]", webform_submission, [], options) }}</td>
+      {% else %}
       <td></td><td></td><td></td>
+      {% endif %}
       </tr>
       {% endif %}';
     }
@@ -423,6 +436,12 @@ function create_webform($node){
         ]
       ]
     ];
+
+    $elements['shipment_page']['shipment_total'] = [
+      '#type' => 'total_sum',
+      '#title' => 'Totaal',
+      '#default_value' => 0
+    ]; 
   }
 
   // Personal page
@@ -498,6 +517,12 @@ function create_webform($node){
     '#required_error' => 'Je moet akkoord gaan met de privacyvoorwaarden'
   ];
 
+  $elements['personal_data']['personal_total'] = [
+    '#type' => 'total_sum',
+    '#title' => 'Totaal',
+    '#default_value' => 0
+  ]; 
+
   // Print page
   if($node->get('field_print')->getValue()[0]['value'] == 1){
     $elements['print_page'] = [
@@ -524,6 +549,12 @@ function create_webform($node){
       '#required' => true,
       '#input_mask' => "'casing': 'upper'"
     ];
+    
+    $elements['print_page']['print_total'] = [
+      '#type' => 'total_sum',
+      '#title' => 'Totaal',
+      '#default_value' => 0
+    ]; 
   }
 
   $elements['total_amount'] = [

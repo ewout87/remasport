@@ -68,6 +68,11 @@ class TotalSum extends WebformElementBase {
       '#title' => t('Minimum amount')
     ];
 
+    $form['validation']['start'] = [
+      '#type' => 'number',
+      '#title' => t('Start amount')
+    ];
+
     return $form;
   }
 
