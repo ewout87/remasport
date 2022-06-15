@@ -33,9 +33,16 @@ function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_i
 
   if ($form_state->get('current_page') === 'bundle') {
     $products = $bundle->get('field_bundle_products')->getValue();
-
+    
     foreach ($products as $product) {
-      $form['elements']['bundle']['bundle_product_'.$product['target_id']]['bundle_product_'. $product['target_id'].'_amount']['#default_value'] = 1;
+      $node = Node::load($product['target_id']);
+      $print_included = $node->get('field_product_print_included')->getValue();
+      $product_key = 'bundle_product_'. $node->id();
+      $form['elements']['bundle'][$product_key][$product_key.'_amount']['#default_value'] = 1;
+      if($form['elements']['bundle'][$product_key][$product_key.'_print'] && $print_included[0]['value'] == 1){
+        $form['elements']['bundle'][$product_key][$product_key.'_print']['#disabled'] = true;
+        $form['elements']['bundle'][$product_key][$product_key.'_print']['#default_value'] = true;
+      }
     }
   }
 
@@ -800,11 +807,6 @@ function create_products($products, $bundle_key, $elements, $node){
         ];
       }
       else {
-        $default_amount = 1;
-        if (!empty($amount)){
-          $default_amount = $amount[0]['value'];
-        }
-
         $elements[$bundle_key][$product_key][$product_key.'_amount'] = [
           '#type'=> 'number',
           '#title' => 'Aantal '.$product_title,
@@ -840,7 +842,6 @@ function create_products($products, $bundle_key, $elements, $node){
           ];
         }
       }
-
     }
   }
 
@@ -856,7 +857,7 @@ function get_price_attributes($size_ranges){
 
   foreach($size_ranges as $size_range) {
     $opt_group = Node::load($size_range['target_id']);
-    $attributes[$opt_group->getTitle()] = $opt_group->get('field_size_price')->getValue()[0]['value'];
+    $attributes[preg_replace("/\s+/", "", $opt_group->getTitle())] = $opt_group->get('field_size_price')->getValue()[0]['value'];
   }
 
   return $attributes;
@@ -871,7 +872,7 @@ function get_size_options($size_ranges, $bundle_key){
 
   foreach($size_ranges as $size_range) {
     $opt_group = Node::load($size_range['target_id']);
-    $opt_title = $opt_group->getTitle();
+    $opt_title = preg_replace("/\s+/", "", $opt_group->getTitle());
     $opt_price = '';
 
     if($bundle_key == 'extra') {
