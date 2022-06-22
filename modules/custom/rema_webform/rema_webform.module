@@ -94,7 +94,7 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
         if (empty($bundle_price) && !empty($size_ranges)) {
           foreach($size_ranges as $size_range) {
             $opt_group = Node::load($size_range['target_id']);
-            $opt_name = $opt_group->getTitle();
+            $opt_name = preg_replace("/\s+/", "", $opt_group->getTitle());
             if (str_starts_with($form_state->getValue('bundle_product_' .  $product->id() . '_size'), $opt_name)) {
               $price = (float)$opt_group->get('field_size_price')->getValue()[0]['value'];
             }
@@ -123,7 +123,7 @@ function rema_webform_form_validate(array $form, \Drupal\Core\Form\FormStateInte
       if (!empty($size_ranges)) {
         foreach($size_ranges as $size_range) {
           $opt_group = Node::load($size_range['target_id']);
-          $opt_name = $opt_group->getTitle();
+          $opt_name = preg_replace("/\s+/", "", $opt_group->getTitle());
           if (str_starts_with($form_state->getValue('extra_product_' .  $product->id() . '_size'), $opt_name)) {
             $price = (float)$opt_group->get('field_size_price')->getValue()[0]['value'];
           }
