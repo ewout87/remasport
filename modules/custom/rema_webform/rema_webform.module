@@ -15,50 +15,57 @@ use Drupal\Core\StringTranslation\TranslationInterface;
  * Implements hook_FORM_alter().
  */
 function rema_webform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if(!empty($form_state->getValue('total_amount'))){
-    $form['elements']['extra']['extra_total']['#default_value'] = $form_state->getValue('total_amount');
-  }
+  $node = Drupal::routeMatch()->getParameter('node');
+  if ($node instanceof NodeInterface) {
+    if ($node->bundle() !== 'webform') {
+      return;
+    }
 
-  if ($form['elements']['selection']['#value']) {
-    $bundle = Node::load($form['elements']['selection']['#value']);
-  }
-  else {
-    $bundle = Node::load($form_state->getValue('bundle_select'));
-  }
+    if(!empty($form_state->getValue('total_amount'))){
+      $form['elements']['extra']['extra_total']['#default_value'] = $form_state->getValue('total_amount');
+    }
 
-  if ($bundle instanceof NodeInterface) {
-    $bundle_price = $bundle->get('field_bundle_price')->getValue();
-    $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
-  }
+    if ($form['elements']['selection']['#value']) {
+      $bundle = Node::load($form['elements']['selection']['#value']);
+    }
+    else {
+      $bundle = Node::load($form_state->getValue('bundle_select'));
+    }
 
-  if ($form_state->get('current_page') === 'bundle') {
-    $products = $bundle->get('field_bundle_products')->getValue();
-    
-    foreach ($products as $product) {
-      $node = Node::load($product['target_id']);
-      $print_included = $node->get('field_product_print_included')->getValue();
-      $product_key = 'bundle_product_'. $node->id();
-      $form['elements']['bundle'][$product_key][$product_key.'_amount']['#default_value'] = 1;
-      if($form['elements']['bundle'][$product_key][$product_key.'_print'] && $print_included[0]['value'] == 1){
-        $form['elements']['bundle'][$product_key][$product_key.'_print']['#disabled'] = true;
-        $form['elements']['bundle'][$product_key][$product_key.'_print']['#default_value'] = true;
+    if ($bundle instanceof NodeInterface) {
+      $bundle_price = $bundle->get('field_bundle_price')->getValue();
+      $form['elements']['bundle']['bundle_total']['#min'] = $bundle_price[0]['value'];
+    }
+
+    if ($form_state->get('current_page') === 'bundle') {
+      $products = $bundle->get('field_bundle_products')->getValue();
+      
+      foreach ($products as $product) {
+        $node = Node::load($product['target_id']);
+        $print_included = $node->get('field_product_print_included')->getValue();
+        $product_key = 'bundle_product_'. $node->id();
+        $form['elements']['bundle'][$product_key][$product_key.'_amount']['#default_value'] = 1;
+        if($form['elements']['bundle'][$product_key][$product_key.'_print'] && $print_included[0]['value'] == 1){
+          $form['elements']['bundle'][$product_key][$product_key.'_print']['#disabled'] = true;
+          $form['elements']['bundle'][$product_key][$product_key.'_print']['#default_value'] = true;
+        }
       }
     }
-  }
 
-  if ($form_state->get('current_page') === 'extra') {
-    $form['elements']['extra']['extra_total']['#start'] = $form_state->getValue('bundle_total') ?? 0;
-  }
+    if ($form_state->get('current_page') === 'extra') {
+      $form['elements']['extra']['extra_total']['#start'] = $form_state->getValue('bundle_total') ?? 0;
+    }
 
-  if ($form_state->get('current_page') === 'personal_data') {
-    $form['elements']['personal_data']['personal_total']['#start'] = $form_state->getValue('extra_total') ?? 0;
-  }
+    if ($form_state->get('current_page') === 'personal_data') {
+      $form['elements']['personal_data']['personal_total']['#start'] = $form_state->getValue('extra_total') ?? 0;
+    }
 
-  if ($form_state->get('current_page') === 'print_page') {
-    $form['elements']['print_page']['print_total']['#start'] = $form_state->getValue('extra_total') ?? 0;
-  }
+    if ($form_state->get('current_page') === 'print_page') {
+      $form['elements']['print_page']['print_total']['#start'] = $form_state->getValue('extra_total') ?? 0;
+    }
 
-  $form['#validate'][] = 'rema_webform_form_validate';
+    $form['#validate'][] = 'rema_webform_form_validate';
+  }
 }
 
 /**
