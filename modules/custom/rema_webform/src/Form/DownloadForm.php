@@ -233,22 +233,6 @@ class DownloadForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $node = \Drupal::routeMatch()->getParameter('node');
-    $pdf = [];
-    if ($node instanceof NodeInterface) {
-      $webform_id = $node->get('webform')->getValue()[0]['target_id'];
-      $webform = Webform::load($webform_id);
-      if ($webform->hasSubmissions()) {
-        $query = \Drupal::entityTypeManager()->getStorage('webform_submission')->getQuery()
-          ->condition('webform_id', $webform_id);
-        $result = $query->execute();
-        $submission_data = [];
-        foreach ($result as $item) {
-          $submission = WebformSubmission::load($item);
-          $submission_data[$item] = $submission->getData();
-        }
-        $pdf = \Drupal::service('rema_webform.print_orders')->generatePdf($submission_data, $webform_id, $node);
-      }
-    }
+
   }
 }

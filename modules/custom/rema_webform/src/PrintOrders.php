@@ -28,17 +28,22 @@ class PrintOrders {
    * @return \Drupal\Component\Render\MarkupInterface|string
    */
   public function generatePdf($submission_data, $webform_id, NodeInterface $node) {
-    $html = $this->generateHtml($submission_data, $node);
-    $destination = DRUPAL_ROOT . '/sites/default/files/webforms';
-    $filename = $webform_id . date('_d-m-Y_h:i:s') . '.pdf';
-    $path = $destination . '/' . $filename;
-    $css = file_get_contents('./modules/custom/rema_webform/css/pdf.css');
     $mpdf = new Mpdf([
     'setAutoTopMargin' => 'pad',
     'setAutoBottomMargin' => 'pad',
     ]);
+    $batchSize = 100;
+    $batches = array_chunk($submission_data, $batchSize);
+    foreach($batches as $batch) {
+      $html = $this->generateHtml($batch, $node);
+      $mpdf->WriteHTML($html, 2);
+    }
+    
+    $destination = DRUPAL_ROOT . '/sites/default/files/webforms';
+    $filename = $webform_id . date('_d-m-Y_h:i:s') . '.pdf';
+    $path = $destination . '/' . $filename;
+    $css = file_get_contents('./modules/custom/rema_webform/css/pdf.css');
     $mpdf->WriteHTML($css, 1);
-    $mpdf->WriteHTML($html, 2);
     $mpdf->Output($path, \Mpdf\Output\Destination::FILE);
     return '/sites/default/files/webforms/' . $filename;
   }
