@@ -4,7 +4,7 @@ rema_webform.download:
     _form: '\Drupal\rema_webform\Form\DownloadForm'
     _title: 'Download orders'
   requirements:
-    _permission: 'access content'
+    _permission: 'access content overview'
     node: \d+
   options:
     parameters:
