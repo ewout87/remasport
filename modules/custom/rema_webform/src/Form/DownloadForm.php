@@ -216,12 +216,16 @@ class DownloadForm extends FormBase {
         $query = \Drupal::entityTypeManager()->getStorage('webform_submission')->getQuery()
           ->condition('webform_id', $webform_id);
         $result = $query->execute();
-        $submission_data = [];
+        $submissions = [];
         foreach ($result as $item) {
           $submission = WebformSubmission::load($item);
-          $submission_data[$item] = $submission->getData();
+          $sid = $submission->get('sid')->getValue()[0]['value'];
+          $submissions[] = [
+            'data' => $submission->getData(),
+            'sid' => $sid,
+          ];
         }
-        $pdf = \Drupal::service('rema_webform.print_orders')->generatePdf($submission_data, $webform_id, $node);
+        $pdf = \Drupal::service('rema_webform.print_orders')->generatePdf($submissions, $webform_id, $node);
       }
     }
     

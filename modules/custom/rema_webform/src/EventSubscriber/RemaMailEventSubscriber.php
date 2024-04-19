@@ -61,6 +61,9 @@ class RemaMailEventSubscriber implements EventSubscriberInterface {
       if($transaction->getStatus() == 'paid'){
         /** @var \Drupal\webform\Entity\Webform $webform */
         $webform = $webform_submission->getWebform();
+        if ($webform->isClosed()) {
+          return;
+        }
         /** @var \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler $handler */
         $handler_ids = [
           'email',

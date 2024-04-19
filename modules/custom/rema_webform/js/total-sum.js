@@ -22,7 +22,7 @@
           calculateSum(start);
 
           // Add event handlers
-          $('.js-form-type-number input, .js-form-type-select select, .js-form-type-checkbox input').on('change', function() {
+          $('.js-form-type-number input, .js-form-type-select select, .js-form-type-checkbox input, .js-form-type-radio input').on('change', function() {
             calculateSum(start)
           });
 
@@ -33,6 +33,7 @@
               var number = parseFloat($(this).parents('.webform-flexbox').find('.js-form-type-number input').val());
               var optionGroup = $(this).find('option:selected').parent().attr('label');
               var price = optionGroup ? parseFloat($(this).find('select').attr(optionGroup)) : 0.00;
+              var shipment = parseFloat($(this).parents('.webform-flexbox').find('.js-form-type-select option:selected').val());
 
               if (drupalSettings.min_value){
                 price = 0.00;
@@ -48,6 +49,12 @@
                 sum += price * number;
               }
             });
+
+            var shipment = parseFloat($form.find('#edit-shipment-select input:checked').val());
+
+            if (shipment) {
+              sum += shipment;
+            }
 
             $('.js-form-type-total-sum strong').text(sum.toFixed(2) + ' €');
             $('.js-form-type-total-sum input').val(sum.toFixed(2));

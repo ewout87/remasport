@@ -1,5 +1,5 @@
 rema_webform.download:
   route_name: rema_webform.download
   base_route: entity.node.canonical
-  title: Download
+  title: Download PDF
   weight: 10
